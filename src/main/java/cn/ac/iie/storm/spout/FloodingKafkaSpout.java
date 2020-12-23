@@ -74,6 +74,6 @@ public class FloodingKafkaSpout extends BaseRichSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("Flooding-source"));
+        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_SPOUT_FIELD));
     }
 }

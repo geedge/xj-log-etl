@@ -14,7 +14,9 @@ import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.BasicOutputCollector;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
+import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.TupleUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -50,15 +52,16 @@ public class FloodingVPNBolt extends BaseBasicBolt {
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
-        if (TupleUtils.isTick(tuple)&&!VPNList.isEmpty()){
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
-            VPNList.clear();
-            vpncount = 0L;
-            vpnloadfail = 0L;
-        }else if(VPNList.size()==1){
+        if (TupleUtils.isTick(tuple)&&!VPNList.isEmpty()){  //定时
             httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
             VPNList.clear();
 
+            basicOutputCollector.emit(new Values(vpncount,vpnloadfail));
+            vpncount = 0L;
+            vpnloadfail = 0L;
+        }else if(VPNList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){       //分批
+            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
+            VPNList.clear();
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -87,7 +90,7 @@ public class FloodingVPNBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-
+            outputFieldsDeclarer.declare(new Fields("vpncount","vpnloadfail"));
     }
     private void setIP_RZZB(GenericRecord vpn_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
         vpn_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
@@ -114,7 +117,7 @@ public class FloodingVPNBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.FLOODING_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 

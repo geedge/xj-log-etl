@@ -16,6 +16,7 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.TupleUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -33,7 +34,6 @@ public class FloodingDNSBolt extends BaseBasicBolt {
     private static final long serialVersionUID = -6795251425357896415L;
     private List<GenericRecord> IPList = new ArrayList<GenericRecord>();
     private Schema schema;
-    private int DNSgcount=0;
     private SessionRecordLog sessionRecordLog;
     private byte[] generate;
     private Long dnscount = 0L;
@@ -53,16 +53,16 @@ public class FloodingDNSBolt extends BaseBasicBolt {
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
-        if (TupleUtils.isTick(tuple)&&!IPList.isEmpty()){
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
-            IPList.clear();
-            dnscount = 0L;
-            dnsloadfail = 0L;
-        }else if(IPList.size()==1){
+        if (TupleUtils.isTick(tuple)&&!IPList.isEmpty()){             //定时
             httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
             IPList.clear();
 
-            System.out.println(generate);
+            basicOutputCollector.emit(new Values(dnscount,dnsloadfail));
+            dnscount = 0L;
+            dnsloadfail = 0L;
+        }else if(IPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){           //分批
+            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
+            IPList.clear();
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -91,7 +91,7 @@ public class FloodingDNSBolt extends BaseBasicBolt {
 }
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("count"));
+        outputFieldsDeclarer.declare(new Fields("dnscount","dnsloadfail"));
     }
     private void setDNS_RZZB(GenericRecord dns_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
         dns_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
@@ -120,7 +120,7 @@ public class FloodingDNSBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, StreamAggregateConfig.FLOODING_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 

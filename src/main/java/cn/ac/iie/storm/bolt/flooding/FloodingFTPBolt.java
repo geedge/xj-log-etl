@@ -16,6 +16,7 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.TupleUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -34,8 +35,8 @@ public class FloodingFTPBolt extends BaseBasicBolt {
     private List<GenericRecord> FTPList = new ArrayList<GenericRecord>();
     private byte[] generate;
     private Schema schema;
-    private Long FTPcount;
-    private Long LoadFail = 0L;
+    private Long ftpcount;
+    private Long ftpLoadFail = 0L;
     private SessionRecordLog sessionRecordLog;
 
 
@@ -51,16 +52,16 @@ public class FloodingFTPBolt extends BaseBasicBolt {
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
-        if (TupleUtils.isTick(tuple)&&!FTPList.isEmpty()){
+        if (TupleUtils.isTick(tuple)&&!FTPList.isEmpty()){      //定时
             httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
-            FTPList.clear();
-            FTPcount = 0L;
-            LoadFail = 0L;
-        }else if(FTPList.size()==1){
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
-            FTPList.clear();
 
-            System.out.println(generate);
+            basicOutputCollector.emit(new Values(ftpcount,ftpLoadFail));
+            FTPList.clear();
+            ftpcount = 0L;
+            ftpLoadFail = 0L;
+        }else if(FTPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){       //分批
+                httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
+            FTPList.clear();
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -72,24 +73,23 @@ public class FloodingFTPBolt extends BaseBasicBolt {
                     sessionRecordLog = (SessionRecordLog) tuple.getValue(0);
                 }
             if (sessionRecordLog != null) {
-                FTPcount++;
+                ftpcount++;
                 try {
                     GenericRecord ftp_rzzb = new GenericData.Record(schema);
                     setIP_RZZB(ftp_rzzb, sessionRecordLog);
                     FTPList.add(ftp_rzzb);
                     generate = generate(schema, FTPList);
                 } catch (Exception e) {
-                    LoadFail++;
+                    ftpLoadFail++;
                     logger.error("ERROR MESSAGE: \n" + sessionRecordLog);
                     e.printStackTrace();
                 }
             }
             }
 }
-
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("IPcount"));
+        outputFieldsDeclarer.declare(new Fields("ftpcount","ftpLoadFail"));
 
     }
     private void setIP_RZZB(GenericRecord ftp_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
@@ -117,7 +117,7 @@ public class FloodingFTPBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.FLOODING_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 

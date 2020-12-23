@@ -52,16 +52,18 @@ public class FloodingIPBolt extends BaseBasicBolt {
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
-        if (TupleUtils.isTick(tuple)&&!IPList.isEmpty()){
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
-            IPList.clear();
-            basicOutputCollector.emit(new Values(ipcount,iploadfail));
-            ipcount = 0L;
-            iploadfail = 0L;
-        }else if(IPList.size()==1){
+        if (TupleUtils.isTick(tuple)&&!IPList.isEmpty()){       //定时
             httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
             IPList.clear();
 
+
+            //向下发送指标
+            basicOutputCollector.emit(new Values(ipcount,iploadfail));
+            ipcount = 0L;
+            iploadfail = 0L;
+        }else if(IPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){  //分批
+            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
+            IPList.clear();
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -117,7 +119,7 @@ public class FloodingIPBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.FLOODING_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 

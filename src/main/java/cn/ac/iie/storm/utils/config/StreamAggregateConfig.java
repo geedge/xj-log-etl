@@ -40,10 +40,18 @@ public class StreamAggregateConfig {
    /**
    *bolt设置
    */
-   public static final int TOPOLOGY_TICK_TUPLE_FREQ_SECS = StreamAggregateConfigurations.getIntProperty(0,"TOPOLOGY_TICK_TUPLE_FREQ_SECS");
+   public static final int FLOODING_TOPOLOGY_TICK_TUPLE_FREQ_SECS = StreamAggregateConfigurations.getIntProperty(0,"FLOODING.TOPOLOGY.TICK.TUPLE.FREQ.SECS");
+   public static final int FLOODING_BATCH_INTER_NUM = StreamAggregateConfigurations.getIntProperty(0,"FLOODING.BATCH.INTER.NUM");
+
+
+   /**
+   * Flooding-spout-field
+   */
+   public static final String FLOODING_SPOUT_FIELD = StreamAggregateConfigurations.getStringProperty(0, "FLOODING.SPOUT.FIELD");
+
 
     /**
-     * Flooding-send-Streamid
+     * Flooding-bolt-Streamid
      */
 
     public static final String FLOODING_DNS_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "FLOODING.DNS.STREAMID");

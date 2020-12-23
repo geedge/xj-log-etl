@@ -36,11 +36,12 @@ public class ParseFloodingBolt extends BaseBasicBolt {
 
         //首先获取一条数据
         try {
-            String line = tuple.getStringByField("Flooding-source");
+            String line = tuple.getStringByField(StreamAggregateConfig.FLOODING_SPOUT_FIELD);
             String jsonMessage = getJsonMessage(line);
             SessionRecordLog sessionRecordLog = JSONObject.parseObject(jsonMessage, SessionRecordLog.class);
             String common_schema_type = sessionRecordLog.getCommon_schema_type();
 
+            //按common_schema_type的值对数据进行分类发送
             switch(common_schema_type){
                 case "BASE":
                 if(sessionRecordLog.getCommon_schema_type()==null){
@@ -58,7 +59,6 @@ public class ParseFloodingBolt extends BaseBasicBolt {
                     break;
                 case "MAIL":
                     MAILSource=sessionRecordLog;
-
                     break;
                 case "APP":
                     JSTXSource=sessionRecordLog;
