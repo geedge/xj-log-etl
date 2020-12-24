@@ -61,11 +61,6 @@ public class FloodingJSTXBolt extends BaseBasicBolt {
         }else if(JSTXList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){      //分批
             httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
             JSTXList.clear();
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_JSTX_STREAMID)){
@@ -90,7 +85,7 @@ public class FloodingJSTXBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("jstxcount","jstxloadfail"));
+        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_JSTXCOUNT_FIELD,StreamAggregateConfig.FLOODING_JSTXLOADFAIL_FIELD));
     }
 
     private void setIP_RZZB(GenericRecord jstx_rzzb, SessionRecordLog sessionRecordLog) throws IOException {

@@ -94,7 +94,7 @@ public class FloodingMAILBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("mailcount","mailloadfail"));
+        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_MAILCOUNT_FIELD,StreamAggregateConfig.FLOODING_MAILLOADFAIL_FIELD));
     }
     private void setIP_RZZB(GenericRecord mail_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
         mail_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());

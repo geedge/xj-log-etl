@@ -58,17 +58,13 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
             httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
             HTTPList.clear();
             //向下发送指标数据
+            System.out.println("http 的数据为"+httpcount);
             basicOutputCollector.emit(new Values(httpcount,httploadfail));
             httpcount = 0L;
             httploadfail = 0L;
         }else if(HTTPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){                                   //分批
             httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
             HTTPList.clear();
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_HTTP_STREAMID)){
@@ -80,7 +76,6 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
                     GenericRecord http_rzzb = new GenericData.Record(schema);
                     setIP_RZZB(http_rzzb, sessionRecordLog);
                     HTTPList.add(http_rzzb);
-                    System.out.println(http_rzzb);
                     generate = generate(schema, HTTPList);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -93,7 +88,7 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-    outputFieldsDeclarer.declare(new Fields("httpcount","httploadfail"));
+    outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_HTTPCOUNT_FIELD,StreamAggregateConfig.FLOODING_HTTPLOADFAIL_FIELD));
     }
 
     private void setIP_RZZB(GenericRecord http_rzzb, SessionRecordLog sessionRecordLog) throws IOException {

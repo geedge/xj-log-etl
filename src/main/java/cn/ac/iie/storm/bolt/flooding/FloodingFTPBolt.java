@@ -62,11 +62,6 @@ public class FloodingFTPBolt extends BaseBasicBolt {
         }else if(FTPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){       //分批
                 httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
             FTPList.clear();
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
         else {
                 if (tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_FTP_STREAMID)) {
@@ -89,7 +84,7 @@ public class FloodingFTPBolt extends BaseBasicBolt {
 }
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("ftpcount","ftpLoadFail"));
+        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_FTPCOUNT_FIELD,StreamAggregateConfig.FLOODING_FTPLOADFAIL_FIELD));
 
     }
     private void setIP_RZZB(GenericRecord ftp_rzzb, SessionRecordLog sessionRecordLog) throws IOException {

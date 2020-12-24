@@ -62,11 +62,6 @@ public class FloodingVPNBolt extends BaseBasicBolt {
         }else if(VPNList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){       //分批
             httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
             VPNList.clear();
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_HTTP_STREAMID)){
@@ -90,7 +85,7 @@ public class FloodingVPNBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-            outputFieldsDeclarer.declare(new Fields("vpncount","vpnloadfail"));
+            outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_VPNCOUNT_FIELD,StreamAggregateConfig.FLOODING_VPNLOADFAIL_FIELD));
     }
     private void setIP_RZZB(GenericRecord vpn_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
         vpn_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());

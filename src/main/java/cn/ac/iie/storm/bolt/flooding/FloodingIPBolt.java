@@ -55,8 +55,7 @@ public class FloodingIPBolt extends BaseBasicBolt {
         if (TupleUtils.isTick(tuple)&&!IPList.isEmpty()){       //定时
             httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
             IPList.clear();
-
-
+            System.out.println("ip的总数"+ipcount);
             //向下发送指标
             basicOutputCollector.emit(new Values(ipcount,iploadfail));
             ipcount = 0L;
@@ -64,11 +63,6 @@ public class FloodingIPBolt extends BaseBasicBolt {
         }else if(IPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){  //分批
             httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
             IPList.clear();
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
         else {
                 if (tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_IP_STREAMID)) {
@@ -91,7 +85,7 @@ public class FloodingIPBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("ipcount","iploadfail"));
+        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_IPCOUNT_FIELD,StreamAggregateConfig.FLOODING_IPLOADFAIL_FIELD));
 
     }
     private void setIP_RZZB(GenericRecord IP_rzzb, SessionRecordLog sessionRecordLog) throws IOException {

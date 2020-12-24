@@ -63,11 +63,6 @@ public class FloodingDNSBolt extends BaseBasicBolt {
         }else if(IPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){           //分批
             httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
             IPList.clear();
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_HTTP_STREAMID)){
@@ -91,7 +86,7 @@ public class FloodingDNSBolt extends BaseBasicBolt {
 }
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("dnscount","dnsloadfail"));
+        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_DNSCOUNT_FIELD,StreamAggregateConfig.FLOODING_DNSLOADFAIL_FIELD));
     }
     private void setDNS_RZZB(GenericRecord dns_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
         dns_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());

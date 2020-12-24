@@ -64,11 +64,6 @@ public class FloodingSSLBolt extends BaseBasicBolt {
         }else if(SSLList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){       //分批
             httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
             SSLList.clear();
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_HTTP_STREAMID)){
@@ -92,7 +87,7 @@ public class FloodingSSLBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("SSLcount"));
+        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_SSLCOUNT_FIELD,StreamAggregateConfig.FLOODING_SSLLOADFAIL_FIELD));
 
     }
     private void setIP_RZZB(GenericRecord ssl_rzzb, SessionRecordLog sessionRecordLog) throws IOException {

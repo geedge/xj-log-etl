@@ -25,6 +25,8 @@ public class ParseFloodingBolt extends BaseBasicBolt {
     private SessionRecordLog SSLSource;
     private SessionRecordLog VPNSource;
 
+
+    private long i=0L;
     /**
      * 处理数据的逻辑业务
      *
@@ -38,9 +40,13 @@ public class ParseFloodingBolt extends BaseBasicBolt {
         try {
             String line = tuple.getStringByField(StreamAggregateConfig.FLOODING_SPOUT_FIELD);
             String jsonMessage = getJsonMessage(line);
+            i++;
             SessionRecordLog sessionRecordLog = JSONObject.parseObject(jsonMessage, SessionRecordLog.class);
             String common_schema_type = sessionRecordLog.getCommon_schema_type();
+            if(i==5000){
+                System.out.println(i);
 
+            }
             //按common_schema_type的值对数据进行分类发送
             switch(common_schema_type){
                 case "BASE":
