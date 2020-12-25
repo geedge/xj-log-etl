@@ -16,12 +16,7 @@ import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.InvalidTopologyException;
 import org.apache.storm.topology.TopologyBuilder;
 
-/**
- * @ClassNameFlowAggregateTopo
- * @Author lixkvip@126.com
- * @Date2020/6/24 10:14
- * @Version V1.0
- **/
+
 public class StreamAggregateTopology {
 
 
@@ -52,19 +47,6 @@ public class StreamAggregateTopology {
         conf.setNumAckers(StreamAggregateConfig.TOPOLOGY_NUM_ACKS);
         return conf;
     }
-
-    private void runLocally() throws InterruptedException {
-        topologyConfig.setMaxTaskParallelism(1);
-        StormRunner.runTopologyLocally(topologyBuilder, topologyName, topologyConfig, 6000);
-    }
-
-    private void runRemotely() throws AlreadyAliveException, InvalidTopologyException, AuthorizationException {
-        topologyConfig.setNumWorkers(StreamAggregateConfig.TOPOLOGY_WORKERS);
-        //设置过高会导致很多问题，如心跳线程饿死、吞吐量大幅下跌
-        topologyConfig.put(Config.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, 8);
-        StormRunner.runTopologyRemotely(topologyBuilder, topologyName, topologyConfig);
-    }
-
     private void buildTopology() {
         //创建任务的拓扑图
         topologyBuilder = new TopologyBuilder();
@@ -96,20 +78,33 @@ public class StreamAggregateTopology {
 
 
     }
+    private void runLocally() throws InterruptedException {
+        topologyConfig.setMaxTaskParallelism(2);
+        StormRunner.runTopologyLocally(topologyBuilder, "localtest", topologyConfig, 6000);
+    }
+
+    private void runRemotely() throws AlreadyAliveException, InvalidTopologyException, AuthorizationException {
+        topologyConfig.setNumWorkers(StreamAggregateConfig.TOPOLOGY_WORKERS);
+        //设置过高会导致很多问题，如心跳线程饿死、吞吐量大幅下跌
+        topologyConfig.put(Config.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, 8);
+        StormRunner.runTopologyRemotely(topologyBuilder,topologyName, topologyConfig);
+    }
+
+
 
     public static void main(String[] args) throws Exception {
         StreamAggregateTopology csst = null;
-        boolean runLocally = true;
 
-        if (args.length >0) {
+        boolean runLocally = true;
+        String parameter = "remote";
+        int size = 2;
+        if (args.length >= size && parameter.equalsIgnoreCase(args[0])) {
             runLocally = false;
-            csst = new StreamAggregateTopology(args[0]);
+            csst = new StreamAggregateTopology(args[1]);
         } else {
             csst = new StreamAggregateTopology();
         }
-
         csst.buildTopology();
-
         if (runLocally) {
             logger.info("执行本地模式...");
             csst.runLocally();
