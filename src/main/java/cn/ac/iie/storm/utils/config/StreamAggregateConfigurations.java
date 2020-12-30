@@ -62,4 +62,5 @@ public final class StreamAggregateConfigurations {
             propService = null;
         }
     }
+
 }

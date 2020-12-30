@@ -57,8 +57,8 @@ public class FloodingKafkaSpout extends BaseRichSpout {
     public void nextTuple() {
         try {
 
-            ConsumerRecords<String, String> records = consumer.poll(10000L);
-            Thread.sleep(StreamAggregateConfig.TOPOLOGY_SPOUT_SLEEP_TIME);
+            ConsumerRecords<String, String> records = consumer.poll(1000L);
+          //  Thread.sleep(StreamAggregateConfig.TOPOLOGY_SPOUT_SLEEP_TIME);
             for (ConsumerRecord<String, String> record : records) {
                 this.collector.emit(new Values(record.value()));
             }

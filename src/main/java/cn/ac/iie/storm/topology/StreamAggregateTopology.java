@@ -73,7 +73,7 @@ public class StreamAggregateTopology {
 
 
 
-        //总数count
+       // 总数count
        topologyBuilder.setBolt("count",new CountBolt(),1).shuffleGrouping(StreamAggregateConfig.FLOODING_DNS_COMPONENTID).shuffleGrouping(StreamAggregateConfig.FLOODING_FTP_COMPONENTID).shuffleGrouping(StreamAggregateConfig.FLOODING_HTTP_COMPONENTID)
                .shuffleGrouping(StreamAggregateConfig.FLOODING_IP_COMPONENTID).shuffleGrouping(StreamAggregateConfig.FLOODING_JSTX_COMPONENTID).shuffleGrouping(StreamAggregateConfig.FLOODING_MAIL_COMPONENTID)
             .shuffleGrouping(StreamAggregateConfig.FLOODING_SSL_COMPONENTID).shuffleGrouping(StreamAggregateConfig.FLOODING_VPN_COMPONENTID).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_YBInputSize_STREAMID);
