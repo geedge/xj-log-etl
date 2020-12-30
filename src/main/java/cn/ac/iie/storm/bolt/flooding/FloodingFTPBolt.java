@@ -33,34 +33,36 @@ public class FloodingFTPBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(FloodingFTPBolt.class);
     private static final long serialVersionUID = 4909453288066034335L;
     private List<GenericRecord> FTPList = new ArrayList<GenericRecord>();
-    private byte[] generate;
+
     private Schema schema;
-    private Long ftpcount;
-    private Long ftpLoadFail = 0L;
+    private long ftpcount;
+    private long ftpLoadFail = 0L;
+    private long ftpdatasize = 0L;
     private SessionRecordLog sessionRecordLog;
 
 
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
-        try {
-            schema = new Schema.Parser().parse(new File("src/main/resources/floodingschema/FTP_RZZB.avsc"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        schema = new Schema.Parser().parse(StreamAggregateConfig.FTP_RZZB_SCHEMA);
     }
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if (TupleUtils.isTick(tuple)&&!FTPList.isEmpty()){      //定时
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, FTPList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            ftpdatasize = ftpdatasize + getValidLength(generate(schema, FTPList));
 
-            basicOutputCollector.emit(new Values(ftpcount,ftpLoadFail));
+            basicOutputCollector.emit(new Values(ftpcount,ftpLoadFail,ftpdatasize));
+
+
             FTPList.clear();
+            ftpdatasize =0L;
             ftpcount = 0L;
             ftpLoadFail = 0L;
         }else if(FTPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){       //分批
-                httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, FTPList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            ftpdatasize = ftpdatasize + getValidLength(generate(schema, FTPList));
             FTPList.clear();
         }
         else {
@@ -68,23 +70,21 @@ public class FloodingFTPBolt extends BaseBasicBolt {
                     sessionRecordLog = (SessionRecordLog) tuple.getValue(0);
                 }
             if (sessionRecordLog != null) {
-                ftpcount++;
                 try {
                     GenericRecord ftp_rzzb = new GenericData.Record(schema);
                     setIP_RZZB(ftp_rzzb, sessionRecordLog);
                     FTPList.add(ftp_rzzb);
-                    generate = generate(schema, FTPList);
+                    ftpcount++;
                 } catch (Exception e) {
                     ftpLoadFail++;
-                    logger.error("ERROR MESSAGE: \n" + sessionRecordLog);
-                    e.printStackTrace();
+                    logger.error("ftp_rzzb数据封装处理异常"+e);
                 }
             }
             }
 }
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_FTPCOUNT_FIELD,StreamAggregateConfig.FLOODING_FTPLOADFAIL_FIELD));
+        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_FTPCOUNT_FIELD,StreamAggregateConfig.FLOODING_FTPLOADFAIL_FIELD,StreamAggregateConfig.FLOODING_FTPDATASIZE_FIELD));
 
     }
     private void setIP_RZZB(GenericRecord ftp_rzzb, SessionRecordLog sessionRecordLog) throws IOException {

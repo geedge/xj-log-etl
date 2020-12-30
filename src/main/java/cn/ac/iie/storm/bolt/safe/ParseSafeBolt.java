@@ -10,10 +10,10 @@ import static cn.ac.iie.storm.utils.general.TransFormUtils.getJsonMessage;
 public class ParseSafeBolt extends BaseBasicBolt {
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
-        String line = input.getStringByField("safe-source");
+//        String line = input.getStringByField("safe-source");
 
-     //   System.out.println("安全测试:"+line);
-        String jsonMessage = getJsonMessage(line);
+//     //   System.out.println("安全测试:"+line);
+//        String jsonMessage = getJsonMessage(line);
 
 /*     SessionRecordLog sessionRecordLog = JSONObject.parseObject(jsonMessage, SessionRecordLog.class);
         System.out.println("已经收到安全数据:"+jsonMessage);*/

@@ -20,7 +20,6 @@ import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.TupleUtils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,34 +35,36 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
     private List<GenericRecord> HTTPList = new ArrayList<GenericRecord>();
     private Schema schema;
     private SessionRecordLog sessionRecordLog;
-    private Long httpcount = 0L;
-    private Long httploadfail = 0L;
-    private byte[] generate;
+    private long httpcount = 0L;
+    private long httploadfail = 0L;
+    private long httpdatasize = 0L;
+
 
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
-        try {
-            schema = new Schema.Parser().parse(new File("src/main/resources/floodingschema/HTTP_RZZB.avsc"));
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        schema = new Schema.Parser().parse(StreamAggregateConfig.HTTP_RZZB_SCHEMA);
+
     }
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
-
         if (TupleUtils.isTick(tuple)&&!HTTPList.isEmpty()){            //定时
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL, generate(schema, HTTPList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+
+
+            httpdatasize = httpdatasize + getValidLength(generate(schema, HTTPList));
             HTTPList.clear();
             //向下发送指标数据
-            System.out.println("http 的数据为"+httpcount);
-            basicOutputCollector.emit(new Values(httpcount,httploadfail));
+            basicOutputCollector.emit(new Values(httpcount,httploadfail,httpdatasize));
+
+            httpdatasize= 0L;
             httpcount = 0L;
             httploadfail = 0L;
         }else if(HTTPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){                                   //分批
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL, generate(schema, HTTPList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            httpdatasize = httpdatasize + getValidLength(generate(schema, HTTPList));
             HTTPList.clear();
         }
         else {
@@ -71,15 +72,14 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
                 sessionRecordLog =(SessionRecordLog)tuple.getValue(0);
             }
             if (sessionRecordLog != null) {
-                httpcount++;
                 try {
                     GenericRecord http_rzzb = new GenericData.Record(schema);
                     setIP_RZZB(http_rzzb, sessionRecordLog);
                     HTTPList.add(http_rzzb);
-                    generate = generate(schema, HTTPList);
+                    httpcount++;
                 } catch (Exception e) {
-                    e.printStackTrace();
                     httploadfail++;
+                    logger.error("http_rzzb数据封装处理异常"+e);
                 }
             }
         }
@@ -88,7 +88,7 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-    outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_HTTPCOUNT_FIELD,StreamAggregateConfig.FLOODING_HTTPLOADFAIL_FIELD));
+    outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_HTTPCOUNT_FIELD,StreamAggregateConfig.FLOODING_HTTPLOADFAIL_FIELD,StreamAggregateConfig.FLOODING_HTTPDATASIZE_FIELD));
     }
 
     private void setIP_RZZB(GenericRecord http_rzzb, SessionRecordLog sessionRecordLog) throws IOException {

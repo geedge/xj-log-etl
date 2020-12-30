@@ -16,7 +16,7 @@ public class Http_URL_process {
             file_name = split[split.length-1];
 
         } catch (ArrayIndexOutOfBoundsException e) {
-            logger.error(url+"该消息中没有File_name.");
+//            logger.error("该消息中没有File_name.");
         }
         catch (Exception e) {
            e.printStackTrace();

@@ -35,31 +35,38 @@ public class FloodingJSTXBolt extends BaseBasicBolt {
     private static final long serialVersionUID = 1998559489020598047L;
     private List<GenericRecord> JSTXList = new ArrayList<GenericRecord>();
     private Schema schema;
-    private Long jstxcount = 0L;
-    private Long jstxloadfail = 0L;
+    private long jstxcount = 0L;
+    private long jstxloadfail = 0L;
+    private long jstxdatasize = 0L;
+
     private SessionRecordLog sessionRecordLog;
-    private byte[] generate;
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
-        try {
-            schema = new Schema.Parser().parse(new File("src/main/resources/floodingschema/JSTX_RZZB.avsc"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        schema = new Schema.Parser().parse(StreamAggregateConfig.JSTX_RZZB_SCHEMA);
     }
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if (TupleUtils.isTick(tuple)&&!JSTXList.isEmpty()){     //定时
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, JSTXList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+
+
+            jstxdatasize =  jstxdatasize + getValidLength(generate(schema, JSTXList));
+
+
+            basicOutputCollector.emit(new Values(jstxcount,jstxloadfail,jstxdatasize));
+
             JSTXList.clear();
 
-            basicOutputCollector.emit(new Values(jstxcount,jstxloadfail));
+            jstxdatasize = 0L;
             jstxcount = 0L;
             jstxloadfail = 0L;
         }else if(JSTXList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){      //分批
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, JSTXList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+
+            jstxdatasize =  jstxdatasize + getValidLength(generate(schema, JSTXList));
+
             JSTXList.clear();
         }
         else {
@@ -67,16 +74,16 @@ public class FloodingJSTXBolt extends BaseBasicBolt {
                 sessionRecordLog =(SessionRecordLog)tuple.getValue(0);
             }
             if (sessionRecordLog != null) {
-                jstxcount++;
+
                 try {
                     GenericRecord jstx_rzzb = new GenericData.Record(schema);
                     setIP_RZZB(jstx_rzzb, sessionRecordLog);
                     JSTXList.add(jstx_rzzb);
-                    generate = generate(schema, JSTXList);
-                  System.out.println(generate);
+                    jstxcount++;
+
                 } catch (Exception e) {
                     jstxloadfail++;
-                    e.printStackTrace();
+                    logger.error("jstx_rzzb数据封装处理异常"+e);
                 }
             }
         }
@@ -85,7 +92,7 @@ public class FloodingJSTXBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_JSTXCOUNT_FIELD,StreamAggregateConfig.FLOODING_JSTXLOADFAIL_FIELD));
+        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_JSTXCOUNT_FIELD,StreamAggregateConfig.FLOODING_JSTXLOADFAIL_FIELD,StreamAggregateConfig.FLOODING_JSTXDATASIZE_FIELD));
     }
 
     private void setIP_RZZB(GenericRecord jstx_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
@@ -123,7 +130,7 @@ public class FloodingJSTXBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.FLOODING_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,StreamAggregateConfig.FLOODING_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 

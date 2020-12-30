@@ -1,7 +1,5 @@
 package cn.ac.iie.storm.utils.config;
 
-
-
 import java.util.Properties;
 
 
@@ -59,4 +57,9 @@ public final class StreamAggregateConfigurations {
     static {
         try {
             propService.load(StreamAggregateConfigurations.class.getClassLoader().getResourceAsStream("service_flow_config.properties"));
-        } catch (Exception e) {}}}
+        } catch (Exception e) {
+//            propCommon = null;
+            propService = null;
+        }
+    }
+}

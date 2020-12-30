@@ -34,35 +34,38 @@ public class FloodingSSLBolt extends BaseBasicBolt {
     private static final long serialVersionUID = 4909453288066034335L;
     private List<GenericRecord> SSLList = new ArrayList<GenericRecord>();
     private Schema schema;
-    private Long sslcount = 0L;
-    private Long sslloadfail = 0L;
+    private long sslcount = 0L;
+    private long sslloadfail = 0L;
+    private long ssldatasize = 0L;
     private SessionRecordLog sessionRecordLog;
-    private byte[] generate;
+
 
 
 
 
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
-        try {
-            schema = new Schema.Parser().parse(new File("src/main/resources/floodingschema/SSL_RZZB.avsc"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        schema = new Schema.Parser().parse(StreamAggregateConfig.SSL_RZZB_SCHEMA);
     }
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if (TupleUtils.isTick(tuple)&&!SSLList.isEmpty()){      //定时
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
-            SSLList.clear();
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, SSLList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
 
-            basicOutputCollector.emit(new Values(sslcount,sslloadfail));
+            ssldatasize  =  ssldatasize + getValidLength(generate(schema, SSLList));
+
+            basicOutputCollector.emit(new Values(sslcount,sslloadfail,ssldatasize));
+
+            SSLList.clear();
+            ssldatasize = 0L;
             sslcount = 0L;
             sslloadfail = 0L;
         }else if(SSLList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){       //分批
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, SSLList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            ssldatasize  =  ssldatasize + getValidLength(generate(schema, SSLList));
+
             SSLList.clear();
         }
         else {
@@ -70,15 +73,14 @@ public class FloodingSSLBolt extends BaseBasicBolt {
                 sessionRecordLog =(SessionRecordLog)tuple.getValue(0);
             }
             if (sessionRecordLog != null) {
-                sslcount++;
+
                 try {
-                    GenericRecord http_rzzb = new GenericData.Record(schema);
-                    setIP_RZZB(http_rzzb, sessionRecordLog);
-                    SSLList.add(http_rzzb);
-                    System.out.println(http_rzzb);
-                    generate = generate(schema, SSLList);
+                    GenericRecord ssl_rzzb = new GenericData.Record(schema);
+                    setIP_RZZB(ssl_rzzb, sessionRecordLog);
+                    SSLList.add(ssl_rzzb);
+                    sslcount++;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("ssl_rzzb数据封装处理异常"+e);
                     sslloadfail++;
                 }
             }
@@ -87,7 +89,7 @@ public class FloodingSSLBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_SSLCOUNT_FIELD,StreamAggregateConfig.FLOODING_SSLLOADFAIL_FIELD));
+        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_SSLCOUNT_FIELD,StreamAggregateConfig.FLOODING_SSLLOADFAIL_FIELD,StreamAggregateConfig.FLOODING_SSLDATASIZE_FIELD));
 
     }
     private void setIP_RZZB(GenericRecord ssl_rzzb, SessionRecordLog sessionRecordLog) throws IOException {

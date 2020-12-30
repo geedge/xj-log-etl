@@ -12,10 +12,10 @@
             <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
             <kafka.version>1.0.0</kafka.version>
             <storm.version>1.0.2</storm.version>
-            <hbase.version>2.2.1</hbase.version>
-            <hadoop.version>2.7.1</hadoop.version>
+<!--            <hbase.version>2.2.1</hbase.version>-->
+<!--            <hadoop.version>2.7.1</hadoop.version>-->
             <kotlin.version>1.4.21</kotlin.version>
-        <slf4j.version>1.7.25</slf4j.version>
+<!--        <slf4j.version>1.7.25</slf4j.version>-->
         <log4j.version>1.2.16</log4j.version>
     </properties>
     <repositories>
@@ -161,12 +161,11 @@
             </exclusions>
         </dependency>
         <!--去掉scope就OK了。但如果将storm程序打包到storm集群环境运行，需要指定scope为provided，否则集群上已经包含了storm-core的jar，该storm-core中包含default配置文件，这样两个scorm-core会导致冲突-->
-
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
             <version>${storm.version}</version>
-            <scope>provided</scope>
+<!--            <scope>provided</scope>-->
         </dependency>
 
         <dependency>
@@ -194,21 +193,7 @@
             <version>3.2.4</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.zdjizhi</groupId>
-            <artifactId>galaxy</artifactId>
-            <version>1.0.3</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>slf4j-log4j12</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j-over-slf4j</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/org.apache.zookeeper/zookeeper -->
         <dependency>
@@ -279,23 +264,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.zdjizhi</groupId>
-            <artifactId>galaxy</artifactId>
-            <version>1.0.3</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>slf4j-log4j12</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j-over-slf4j</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.2</version>
@@ -306,34 +274,25 @@
             <artifactId>httpcore</artifactId>
             <version>4.4.1</version>
         </dependency>
-        <!-- The client -->
-        <dependency>
-            <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient</artifactId>
-            <version>0.6.0</version>
-        </dependency>
-        <!-- Hotspot JVM metrics-->
-        <dependency>
-            <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient_hotspot</artifactId>
-            <version>0.6.0</version>
-        </dependency>
-        <!-- Exposition HTTPServer-->
-        <dependency>
-            <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient_httpserver</artifactId>
-            <version>0.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient_servlet</artifactId>
-            <version>0.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>9.0.2.v20130417</version>
-        </dependency>
+<!--        &lt;!&ndash; The client &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>io.prometheus</groupId>-->
+<!--            <artifactId>simpleclient</artifactId>-->
+<!--            <version>0.6.0</version>-->
+<!--        </dependency>-->
+<!--        &lt;!&ndash; Hotspot JVM metrics&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>io.prometheus</groupId>-->
+<!--            <artifactId>simpleclient_hotspot</artifactId>-->
+<!--            <version>0.6.0</version>-->
+<!--        </dependency>-->
+<!--        &lt;!&ndash; Exposition HTTPServer&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>io.prometheus</groupId>-->
+<!--            <artifactId>simpleclient_httpserver</artifactId>-->
+<!--            <version>0.6.0</version>-->
+<!--        </dependency>-->
+
         <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
 
 
@@ -364,17 +323,17 @@
             <artifactId>aws-java-sdk</artifactId>
             <version>1.11.781</version>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test</artifactId>
-            <version>${kotlin.version}</version>
-            <scope>test</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.jetbrains.kotlin</groupId>-->
+<!--            <artifactId>kotlin-stdlib-jdk8</artifactId>-->
+<!--            <version>${kotlin.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.jetbrains.kotlin</groupId>-->
+<!--            <artifactId>kotlin-test</artifactId>-->
+<!--            <version>${kotlin.version}</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

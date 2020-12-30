@@ -54,5 +54,4 @@ public class HttpConfig {
      * ClickHouse实时查询请求响应时间
      */
     private int ckRealTimeAccountSocketTimeOut;
-
 }

@@ -31,7 +31,7 @@ public class FloodingKafkaSpout extends BaseRichSpout {
         props.put("bootstrap.servers", StreamAggregateConfig.BOOTSTRAP_SERVERS);
         props.put("group.id", StreamAggregateConfig.GROUP_ID);
         props.put("session.timeout.ms", "60000");
-        props.put("max.poll.records", 3000);
+        props.put("max.poll.records", 30000);
         props.put("max.partition.fetch.bytes", 31457280);
         props.put("auto.offset.reset", StreamAggregateConfig.AUTO_OFFSET_RESET);
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -56,11 +56,9 @@ public class FloodingKafkaSpout extends BaseRichSpout {
     @Override
     public void nextTuple() {
         try {
-            // TODO Auto-generated method stub
-            //ConsumerRecords<String, String> records = consumer.poll(10000L);
-            ConsumerRecords<String, String> records = consumer.poll(50);
 
-          Thread.sleep(1000);
+            ConsumerRecords<String, String> records = consumer.poll(10000L);
+            Thread.sleep(StreamAggregateConfig.TOPOLOGY_SPOUT_SLEEP_TIME);
             for (ConsumerRecord<String, String> record : records) {
                 this.collector.emit(new Values(record.value()));
             }

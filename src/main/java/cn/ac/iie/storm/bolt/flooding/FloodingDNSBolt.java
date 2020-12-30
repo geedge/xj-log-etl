@@ -28,56 +28,54 @@ import java.util.List;
 import java.util.Map;
 
 import static cn.ac.iie.storm.utils.general.TransFormUtils.*;
+import static cn.ac.iie.storm.utils.general.TransFormUtils.getValidLength;
 
 public class FloodingDNSBolt extends BaseBasicBolt {
-    private final static Logger logger = Logger.getLogger(FloodingDNSBolt.class);
+  private final static Logger logger = Logger.getLogger(FloodingDNSBolt.class);
     private static final long serialVersionUID = -6795251425357896415L;
-    private List<GenericRecord> IPList = new ArrayList<GenericRecord>();
+    private List<GenericRecord> DNSList = new ArrayList<GenericRecord>();
     private Schema schema;
     private SessionRecordLog sessionRecordLog;
-    private byte[] generate;
     private Long dnscount = 0L;
     private Long dnsloadfail = 0L;
+    private long dnsdatasize = 0L;
 
 
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
-        try {
-            schema = new Schema.Parser().parse(new File("src/main/resources/floodingschema/DNS_RZZB.avsc"));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        schema = new Schema.Parser().parse(StreamAggregateConfig.DNS_RZZB_SCHEMA);
     }
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
-        if (TupleUtils.isTick(tuple)&&!IPList.isEmpty()){             //定时
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
-            IPList.clear();
+        if (TupleUtils.isTick(tuple)&&!DNSList.isEmpty()){             //定时
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, DNSList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            dnsdatasize = dnsdatasize + getValidLength(generate(schema, DNSList));
 
-            basicOutputCollector.emit(new Values(dnscount,dnsloadfail));
+            basicOutputCollector.emit(new Values(dnscount,dnsloadfail,dnsdatasize));
+
+            DNSList.clear();
+            dnsdatasize = 0L;
             dnscount = 0L;
             dnsloadfail = 0L;
-        }else if(IPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){           //分批
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
-            IPList.clear();
+        }else if(DNSList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){           //分批
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, DNSList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            dnsdatasize = dnsdatasize + getValidLength(generate(schema, DNSList));
+            DNSList.clear();
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_HTTP_STREAMID)){
                 sessionRecordLog =(SessionRecordLog)tuple.getValue(0);
             }
             if (sessionRecordLog != null) {
-                dnscount++;
                 try {
-                    GenericRecord http_rzzb = new GenericData.Record(schema);
-                    setDNS_RZZB(http_rzzb, sessionRecordLog);
-                    IPList.add(http_rzzb);
-                    System.out.println(http_rzzb);
-                    generate = generate(schema, IPList);
+                    GenericRecord dns_rzzb = new GenericData.Record(schema);
+                    setDNS_RZZB(dns_rzzb, sessionRecordLog);
+                    DNSList.add(dns_rzzb);
+                    dnscount++;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("dns_rzzb数据封装处理异常"+e);
                     dnsloadfail++;
                 }
             }
@@ -86,7 +84,7 @@ public class FloodingDNSBolt extends BaseBasicBolt {
 }
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_DNSCOUNT_FIELD,StreamAggregateConfig.FLOODING_DNSLOADFAIL_FIELD));
+        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_DNSCOUNT_FIELD,StreamAggregateConfig.FLOODING_DNSLOADFAIL_FIELD,StreamAggregateConfig.FLOODING_DNSDATASIZE_FIELD));
     }
     private void setDNS_RZZB(GenericRecord dns_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
         dns_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());

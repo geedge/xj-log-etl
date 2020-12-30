@@ -33,21 +33,16 @@ public class FloodingMAILBolt extends BaseBasicBolt {
     private static final long serialVersionUID = 4909453288066034335L;
     private List<GenericRecord> MAILList = new ArrayList<GenericRecord>();
     private Schema schema;
-    private Long mailcount;
-    private Long mailloadfail;
+    private long mailcount;
+    private long mailloadfail;
+    private long maildatasize;
     private SessionRecordLog sessionRecordLog;
-    private byte[] generate;
+
 
 
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
-        try {
-            schema = new Schema.Parser()
-                    .parse(Thread.currentThread().getContextClassLoader().getResourceAsStream("floodingschema/IP_RZZB.avsc"));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        schema = new Schema.Parser().parse(StreamAggregateConfig.MAIL_RZZB_SCHEMA);
     }
 
     @Override
@@ -55,35 +50,37 @@ public class FloodingMAILBolt extends BaseBasicBolt {
 
         HttpClientService httpClientService = new HttpClientService();
         if (TupleUtils.isTick(tuple)&&!MAILList.isEmpty()){     //定时
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
-            MAILList.clear();
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL, generate(schema, MAILList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
 
-            basicOutputCollector.emit(new Values(mailcount,mailloadfail));
+            maildatasize =  maildatasize + getValidLength(generate(schema, MAILList));
+
+
+            basicOutputCollector.emit(new Values(mailcount,mailloadfail,maildatasize));
+
+            MAILList.clear();
+            maildatasize = 0L;
             mailcount = 0L;
             mailloadfail = 0L;
         }else if(MAILList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){      //分批
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL, generate(schema, MAILList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+
+            maildatasize =  maildatasize + getValidLength(generate(schema, MAILList));
+
             MAILList.clear();
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_HTTP_STREAMID)){
                 sessionRecordLog =(SessionRecordLog)tuple.getValue(0);
             }
             if (sessionRecordLog != null) {
-                mailcount++;
+
                 try {
-                    GenericRecord http_rzzb = new GenericData.Record(schema);
-                    setIP_RZZB(http_rzzb, sessionRecordLog);
-                    MAILList.add(http_rzzb);
-                    System.out.println(http_rzzb);
-                    generate = generate(schema, MAILList);
+                    GenericRecord mail_rzzb = new GenericData.Record(schema);
+                    setIP_RZZB(mail_rzzb, sessionRecordLog);
+                    MAILList.add(mail_rzzb);
+                    mailcount++;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("mail_rzzb数据封装处理异常"+e);
                     mailloadfail++;
                 }
             }
@@ -94,7 +91,7 @@ public class FloodingMAILBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_MAILCOUNT_FIELD,StreamAggregateConfig.FLOODING_MAILLOADFAIL_FIELD));
+        outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_MAILCOUNT_FIELD,StreamAggregateConfig.FLOODING_MAILLOADFAIL_FIELD,StreamAggregateConfig.FLOODING_MAILDATASIZE_FIELD));
     }
     private void setIP_RZZB(GenericRecord mail_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
         mail_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());

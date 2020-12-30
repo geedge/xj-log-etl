@@ -16,6 +16,8 @@ import static cn.ac.iie.storm.utils.general.TransFormUtils.getJsonMessage;
 
 public class ParseFloodingBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(ParseFloodingBolt.class);
+
+
     private SessionRecordLog DNSsource;
     private SessionRecordLog HTTPSource;
     private SessionRecordLog IPSource;
@@ -24,9 +26,8 @@ public class ParseFloodingBolt extends BaseBasicBolt {
     private SessionRecordLog FTPSource;
     private SessionRecordLog SSLSource;
     private SessionRecordLog VPNSource;
+    private long YBInputSize = 0L;
 
-
-    private long i=0L;
     /**
      * 处理数据的逻辑业务
      *
@@ -40,13 +41,10 @@ public class ParseFloodingBolt extends BaseBasicBolt {
         try {
             String line = tuple.getStringByField(StreamAggregateConfig.FLOODING_SPOUT_FIELD);
             String jsonMessage = getJsonMessage(line);
-            i++;
+
             SessionRecordLog sessionRecordLog = JSONObject.parseObject(jsonMessage, SessionRecordLog.class);
             String common_schema_type = sessionRecordLog.getCommon_schema_type();
-            if(i==5000){
-                System.out.println(i);
-
-            }
+            YBInputSize=(long) line.toString().getBytes().length;
             //按common_schema_type的值对数据进行分类发送
             switch(common_schema_type){
                 case "BASE":
@@ -89,8 +87,11 @@ public class ParseFloodingBolt extends BaseBasicBolt {
             basicOutputCollector.emit(StreamAggregateConfig.FLOODING_JSTX_STREAMID,new Values(JSTXSource));
             basicOutputCollector.emit(StreamAggregateConfig.FLOODING_FTP_STREAMID,new Values(FTPSource));
             basicOutputCollector.emit(StreamAggregateConfig.FLOODING_SSL_STREAMID,new Values(SSLSource));
+
+            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_YBInputSize_STREAMID,new Values(YBInputSize));
+
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("flooding分类分发消息处理异常"+e);
         }
     }
 
@@ -106,6 +107,9 @@ public class ParseFloodingBolt extends BaseBasicBolt {
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.FLOODING_JSTX_STREAMID,new Fields(StreamAggregateConfig.FLOODING_JSTX_STREAMID));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.FLOODING_FTP_STREAMID,new Fields(StreamAggregateConfig.FLOODING_FTP_STREAMID));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.FLOODING_SSL_STREAMID,new Fields(StreamAggregateConfig.FLOODING_SSL_STREAMID));
+
+
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.FLOODING_YBInputSize_STREAMID,new Fields(StreamAggregateConfig.FLOODING_YBInputSize_STREAMID));
 
     }
 }

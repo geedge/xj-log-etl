@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import static cn.ac.iie.storm.utils.general.App_Coding.getAppLabel;
 
+
 /**
  * 转换或补全工具
  *
@@ -164,11 +165,17 @@ public class TransFormUtils {
         return appLabel.get(common_schema_type);
     }
 
-
-    public static void main(String[] args) throws IOException {
-
-//        String ip = getIP(6, "192.168.2.4");
-//        System.out.println(ip);
-        System.out.println(System.currentTimeMillis()/1000);
+    /**
+     * 获取字节数组的长度
+     * @param bytes
+     * @return
+     */
+    public static int getValidLength(byte[] bytes){
+        int i = 0;
+        for (byte aByte : bytes) {
+            i++;
+        }
+        return i;
     }
+
 }

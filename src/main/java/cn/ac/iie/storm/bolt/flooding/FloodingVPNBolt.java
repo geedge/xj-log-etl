@@ -35,32 +35,33 @@ public class FloodingVPNBolt extends BaseBasicBolt {
     private List<GenericRecord> VPNList = new ArrayList<GenericRecord>();
     private Schema schema;
     private SessionRecordLog sessionRecordLog;
-    private Long vpncount = 0L;
-    private Long vpnloadfail = 0L;
-    private byte[] generate;
+    private long vpncount = 0L;
+    private long vpnloadfail = 0L;
+    private long vpndatasize = 0L;
 
 
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
-        try {
-            schema = new Schema.Parser().parse(new File("src/main/resources/floodingschema/VPN_RZZB.avsc"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        schema = new Schema.Parser().parse(StreamAggregateConfig.VPN_RZZB_SCHEMA);
     }
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if (TupleUtils.isTick(tuple)&&!VPNList.isEmpty()){  //定时
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
-            VPNList.clear();
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, VPNList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            vpndatasize  =  vpndatasize + getValidLength(generate(schema, VPNList));
 
-            basicOutputCollector.emit(new Values(vpncount,vpnloadfail));
+
+            basicOutputCollector.emit(new Values(vpncount,vpnloadfail,vpndatasize));
+
+            VPNList.clear();
+            vpndatasize = 0L;
             vpncount = 0L;
             vpnloadfail = 0L;
         }else if(VPNList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){       //分批
-            httpClientService.gethttpFloodingPost("http://192.168.40.119:6699",generate,100);
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, VPNList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            vpndatasize  =  vpndatasize + getValidLength(generate(schema, VPNList));
             VPNList.clear();
         }
         else {
@@ -68,15 +69,13 @@ public class FloodingVPNBolt extends BaseBasicBolt {
                 sessionRecordLog =(SessionRecordLog)tuple.getValue(0);
             }
             if (sessionRecordLog != null) {
-                vpncount++;
                 try {
-                    GenericRecord http_rzzb = new GenericData.Record(schema);
-                    setIP_RZZB(http_rzzb, sessionRecordLog);
-                    VPNList.add(http_rzzb);
-                    System.out.println(http_rzzb);
-                    generate = generate(schema, VPNList);
+                    GenericRecord vpn_rzzb = new GenericData.Record(schema);
+                    setIP_RZZB(vpn_rzzb, sessionRecordLog);
+                    VPNList.add(vpn_rzzb);
+                    vpncount++;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("vpn_rzzb数据封装处理异常"+e);
                     vpnloadfail++;
                 }
             }
@@ -85,7 +84,7 @@ public class FloodingVPNBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-            outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_VPNCOUNT_FIELD,StreamAggregateConfig.FLOODING_VPNLOADFAIL_FIELD));
+            outputFieldsDeclarer.declare(new Fields(StreamAggregateConfig.FLOODING_VPNCOUNT_FIELD,StreamAggregateConfig.FLOODING_VPNLOADFAIL_FIELD,StreamAggregateConfig.FLOODING_VPNDATASIZE_FIELD));
     }
     private void setIP_RZZB(GenericRecord vpn_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
         vpn_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
