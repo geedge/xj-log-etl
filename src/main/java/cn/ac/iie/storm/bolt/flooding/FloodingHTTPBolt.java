@@ -38,6 +38,7 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
     private long httpcount = 0L;
     private long httploadfail = 0L;
     private long httpdatasize = 0L;
+    private byte[] generate=null;
 
 
     @Override
@@ -51,10 +52,8 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if (TupleUtils.isTick(tuple)&&!HTTPList.isEmpty()){            //定时
-            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL, generate(schema, HTTPList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
-
-
-            httpdatasize = httpdatasize + getValidLength(generate(schema, HTTPList));
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL, generate,StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            httpdatasize = httpdatasize + getValidLength(generate);
             HTTPList.clear();
             //向下发送指标数据
             basicOutputCollector.emit(new Values(httpcount,httploadfail,httpdatasize));
@@ -64,7 +63,7 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
             httploadfail = 0L;
         }else if(HTTPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){                                   //分批
             httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL, generate(schema, HTTPList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
-            httpdatasize = httpdatasize + getValidLength(generate(schema, HTTPList));
+            httpdatasize = httpdatasize + getValidLength(generate);
             HTTPList.clear();
         }
         else {
@@ -76,6 +75,7 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
                     GenericRecord http_rzzb = new GenericData.Record(schema);
                     setIP_RZZB(http_rzzb, sessionRecordLog);
                     HTTPList.add(http_rzzb);
+                    generate = generate(schema, HTTPList);
                     httpcount++;
                 } catch (Exception e) {
                     httploadfail++;
@@ -93,8 +93,8 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
 
     private void setIP_RZZB(GenericRecord http_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
         http_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
-        http_rzzb.put("YDY","ff");
-        http_rzzb.put("MDDY","暂时没有");
+        http_rzzb.put("YDY","common_client_location"); //目前还没处理
+        http_rzzb.put("MDDY","common_server_location");
         http_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip())); //--其实是使用网络序列
         http_rzzb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         http_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));

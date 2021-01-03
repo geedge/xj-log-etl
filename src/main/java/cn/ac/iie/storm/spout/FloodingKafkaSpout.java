@@ -31,14 +31,14 @@ public class FloodingKafkaSpout extends BaseRichSpout {
         props.put("bootstrap.servers", StreamAggregateConfig.BOOTSTRAP_SERVERS);
         props.put("group.id", StreamAggregateConfig.GROUP_ID);
         props.put("session.timeout.ms", "60000");
-        props.put("max.poll.records", 30000);
+        props.put("max.poll.records", 3000);
         props.put("max.partition.fetch.bytes", 31457280);
         props.put("auto.offset.reset", StreamAggregateConfig.AUTO_OFFSET_RESET);
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        logger.info("链接kafka"+StreamAggregateConfig.BOOTSTRAP_SERVERS+"成功");
         return props;
     }
-
 
     @Override
     public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
@@ -57,12 +57,11 @@ public class FloodingKafkaSpout extends BaseRichSpout {
     public void nextTuple() {
         try {
 
-            ConsumerRecords<String, String> records = consumer.poll(1000L);
-          //  Thread.sleep(StreamAggregateConfig.TOPOLOGY_SPOUT_SLEEP_TIME);
+            ConsumerRecords<String, String> records = consumer.poll(10000L);
+           Thread.sleep(StreamAggregateConfig.TOPOLOGY_SPOUT_SLEEP_TIME);
             for (ConsumerRecord<String, String> record : records) {
                 this.collector.emit(new Values(record.value()));
             }
-
         } catch (Exception e) {
             logger.error("KafkaSpout发送消息出现异常!", e);
             e.printStackTrace();

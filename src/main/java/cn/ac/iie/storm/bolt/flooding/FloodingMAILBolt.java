@@ -37,6 +37,7 @@ public class FloodingMAILBolt extends BaseBasicBolt {
     private long mailloadfail;
     private long maildatasize;
     private SessionRecordLog sessionRecordLog;
+    private byte[] generate=null;
 
 
 
@@ -50,9 +51,9 @@ public class FloodingMAILBolt extends BaseBasicBolt {
 
         HttpClientService httpClientService = new HttpClientService();
         if (TupleUtils.isTick(tuple)&&!MAILList.isEmpty()){     //定时
-            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL, generate(schema, MAILList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL, generate,StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
 
-            maildatasize =  maildatasize + getValidLength(generate(schema, MAILList));
+            maildatasize =  maildatasize + getValidLength(generate);
 
 
             basicOutputCollector.emit(new Values(mailcount,mailloadfail,maildatasize));
@@ -64,7 +65,7 @@ public class FloodingMAILBolt extends BaseBasicBolt {
         }else if(MAILList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){      //分批
             httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL, generate(schema, MAILList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
 
-            maildatasize =  maildatasize + getValidLength(generate(schema, MAILList));
+            maildatasize =  maildatasize + getValidLength(generate);
 
             MAILList.clear();
         }
@@ -78,6 +79,7 @@ public class FloodingMAILBolt extends BaseBasicBolt {
                     GenericRecord mail_rzzb = new GenericData.Record(schema);
                     setIP_RZZB(mail_rzzb, sessionRecordLog);
                     MAILList.add(mail_rzzb);
+                    generate =generate(schema, MAILList);
                     mailcount++;
                 } catch (Exception e) {
                     logger.error("mail_rzzb数据封装处理异常"+e);

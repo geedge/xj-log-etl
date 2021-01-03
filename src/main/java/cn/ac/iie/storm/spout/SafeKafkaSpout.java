@@ -47,10 +47,9 @@ public class SafeKafkaSpout extends BaseRichSpout {
     @Override
     public void nextTuple() {
         try {
-            // TODO Auto-generated method stub
-            //ConsumerRecords<String, String> records = consumer.poll(10000L);
-            ConsumerRecords<String, String> records = consumer.poll(5000);
-//            Thread.sleep(StreamAggregateConfig.TOPOLOGY_SPOUT_SLEEP_TIME);
+
+            ConsumerRecords<String, String> records = consumer.poll(1000L);
+            Thread.sleep(StreamAggregateConfig.TOPOLOGY_SPOUT_SLEEP_TIME);
             for (ConsumerRecord<String, String> record : records) {
                 this.collector.emit(new Values(record.value()));
             }
@@ -60,9 +59,8 @@ public class SafeKafkaSpout extends BaseRichSpout {
         }
 
     }
-
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("safe-source"));
+        declarer.declare(new Fields(StreamAggregateConfig.SAFE_SPOUT_FIELD));
     }
 }

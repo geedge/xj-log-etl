@@ -39,6 +39,7 @@ public class FloodingDNSBolt extends BaseBasicBolt {
     private Long dnscount = 0L;
     private Long dnsloadfail = 0L;
     private long dnsdatasize = 0L;
+    private byte[] generate=null;
 
 
     @Override
@@ -50,18 +51,16 @@ public class FloodingDNSBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if (TupleUtils.isTick(tuple)&&!DNSList.isEmpty()){             //定时
-            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, DNSList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
-            dnsdatasize = dnsdatasize + getValidLength(generate(schema, DNSList));
-
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate,StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            dnsdatasize = dnsdatasize + getValidLength(generate);
             basicOutputCollector.emit(new Values(dnscount,dnsloadfail,dnsdatasize));
-
             DNSList.clear();
             dnsdatasize = 0L;
             dnscount = 0L;
             dnsloadfail = 0L;
         }else if(DNSList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){           //分批
             httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, DNSList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
-            dnsdatasize = dnsdatasize + getValidLength(generate(schema, DNSList));
+            dnsdatasize = dnsdatasize + getValidLength(generate);
             DNSList.clear();
         }
         else {
@@ -73,6 +72,7 @@ public class FloodingDNSBolt extends BaseBasicBolt {
                     GenericRecord dns_rzzb = new GenericData.Record(schema);
                     setDNS_RZZB(dns_rzzb, sessionRecordLog);
                     DNSList.add(dns_rzzb);
+                    generate = generate(schema, DNSList);
                     dnscount++;
                 } catch (Exception e) {
                     logger.error("dns_rzzb数据封装处理异常"+e);

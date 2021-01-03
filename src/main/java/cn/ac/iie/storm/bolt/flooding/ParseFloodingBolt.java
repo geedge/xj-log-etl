@@ -18,18 +18,18 @@ public class ParseFloodingBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(ParseFloodingBolt.class);
 
 
-    private SessionRecordLog DNSsource;
-    private SessionRecordLog HTTPSource;
-    private SessionRecordLog IPSource;
-    private SessionRecordLog MAILSource;
-    private SessionRecordLog JSTXSource;
-    private SessionRecordLog FTPSource;
-    private SessionRecordLog SSLSource;
-    private SessionRecordLog VPNSource;
-    private long YBInputSize = 0L;
+    private SessionRecordLog dnsSource;
+    private SessionRecordLog httpSource;
+    private SessionRecordLog ipSource;
+    private SessionRecordLog mailSource;
+    private SessionRecordLog jstxSource;
+    private SessionRecordLog ftpSource;
+    private SessionRecordLog sslSource;
+    private SessionRecordLog vpnSource;
+    private long ybInputSize = 0L;
 
     /**
-     * 处理数据的逻辑业务
+     * 处理一般数据的逻辑业务
      *
      * @param tuple
      * @param basicOutputCollector
@@ -41,54 +41,53 @@ public class ParseFloodingBolt extends BaseBasicBolt {
         try {
             String line = tuple.getStringByField(StreamAggregateConfig.FLOODING_SPOUT_FIELD);
             String jsonMessage = getJsonMessage(line);
-
             SessionRecordLog sessionRecordLog = JSONObject.parseObject(jsonMessage, SessionRecordLog.class);
             String common_schema_type = sessionRecordLog.getCommon_schema_type();
-            YBInputSize=(long) line.toString().getBytes().length;
+            ybInputSize=line.getBytes().length;
             //按common_schema_type的值对数据进行分类发送
+            System.out.println(line);
             switch(common_schema_type){
                 case "BASE":
                 if(sessionRecordLog.getCommon_schema_type()==null){
-                    VPNSource=sessionRecordLog;
+                    vpnSource=sessionRecordLog;
                 }else {
                     sessionRecordLog.setCommon_schema_type("IP类");
-                    IPSource=sessionRecordLog;
+                    ipSource=sessionRecordLog;
                 }
                     break;
                 case "DNS":
-                   DNSsource= sessionRecordLog;
+                    dnsSource= sessionRecordLog;
                     break;
                 case "HTTP":
-                    HTTPSource=sessionRecordLog;
+                    httpSource=sessionRecordLog;
                     break;
                 case "MAIL":
-                    MAILSource=sessionRecordLog;
+                    mailSource=sessionRecordLog;
                     break;
                 case "APP":
-                    JSTXSource=sessionRecordLog;
-
+                    jstxSource=sessionRecordLog;
                     break;
                 case "FTP":
-                    FTPSource=sessionRecordLog;
+                    ftpSource=sessionRecordLog;
 
                     break;
                 case "SSL":
-                    SSLSource=sessionRecordLog;
+                    sslSource=sessionRecordLog;
 
                     break;
                 default:
                     break;
             }
-            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_VPN_STREAMID,new Values(VPNSource));
-            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_IP_STREAMID,new Values(IPSource));
-            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_DNS_STREAMID,new Values(DNSsource));
-            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_HTTP_STREAMID,new Values(HTTPSource));
-            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_MAIL_STREAMID,new Values(MAILSource));
-            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_JSTX_STREAMID,new Values(JSTXSource));
-            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_FTP_STREAMID,new Values(FTPSource));
-            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_SSL_STREAMID,new Values(SSLSource));
+            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_VPN_STREAMID,new Values(vpnSource));
+            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_IP_STREAMID,new Values(ipSource));
+            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_DNS_STREAMID,new Values(dnsSource));
+            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_HTTP_STREAMID,new Values(httpSource));
+            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_MAIL_STREAMID,new Values(mailSource));
+            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_JSTX_STREAMID,new Values(jstxSource));
+            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_FTP_STREAMID,new Values(ftpSource));
+            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_SSL_STREAMID,new Values(sslSource));
 
-            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_YBInputSize_STREAMID,new Values(YBInputSize));
+            basicOutputCollector.emit(StreamAggregateConfig.FLOODING_YBInputSize_STREAMID,new Values(ybInputSize));
 
         } catch (Exception e) {
             logger.error("flooding分类分发消息处理异常"+e);

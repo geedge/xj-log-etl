@@ -45,6 +45,88 @@ public class SessionRecordLog  {
     private String mail_protocol_type;
     private String mail_snapshot;
     private String mail_bcc;
+    private String userregion;
+
+    private int enable;
+    private String pzid;
+    private long timestamp;
+    private int flid;
+    private int xzid;
+    private int lhid;
+    private int pzlx;
+    private int gklb;
+
+    public int getEnable() {
+        return enable;
+    }
+
+    public void setEnable(int enable) {
+        this.enable = enable;
+    }
+
+    public String getPzid() {
+        return pzid;
+    }
+
+    public void setPzid(String pzid) {
+        this.pzid = pzid;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public int getFlid() {
+        return flid;
+    }
+
+    public void setFlid(int flid) {
+        this.flid = flid;
+    }
+
+    public int getXzid() {
+        return xzid;
+    }
+
+    public void setXzid(int xzid) {
+        this.xzid = xzid;
+    }
+
+    public int getLhid() {
+        return lhid;
+    }
+
+    public void setLhid(int lhid) {
+        this.lhid = lhid;
+    }
+
+    public int getPzlx() {
+        return pzlx;
+    }
+
+    public void setPzlx(int pzlx) {
+        this.pzlx = pzlx;
+    }
+
+    public int getGklb() {
+        return gklb;
+    }
+
+    public void setGklb(int gklb) {
+        this.gklb = gklb;
+    }
+
+    public String getUserregion() {
+        return userregion;
+    }
+
+    public void setUserregion(String userregion) {
+        this.userregion = userregion;
+    }
 
     public String getMail_bcc() {
         return mail_bcc;

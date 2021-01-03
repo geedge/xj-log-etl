@@ -38,6 +38,7 @@ public class FloodingIPBolt extends BaseBasicBolt {
     private long ipcount = 0L;
     private long iploadfail = 0L;
     private long ipdatasize =0L;
+    private byte[] generate=null;
 
 
     @Override
@@ -48,19 +49,21 @@ public class FloodingIPBolt extends BaseBasicBolt {
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
-        if (TupleUtils.isTick(tuple)&&!IPList.isEmpty()){       //定时
-            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, IPList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
-            ipdatasize =  ipdatasize + getValidLength(generate(schema, IPList));
+        if (TupleUtils.isTick(tuple)&&!IPList.isEmpty()&&generate!=null){       //定时
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate,StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            ipdatasize =  ipdatasize + getValidLength(generate);
             //向下发送指标
             basicOutputCollector.emit(new Values(ipcount,iploadfail,ipdatasize));
 
+            generate=null;
             IPList.clear();
             ipdatasize=0L;
             ipcount = 0L;
             iploadfail = 0L;
-        }else if(IPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){  //分批
-            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, IPList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
-            ipdatasize =  ipdatasize + getValidLength(generate(schema, IPList));
+        }else if(IPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM&&generate!=null){  //分批
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate,StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            ipdatasize =  ipdatasize + getValidLength(generate);
+            generate=null;
             IPList.clear();
         }
         else {
@@ -73,6 +76,7 @@ public class FloodingIPBolt extends BaseBasicBolt {
                     GenericRecord ip_rzzb = new GenericData.Record(schema);
                     setIP_RZZB(ip_rzzb, sessionRecordLog);
                     IPList.add(ip_rzzb);
+                    generate=generate(schema, IPList);
                     ipcount++;
                 } catch (Exception e) {
                     logger.error("ip_rzzb数据封装处理异常"+e);
@@ -102,7 +106,6 @@ public class FloodingIPBolt extends BaseBasicBolt {
         IP_rzzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         IP_rzzb.put("YYS",1); //-**common_isp这个字段
         IP_rzzb.put("yl1",sessionRecordLog.getCommon_address_type());
-
      //dns特有
         IP_rzzb.put("CS_PKTS",sessionRecordLog.getCommon_c2s_pkt_num());
         IP_rzzb.put("CS_BYTES",sessionRecordLog.getCommon_c2s_byte_num());

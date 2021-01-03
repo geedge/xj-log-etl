@@ -20,7 +20,7 @@ import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.TupleUtils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +39,7 @@ public class FloodingFTPBolt extends BaseBasicBolt {
     private long ftpLoadFail = 0L;
     private long ftpdatasize = 0L;
     private SessionRecordLog sessionRecordLog;
+    private byte[] generate=null;
 
 
     @Override
@@ -50,8 +51,8 @@ public class FloodingFTPBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if (TupleUtils.isTick(tuple)&&!FTPList.isEmpty()){      //定时
-            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, FTPList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
-            ftpdatasize = ftpdatasize + getValidLength(generate(schema, FTPList));
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate,StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            ftpdatasize = ftpdatasize + getValidLength(generate);
 
             basicOutputCollector.emit(new Values(ftpcount,ftpLoadFail,ftpdatasize));
 
@@ -62,7 +63,7 @@ public class FloodingFTPBolt extends BaseBasicBolt {
             ftpLoadFail = 0L;
         }else if(FTPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){       //分批
             httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, FTPList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
-            ftpdatasize = ftpdatasize + getValidLength(generate(schema, FTPList));
+            ftpdatasize = ftpdatasize + getValidLength(generate);
             FTPList.clear();
         }
         else {
@@ -74,6 +75,7 @@ public class FloodingFTPBolt extends BaseBasicBolt {
                     GenericRecord ftp_rzzb = new GenericData.Record(schema);
                     setIP_RZZB(ftp_rzzb, sessionRecordLog);
                     FTPList.add(ftp_rzzb);
+                    generate=generate(schema, FTPList);
                     ftpcount++;
                 } catch (Exception e) {
                     ftpLoadFail++;

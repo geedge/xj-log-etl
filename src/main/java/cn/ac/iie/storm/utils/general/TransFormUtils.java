@@ -1,16 +1,20 @@
 package cn.ac.iie.storm.utils.general;
 
 import cn.ac.iie.storm.bean.SessionRecordLog;
+import cn.ac.iie.storm.utils.config.StreamAggregateConfigurations;
 import com.alibaba.fastjson.JSONObject;
+import com.amazonaws.services.s3.model.CSVOutput;
 import com.zdjizhi.utils.StringUtil;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cn.ac.iie.storm.utils.general.App_Coding.getAppLabel;
+
 
 
 /**
@@ -178,4 +182,17 @@ public class TransFormUtils {
         return i;
     }
 
+    private static Map  getAppId() throws IOException {
+        Properties prop = new Properties();
+        prop.load(StreamAggregateConfigurations.class.getClassLoader().getResourceAsStream("common_app_id_coding.properties"));
+        Map<String, String> Map = new HashMap<String, String>((Map) prop);
+        return Map;
+    }
+
+    private   static Map   getAppLabel() throws IOException {
+        Properties prop = new Properties();
+        prop.load(StreamAggregateConfigurations.class.getClassLoader().getResourceAsStream("common_app_label_coding.properties"));
+        Map<String, String> Map = new HashMap<String, String>((Map) prop);
+        return Map;
+    }
 }

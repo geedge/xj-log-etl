@@ -4,6 +4,7 @@ package cn.ac.iie.storm.topology;
 import cn.ac.iie.storm.bolt.flooding.*;
 import cn.ac.iie.storm.bolt.index.CountBolt;
 
+import cn.ac.iie.storm.bolt.safe.ParseSafeBolt;
 import cn.ac.iie.storm.spout.FloodingKafkaSpout;
 import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
 
@@ -20,6 +21,7 @@ public class StreamAggregateTopology {
 
  private static Logger logger = Logger.getLogger(StreamAggregateTopology.class);
     private final String topologyName;
+
     private final Config topologyConfig;
     private TopologyBuilder topologyBuilder;
 
@@ -42,7 +44,7 @@ public class StreamAggregateTopology {
         conf.setDebug(false);
         conf.setMessageTimeoutSecs(60);
         conf.setMaxSpoutPending(StreamAggregateConfig.SPOUT_PARALLELISM);
-       conf.setNumAckers(StreamAggregateConfig.TOPOLOGY_NUM_ACKS);
+        conf.setNumAckers(StreamAggregateConfig.TOPOLOGY_NUM_ACKS);
         return conf;
     }
     private void buildTopology() {
@@ -51,25 +53,25 @@ public class StreamAggregateTopology {
         //设置拓扑关系(FloodingSpout)
         topologyBuilder.setSpout(StreamAggregateConfig.FLOODING_KAFKA_SPOUT,new FloodingKafkaSpout());
         //设置拓扑关系(Bolt) --切分行    ---分发bolt
-        topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,new ParseFloodingBolt()).shuffleGrouping(StreamAggregateConfig.FLOODING_KAFKA_SPOUT);
+        topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,new ParseFloodingBolt(),StreamAggregateConfig.FLOODING_PARSE_PARALLELISM).shuffleGrouping(StreamAggregateConfig.FLOODING_KAFKA_SPOUT);
         //分类发送的bolt
-   topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_DNS_COMPONENTID,new FloodingDNSBolt()).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_DNS_STREAMID);  //无数据，还未测试
-       topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_FTP_COMPONENTID,new FloodingFTPBolt()).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_FTP_STREAMID);  //无数据，还未测试
-      topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_HTTP_COMPONENTID,new FloodingHTTPBolt()).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_HTTP_STREAMID);  //测试通过
-  topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_IP_COMPONENTID,new FloodingIPBolt()).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_IP_STREAMID);  //测试通过
-      topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_JSTX_COMPONENTID,new FloodingJSTXBolt()).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_JSTX_STREAMID); //无数据，还未测试
-      topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_MAIL_COMPONENTID,new FloodingMAILBolt()).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_MAIL_STREAMID);  //无数据 还未测试
-      topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_SSL_COMPONENTID,new FloodingSSLBolt()).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_SSL_STREAMID);
-       topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_VPN_COMPONENTID,new FloodingVPNBolt()).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_VPN_STREAMID);    //测试通过
+        topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_DNS_COMPONENTID,new FloodingDNSBolt(),StreamAggregateConfig.FLOODING_DNS_PARALLELISM).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_DNS_STREAMID);  //无数据，还未测试
+        topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_FTP_COMPONENTID,new FloodingFTPBolt(),StreamAggregateConfig.FLOODING_FTP_PARALLELISM).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_FTP_STREAMID);  //无数据，还未测试
+        topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_HTTP_COMPONENTID,new FloodingHTTPBolt(),StreamAggregateConfig.FLOODING_HTTP_PARALLELISM).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_HTTP_STREAMID);  //测试通过
+        topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_IP_COMPONENTID,new FloodingIPBolt(),StreamAggregateConfig.FLOODING_IP_PARALLELISM).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_IP_STREAMID);  //测试通过
+        topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_JSTX_COMPONENTID,new FloodingJSTXBolt(),StreamAggregateConfig.FLOODING_JSTX_PARALLELISM).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_JSTX_STREAMID); //无数据，还未测试
+        topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_MAIL_COMPONENTID,new FloodingMAILBolt(),StreamAggregateConfig.FLOODING_MAIL_PARALLELISM).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_MAIL_STREAMID);  //无数据 还未测试
+        topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_SSL_COMPONENTID,new FloodingSSLBolt(),StreamAggregateConfig.FLOODING_SSL_PARALLELISM).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_SSL_STREAMID);
+        topologyBuilder.setBolt(StreamAggregateConfig.FLOODING_VPN_COMPONENTID,new FloodingVPNBolt(),StreamAggregateConfig.FLOODING_VPN_PARALLELISM).shuffleGrouping(StreamAggregateConfig.FLOODING_PARSE_COMPONENTID,StreamAggregateConfig.FLOODING_VPN_STREAMID);    //测试通过
 
 
 
 
 //        //设置拓扑关系(Spout)
-//        topologyBuilder.setSpout("SafeKafkaSpout",new FloodingKafkaSpout());
+//        topologyBuilder.setSpout(StreamAggregateConfig.SAFE_KAFKA_SPOUT,new FloodingKafkaSpout());
 //
 //        //设置拓扑关系(Bolt) --切分行
-//        topologyBuilder.setBolt("ParseSafeBolt",new ParseSafeBolt()).shuffleGrouping("SafeKafkaSpout");
+//        topologyBuilder.setBolt("ParseSafeBolt",new ParseSafeBolt()).shuffleGrouping(StreamAggregateConfig.SAFE_KAFKA_SPOUT);
 
 
 

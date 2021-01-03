@@ -1,5 +1,8 @@
 package cn.ac.iie.storm.utils.config;
 
+import org.apache.logging.log4j.util.PropertiesUtil;
+
+import java.io.InputStream;
 import java.util.Properties;
 
 
@@ -56,11 +59,15 @@ public final class StreamAggregateConfigurations {
 
     static {
         try {
-            propService.load(StreamAggregateConfigurations.class.getClassLoader().getResourceAsStream("service_flow_config.properties"));
+            InputStream resourceAsStream = PropertiesUtil.class.getClassLoader().getResourceAsStream("service_flow_config.properties");
+            propService.load(resourceAsStream);
         } catch (Exception e) {
 //            propCommon = null;
             propService = null;
         }
     }
+
+
+
 
 }

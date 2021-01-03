@@ -20,7 +20,6 @@ import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.TupleUtils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +37,7 @@ public class FloodingVPNBolt extends BaseBasicBolt {
     private long vpncount = 0L;
     private long vpnloadfail = 0L;
     private long vpndatasize = 0L;
+    private byte[] generate=null;
 
 
     @Override
@@ -49,8 +49,8 @@ public class FloodingVPNBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if (TupleUtils.isTick(tuple)&&!VPNList.isEmpty()){  //定时
-            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, VPNList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
-            vpndatasize  =  vpndatasize + getValidLength(generate(schema, VPNList));
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate,StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            vpndatasize  =  vpndatasize + getValidLength(generate);
 
 
             basicOutputCollector.emit(new Values(vpncount,vpnloadfail,vpndatasize));
@@ -73,6 +73,7 @@ public class FloodingVPNBolt extends BaseBasicBolt {
                     GenericRecord vpn_rzzb = new GenericData.Record(schema);
                     setIP_RZZB(vpn_rzzb, sessionRecordLog);
                     VPNList.add(vpn_rzzb);
+                    generate = generate(schema, VPNList);
                     vpncount++;
                 } catch (Exception e) {
                     logger.error("vpn_rzzb数据封装处理异常"+e);

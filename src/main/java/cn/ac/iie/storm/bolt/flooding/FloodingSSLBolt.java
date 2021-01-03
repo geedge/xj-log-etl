@@ -38,6 +38,7 @@ public class FloodingSSLBolt extends BaseBasicBolt {
     private long sslloadfail = 0L;
     private long ssldatasize = 0L;
     private SessionRecordLog sessionRecordLog;
+    private byte[] generate=null;
 
 
 
@@ -52,9 +53,9 @@ public class FloodingSSLBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if (TupleUtils.isTick(tuple)&&!SSLList.isEmpty()){      //定时
-            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, SSLList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate,StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
 
-            ssldatasize  =  ssldatasize + getValidLength(generate(schema, SSLList));
+            ssldatasize  =  ssldatasize + getValidLength(generate);
 
             basicOutputCollector.emit(new Values(sslcount,sslloadfail,ssldatasize));
 
@@ -64,7 +65,7 @@ public class FloodingSSLBolt extends BaseBasicBolt {
             sslloadfail = 0L;
         }else if(SSLList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){       //分批
             httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, SSLList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
-            ssldatasize  =  ssldatasize + getValidLength(generate(schema, SSLList));
+            ssldatasize  =  ssldatasize + getValidLength(generate);
 
             SSLList.clear();
         }
@@ -78,6 +79,7 @@ public class FloodingSSLBolt extends BaseBasicBolt {
                     GenericRecord ssl_rzzb = new GenericData.Record(schema);
                     setIP_RZZB(ssl_rzzb, sessionRecordLog);
                     SSLList.add(ssl_rzzb);
+                    generate = generate(schema, SSLList);
                     sslcount++;
                 } catch (Exception e) {
                     logger.error("ssl_rzzb数据封装处理异常"+e);

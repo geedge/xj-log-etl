@@ -24,8 +24,5 @@ public class Http_URL_process {
        return file_name;
     }
 
-    public static void main(String[] args) {
-        String file_name = getFile_Name("192.168.2.202/");
-        System.out.println(file_name);
-    }
+
 }

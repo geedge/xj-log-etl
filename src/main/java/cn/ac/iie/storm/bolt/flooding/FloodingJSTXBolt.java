@@ -38,6 +38,7 @@ public class FloodingJSTXBolt extends BaseBasicBolt {
     private long jstxcount = 0L;
     private long jstxloadfail = 0L;
     private long jstxdatasize = 0L;
+    private byte[] generate=null;
 
     private SessionRecordLog sessionRecordLog;
     @Override
@@ -49,10 +50,10 @@ public class FloodingJSTXBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if (TupleUtils.isTick(tuple)&&!JSTXList.isEmpty()){     //定时
-            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, JSTXList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
+            httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate,StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
 
 
-            jstxdatasize =  jstxdatasize + getValidLength(generate(schema, JSTXList));
+            jstxdatasize =  jstxdatasize + getValidLength(generate);
 
 
             basicOutputCollector.emit(new Values(jstxcount,jstxloadfail,jstxdatasize));
@@ -65,7 +66,7 @@ public class FloodingJSTXBolt extends BaseBasicBolt {
         }else if(JSTXList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){      //分批
             httpClientService.gethttpFloodingPost(StreamAggregateConfig.FLOODING_HTTP_POST_URL,generate(schema, JSTXList),StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT);
 
-            jstxdatasize =  jstxdatasize + getValidLength(generate(schema, JSTXList));
+            jstxdatasize =  jstxdatasize + getValidLength(generate);
 
             JSTXList.clear();
         }
@@ -79,6 +80,7 @@ public class FloodingJSTXBolt extends BaseBasicBolt {
                     GenericRecord jstx_rzzb = new GenericData.Record(schema);
                     setIP_RZZB(jstx_rzzb, sessionRecordLog);
                     JSTXList.add(jstx_rzzb);
+                    generate = generate(schema, JSTXList);
                     jstxcount++;
 
                 } catch (Exception e) {

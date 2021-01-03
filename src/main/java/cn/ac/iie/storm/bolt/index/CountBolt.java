@@ -1,14 +1,12 @@
 package cn.ac.iie.storm.bolt.index;
 
 
-import clojure.lang.IFn;
-import cn.ac.iie.storm.bean.SessionRecordLog;
+
 import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
-
-
+import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.exporter.HTTPServer;
-
+import io.prometheus.client.exporter.PushGateway;
 import org.apache.log4j.Logger;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.BasicOutputCollector;
@@ -16,16 +14,10 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.utils.TupleUtils;
-
-import javax.management.monitor.StringMonitorMBean;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
-
-import java.security.Timestamp;
 import java.util.HashMap;
-
 import java.util.Map;
 
 public class CountBolt extends BaseBasicBolt {
@@ -39,16 +31,11 @@ public class CountBolt extends BaseBasicBolt {
     private long count = 0L;
     private long sucesscount = 0L;
     private long loadfailcount = 0L;
-
     private long timestamp;
-
     InetAddress ip=null;
     private String localip;
-
     private float inputrate;
     private float outputrate;
-
-
     static final Gauge InputRate = Gauge.build()
             .name("InputRate").labelNames("ServName","IP","Duration").help("Program receiving flow rate, the unit is Mbps").register();
 
@@ -73,11 +60,6 @@ public class CountBolt extends BaseBasicBolt {
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
         try {
-            HTTPServer server = new HTTPServer(StreamAggregateConfig.PROMETHEUS_HTTP_PORT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
             ip=ip.getLocalHost();
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -91,6 +73,7 @@ public class CountBolt extends BaseBasicBolt {
 
         if((TupleUtils.isTick(input)&&floodingcount!=0L)){
 
+
             timestamp=System.currentTimeMillis()/1000;
             inputrate=ybinputsize/StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS;
             outputrate = yboutputsize/StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS;
@@ -100,7 +83,12 @@ public class CountBolt extends BaseBasicBolt {
             YBInputLog.labels("flooding-etl",localip,String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(floodingcount);
             YBOutputLog.labels("flooding-etl",localip,String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(floodingsucesscount);
             Timestamp.labels("flooding-etl",localip,String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).setToCurrentTime();
-
+            System.out.println(inputrate);
+            try {
+                push();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             ybinputsize=0L;
             yboutputsize =0L;
             inputrate =0;
@@ -190,6 +178,12 @@ public class CountBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
+
+    }
+    public void push() throws IOException {
+        CollectorRegistry registry = CollectorRegistry.defaultRegistry;
+        PushGateway pg = new PushGateway(StreamAggregateConfig.PROMETHEUS_PUSHGATEWAY_ADDRESS);
+        pg.push(registry, "XJ-ETL-STATUS" );
 
     }
 

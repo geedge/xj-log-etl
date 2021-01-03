@@ -192,7 +192,5 @@ public class HttpClientService {
         return resultMap;
     }
 
-    public static void main(String[] args) {
-    }
 }
 
