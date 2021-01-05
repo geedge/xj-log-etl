@@ -45,7 +45,6 @@ public class ParseFloodingBolt extends BaseBasicBolt {
             String common_schema_type = sessionRecordLog.getCommon_schema_type();
             ybInputSize=line.getBytes().length;
             //按common_schema_type的值对数据进行分类发送
-            System.out.println(line);
             switch(common_schema_type){
                 case "BASE":
                 if(sessionRecordLog.getCommon_schema_type()==null){

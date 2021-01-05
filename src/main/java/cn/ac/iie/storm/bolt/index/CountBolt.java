@@ -83,7 +83,6 @@ public class CountBolt extends BaseBasicBolt {
             YBInputLog.labels("flooding-etl",localip,String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(floodingcount);
             YBOutputLog.labels("flooding-etl",localip,String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(floodingsucesscount);
             Timestamp.labels("flooding-etl",localip,String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).setToCurrentTime();
-            System.out.println(inputrate);
             try {
                 push();
             } catch (IOException e) {

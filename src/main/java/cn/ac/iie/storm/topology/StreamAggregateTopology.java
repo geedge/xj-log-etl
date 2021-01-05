@@ -67,11 +67,11 @@ public class StreamAggregateTopology {
 
 
 
-//        //设置拓扑关系(Spout)
-//        topologyBuilder.setSpout(StreamAggregateConfig.SAFE_KAFKA_SPOUT,new FloodingKafkaSpout());
-//
-//        //设置拓扑关系(Bolt) --切分行
-//        topologyBuilder.setBolt("ParseSafeBolt",new ParseSafeBolt()).shuffleGrouping(StreamAggregateConfig.SAFE_KAFKA_SPOUT);
+        //设置拓扑关系(Spout)
+        topologyBuilder.setSpout(StreamAggregateConfig.SAFE_KAFKA_SPOUT,new FloodingKafkaSpout());
+
+        //设置拓扑关系(Bolt) --切分行
+        topologyBuilder.setBolt("ParseSafeBolt",new ParseSafeBolt()).shuffleGrouping(StreamAggregateConfig.SAFE_KAFKA_SPOUT);
 
 
 

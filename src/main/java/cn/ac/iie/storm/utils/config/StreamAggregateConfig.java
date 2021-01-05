@@ -25,14 +25,14 @@ public class StreamAggregateConfig {
     public static final String KAFKA_FLOODING_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "kafka.flooding.topic");
     public static final String KAFKA_SAFE_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "kafka.safe.topic");
     public static final String AUTO_OFFSET_RESET = StreamAggregateConfigurations.getStringProperty(0, "auto.offset.reset");
-
-
-
-
+    /**
+     * flooding
+     */
     //Flooding-bolt设置
     public static final int FLOODING_TOPOLOGY_TICK_TUPLE_FREQ_SECS = StreamAggregateConfigurations.getIntProperty(0,"flooding.topology.tick.tuple.freq.secs");  //定时
     //分批
-    //Flooding-spout-field
+    public static final int FLOODING_BATCH_INTER_NUM = StreamAggregateConfigurations.getIntProperty(0,"flooding.batch.inter.num");
+
     public static final String FLOODING_SPOUT_FIELD = StreamAggregateConfigurations.getStringProperty(0, "flooding.spout.field");
     //Flooding-ComponentId-spout
     public static final String FLOODING_KAFKA_SPOUT = StreamAggregateConfigurations.getStringProperty(0, "flooding.kafka.spout");
@@ -120,6 +120,15 @@ public class StreamAggregateConfig {
      * safa
      */
 
+
+
+    //Flooding-bolt设置
+    //定时
+    public static final int SAFE_TOPOLOGY_TICK_TUPLE_FREQ_SECS = StreamAggregateConfigurations.getIntProperty(0,"safe.topology.tick.tuple.freq.secs");
+    //分批
+    public static final int SAFE_BATCH_INTER_NUM = StreamAggregateConfigurations.getIntProperty(0,"safe.batch.inter.num");
+
+
     //Flooding-spout-field
     public static final String SAFE_SPOUT_FIELD = StreamAggregateConfigurations.getStringProperty(0, "safe.spout.field");
     //Flooding-ComponentId-spout
@@ -129,19 +138,25 @@ public class StreamAggregateConfig {
     public static final String GK_IP_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "gk.ip.streamid");
     public static final String GK_DNS_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "gk.dns.streamid");
     public static final String GK_HTTP_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "gk.http.streamid");
-    public static final String GK_TDZS_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "gk.tdzs.streamid");
-    public static final String GK_WYGJZ_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "gk.wygjz.streamid");
+    public static final String GK_SSL_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "gk.ssl.streamid");
+    public static final String GK_WYGJC_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "gk.wygjc.streamid");
     public static final String GK_MAIL_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "gk.mail.streamid");
     public static final String GK_FTP_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "gk.ftp.streamid");
     public static final String GK_VPN_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "gk.vpn.streamid");
     public static final String GK_JSTX_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "gk.jstx.streamid");
+    //gk-schema
+    public static final String IP_GKRZ_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "ip.gkrz.schema");
+    public static final String DNS_GKZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "dns.gkzb.schema");
+    public static final String HTTP_GKZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "http.gkzb.schema");
+    public static final String SSL_GKZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "ssl.gkzb.schema");
+
 
     //jc-source-streamid
     public static final String JC_IP_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.ip.streamid");
     public static final String JC_DNS_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.dns.streamid");
     public static final String JC_HTTP_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.http.streamid");
-    public static final String JC_TDZS_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.tdzs.streamid");
-    public static final String JC_WYGJZ_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.wygjz.streamid");
+    public static final String JC_SSL_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.ssl.streamid");
+    public static final String JC_WYGJC_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.wygjc.streamid");
     public static final String JC_MAIL_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.mail.streamid");
     public static final String JC_FTP_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.ftp.streamid");
     public static final String JC_VPN_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.vpn.streamid");

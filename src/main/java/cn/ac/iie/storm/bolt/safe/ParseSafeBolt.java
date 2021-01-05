@@ -25,8 +25,8 @@ public class ParseSafeBolt extends BaseBasicBolt {
     private SessionRecordLog hmdrzzbSource;
     private SessionRecordLog dnsgkzbSource;
     private SessionRecordLog httpgkzbSource;
-    private SessionRecordLog tdzsgkzbSource;
-    private SessionRecordLog wygjzgkrzSource;
+    private SessionRecordLog sslgkzbSource;
+    private SessionRecordLog wygjcgkrzSource;
     private SessionRecordLog mailgkzbSource;
     private SessionRecordLog ftpgjzgkzbSouce;
     private SessionRecordLog vpngkzbSource;
@@ -38,8 +38,8 @@ public class ParseSafeBolt extends BaseBasicBolt {
     private SessionRecordLog ipjczbSource;
     private SessionRecordLog dnsjczbSource;
     private SessionRecordLog httpjczbSource;
-    private SessionRecordLog tdzsjczbSource;
-    private SessionRecordLog wygjzjcrzSource;
+    private SessionRecordLog ssljczbSource;
+    private SessionRecordLog wygjcjcrzSource;
     private SessionRecordLog mailgjzjczbSource;
     private SessionRecordLog ftpgjzjczbSource;
     private SessionRecordLog vpnjczbSource;
@@ -106,12 +106,12 @@ public class ParseSafeBolt extends BaseBasicBolt {
                     gkInputLog = line.getBytes().length;
                     break;
                 case 405:   //特定证书封堵
-                    tdzsgkzbSource = sessionRecordLog;
+                    sslgkzbSource = sessionRecordLog;
                     gkInputLog = line.getBytes().length;
                     break;
                 case 406:   //网站关键字封堵
                 case 409:   //搜索词封堵
-                    wygjzgkrzSource = sessionRecordLog;
+                    wygjcgkrzSource = sessionRecordLog;
                     gkInputLog = line.getBytes().length;
                     break;
                 case 407:   //邮件关键字封堵
@@ -147,12 +147,12 @@ public class ParseSafeBolt extends BaseBasicBolt {
                     jcInputLog = line.getBytes().length;
                     break;
                 case 505:   //特定证书监测
-                    tdzsjczbSource = sessionRecordLog;
+                    ssljczbSource = sessionRecordLog;
                     jcInputLog = line.getBytes().length;
                     break;
                 case 506:   //网站关键词监测
                 case 509:   //搜索词监测
-                    wygjzjcrzSource = sessionRecordLog;
+                    wygjcjcrzSource = sessionRecordLog;
                     jcInputLog = line.getBytes().length;
                     break;
                 case 507:   //邮件监测
@@ -188,8 +188,8 @@ public class ParseSafeBolt extends BaseBasicBolt {
             basicOutputCollector.emit(StreamAggregateConfig.GK_IP_STREAMID,new Values(hmdrzzbSource));
             basicOutputCollector.emit(StreamAggregateConfig.GK_DNS_STREAMID,new Values(dnsgkzbSource));
             basicOutputCollector.emit(StreamAggregateConfig.GK_HTTP_STREAMID,new Values(httpgkzbSource));
-            basicOutputCollector.emit(StreamAggregateConfig.GK_TDZS_STREAMID,new Values(tdzsgkzbSource));
-            basicOutputCollector.emit(StreamAggregateConfig.GK_WYGJZ_STREAMID,new Values(wygjzgkrzSource));
+            basicOutputCollector.emit(StreamAggregateConfig.GK_SSL_STREAMID,new Values(sslgkzbSource));
+            basicOutputCollector.emit(StreamAggregateConfig.GK_WYGJC_STREAMID,new Values(wygjcgkrzSource));
             basicOutputCollector.emit(StreamAggregateConfig.GK_MAIL_STREAMID,new Values(mailgkzbSource));
             basicOutputCollector.emit(StreamAggregateConfig.GK_FTP_STREAMID,new Values(ftpgjzgkzbSouce));
             basicOutputCollector.emit(StreamAggregateConfig.GK_VPN_STREAMID,new Values(vpngkzbSource));
@@ -199,8 +199,8 @@ public class ParseSafeBolt extends BaseBasicBolt {
             basicOutputCollector.emit(StreamAggregateConfig.JC_IP_STREAMID,new Values(ipjczbSource));
             basicOutputCollector.emit(StreamAggregateConfig.JC_DNS_STREAMID,new Values(dnsjczbSource));
             basicOutputCollector.emit(StreamAggregateConfig.JC_HTTP_STREAMID,new Values(httpjczbSource));
-            basicOutputCollector.emit(StreamAggregateConfig.JC_TDZS_STREAMID,new Values(tdzsjczbSource));
-            basicOutputCollector.emit(StreamAggregateConfig.JC_WYGJZ_STREAMID,new Values(wygjzjcrzSource));
+            basicOutputCollector.emit(StreamAggregateConfig.JC_SSL_STREAMID,new Values(ssljczbSource));
+            basicOutputCollector.emit(StreamAggregateConfig.JC_WYGJC_STREAMID,new Values(wygjcjcrzSource));
             basicOutputCollector.emit(StreamAggregateConfig.JC_MAIL_STREAMID,new Values(mailgjzjczbSource));
             basicOutputCollector.emit(StreamAggregateConfig.JC_FTP_STREAMID,new Values(ftpgjzjczbSource));
             basicOutputCollector.emit(StreamAggregateConfig.JC_VPN_STREAMID,new Values(vpnjczbSource));
@@ -221,8 +221,8 @@ public class ParseSafeBolt extends BaseBasicBolt {
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_IP_STREAMID,new Fields(StreamAggregateConfig.GK_IP_STREAMID));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_DNS_STREAMID,new Fields(StreamAggregateConfig.GK_DNS_STREAMID));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_HTTP_STREAMID,new Fields(StreamAggregateConfig.GK_HTTP_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_TDZS_STREAMID,new Fields(StreamAggregateConfig.GK_TDZS_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_WYGJZ_STREAMID,new Fields(StreamAggregateConfig.GK_WYGJZ_STREAMID));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_SSL_STREAMID,new Fields(StreamAggregateConfig.GK_SSL_STREAMID));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_WYGJC_STREAMID,new Fields(StreamAggregateConfig.GK_WYGJC_STREAMID));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_MAIL_STREAMID,new Fields(StreamAggregateConfig.GK_MAIL_STREAMID));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_FTP_STREAMID,new Fields(StreamAggregateConfig.GK_FTP_STREAMID));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_VPN_STREAMID,new Fields(StreamAggregateConfig.GK_VPN_STREAMID));
@@ -232,10 +232,10 @@ public class ParseSafeBolt extends BaseBasicBolt {
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_IP_STREAMID,new Fields(StreamAggregateConfig.JC_IP_STREAMID));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_DNS_STREAMID,new Fields(StreamAggregateConfig.JC_DNS_STREAMID));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_HTTP_STREAMID,new Fields(StreamAggregateConfig.JC_HTTP_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_TDZS_STREAMID,new Fields(StreamAggregateConfig.JC_TDZS_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_WYGJZ_STREAMID,new Fields(StreamAggregateConfig.JC_WYGJZ_STREAMID));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_SSL_STREAMID,new Fields(StreamAggregateConfig.JC_SSL_STREAMID));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_WYGJC_STREAMID,new Fields(StreamAggregateConfig.JC_WYGJC_STREAMID));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_MAIL_STREAMID,new Fields(StreamAggregateConfig.JC_MAIL_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_FTP_STREAMID,new Fields(StreamAggregateConfig.JC_VPN_STREAMID));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_FTP_STREAMID,new Fields(StreamAggregateConfig.JC_FTP_STREAMID));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_VPN_STREAMID,new Fields(StreamAggregateConfig.JC_VPN_STREAMID));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_JSTX_STREAMID,new Fields(StreamAggregateConfig.JC_JSTX_STREAMID));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_PIC_STREAMID,new Fields(StreamAggregateConfig.JC_PIC_STREAMID));
