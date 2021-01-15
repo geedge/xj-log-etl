@@ -165,7 +165,11 @@
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
             <version>${storm.version}</version>
+<<<<<<< HEAD
 <!--            <scope>provided</scope>-->
+=======
+            <scope>provided</scope>
+>>>>>>> cc9713565dcdd879e189d80013ea90833446a13a
         </dependency>
 
         <dependency>
@@ -274,11 +278,14 @@
             <artifactId>httpcore</artifactId>
             <version>4.4.1</version>
         </dependency>
+<<<<<<< HEAD
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpasyncclient</artifactId>
             <version>4.1.2</version>
         </dependency>
+=======
+>>>>>>> cc9713565dcdd879e189d80013ea90833446a13a
 <!--        &lt;!&ndash; The client &ndash;&gt;-->
 <!--        <dependency>-->
 <!--            <groupId>io.prometheus</groupId>-->
