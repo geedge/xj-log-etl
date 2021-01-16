@@ -49,13 +49,13 @@ public class FloodingSSLBolt extends BaseBasicBolt {
             Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getFloodingPostUrl(), generate(schema, SSLList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_SSL_TOPIC);
             ssldatasize = ssldatasize + getValidLength(generate(schema, SSLList));
             SSLList.clear();
-            if(TupleUtils.isTick(tuple)){
+            logger.info("返回信息"+stringStringMap);
                 //向下发送指标数据
                 basicOutputCollector.emit(new Values(sslcount,sslloadfail,ssldatasize));
                 ssldatasize = 0L;
                 sslcount = 0L;
                 sslloadfail = 0L;
-            }
+
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_HTTP_STREAMID)){

@@ -50,13 +50,13 @@ public class FloodingVPNBolt extends BaseBasicBolt {
             Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getFloodingPostUrl(), generate(schema, VPNList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_VPN_TOPIC);
             vpndatasize = vpndatasize + getValidLength(generate(schema, VPNList));
             VPNList.clear();
-            if(TupleUtils.isTick(tuple)){
+            logger.info("返回信息"+stringStringMap);
                 //向下发送指标数据
                 basicOutputCollector.emit(new Values(vpncount,vpnloadfail,vpndatasize));
                 vpndatasize = 0L;
                 vpncount = 0L;
                 vpnloadfail = 0L;
-            }
+
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_VPN_STREAMID)){

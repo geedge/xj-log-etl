@@ -51,15 +51,16 @@ public class FloodingMAILBolt extends BaseBasicBolt {
         HttpClientService httpClientService = new HttpClientService();
         if ((TupleUtils.isTick(tuple)&&!MAILList.isEmpty())||MAILList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){            //定时
             Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getFloodingPostUrl(), generate(schema, MAILList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_MAIL_TOPIC);
+            logger.info("返回信息"+stringStringMap);
             maildatasize = maildatasize + getValidLength(generate(schema, MAILList));
             MAILList.clear();
-            if(TupleUtils.isTick(tuple)){
+
                 //向下发送指标数据
                 basicOutputCollector.emit(new Values(mailcount,mailloadfail,maildatasize));
                 maildatasize = 0L;
                 mailcount = 0L;
                 mailloadfail = 0L;
-            }
+
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_HTTP_STREAMID)){

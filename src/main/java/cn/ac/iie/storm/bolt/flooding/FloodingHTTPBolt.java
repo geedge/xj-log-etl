@@ -49,15 +49,16 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
         HttpClientService httpClientService = new HttpClientService();
         if ((TupleUtils.isTick(tuple)&&!HTTPList.isEmpty())||HTTPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){            //定时
             Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getFloodingPostUrl(), generate(schema,HTTPList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_HTTP_TOPIC);
+            logger.info("返回信息:"+stringStringMap);
             httpdatasize = httpdatasize + getValidLength(generate(schema, HTTPList));
             HTTPList.clear();
-            if(TupleUtils.isTick(tuple)){
+
                 //向下发送指标数据
                 basicOutputCollector.emit(new Values(httpcount,httploadfail,httpdatasize));
                 httpdatasize = 0L;
                 httpcount = 0L;
                 httploadfail = 0L;
-            }
+
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_HTTP_STREAMID)){

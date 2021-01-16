@@ -48,15 +48,16 @@ public class FloodingJSTXBolt extends BaseBasicBolt {
         HttpClientService httpClientService = new HttpClientService();
         if ((TupleUtils.isTick(tuple)&&!JSTXList.isEmpty())||JSTXList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){            //定时
             Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getFloodingPostUrl(), generate(schema, JSTXList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_JSTX_TOPIC);
+            logger.info("返回信息"+stringStringMap);
             jstxdatasize = jstxdatasize + getValidLength(generate(schema, JSTXList));
             JSTXList.clear();
-            if(TupleUtils.isTick(tuple)){
+
                 //向下发送指标数据
                 basicOutputCollector.emit(new Values(jstxcount,jstxloadfail,jstxdatasize));
                 jstxdatasize = 0L;
                 jstxcount = 0L;
                 jstxloadfail = 0L;
-            }
+
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_JSTX_STREAMID)){

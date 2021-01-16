@@ -50,15 +50,16 @@ public class FloodingFTPBolt extends BaseBasicBolt {
         HttpClientService httpClientService = new HttpClientService();
         if ((TupleUtils.isTick(tuple)&&!FTPList.isEmpty())||FTPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){            //定时
             Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getFloodingPostUrl(), generate(schema,FTPList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_FTP_TOPIC);
+            logger.info("返回信息"+stringStringMap);
             ftpdatasize = ftpdatasize + getValidLength(generate(schema, FTPList));
             FTPList.clear();
-            if(TupleUtils.isTick(tuple)){
+
                 //向下发送指标数据
                 basicOutputCollector.emit(new Values(ftpcount,ftpLoadFail,ftpdatasize));
                 ftpdatasize = 0L;
                 ftpcount = 0L;
                 ftpLoadFail = 0L;
-            }
+
         }
         else {
                 if (tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_FTP_STREAMID)) {

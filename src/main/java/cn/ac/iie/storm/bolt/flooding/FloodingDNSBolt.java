@@ -47,15 +47,16 @@ public class FloodingDNSBolt extends BaseBasicBolt {
         HttpClientService httpClientService = new HttpClientService();
         if ((TupleUtils.isTick(tuple)&&!DNSList.isEmpty())||DNSList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){            //定时
             Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getFloodingPostUrl(), generate(schema,DNSList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_DNS_TOPIC);
+            logger.info("返回信息"+stringStringMap);
             dnsdatasize = dnsdatasize + getValidLength(generate(schema, DNSList));
             DNSList.clear();
-            if(TupleUtils.isTick(tuple)){
+
                 //向下发送指标数据
                 basicOutputCollector.emit(new Values(dnscount,dnsloadfail,dnsdatasize));
                 dnsdatasize = 0L;
                 dnscount = 0L;
                 dnsloadfail = 0L;
-            }
+
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_HTTP_STREAMID)){

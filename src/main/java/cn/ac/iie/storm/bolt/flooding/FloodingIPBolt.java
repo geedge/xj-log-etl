@@ -49,13 +49,13 @@ public class FloodingIPBolt extends BaseBasicBolt {
             System.out.println(stringStringMap);
             logger.info("返回信息"+stringStringMap);
             IPList.clear();
-            if(TupleUtils.isTick(tuple)){
+
                 //向下发送指标数据
                 basicOutputCollector.emit(new Values(ipcount,iploadfail,ipdatasize));
                 ipdatasize = 0L;
                 ipcount = 0L;
                 iploadfail = 0L;
-            }
+
         }
         else {
                 if (tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_IP_STREAMID)) {
