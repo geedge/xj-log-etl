@@ -110,7 +110,7 @@ public class GKFTPBolt extends BaseBasicBolt {
         ftp_gkzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
         ftp_gkzb.put("DETAIL_ID","1"); //同上
         ftp_gkzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
-        ftp_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_isp())); //-**common_isp这个字段
+        ftp_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
         ftp_gkzb.put("yl1",sessionRecordLog.getCommon_address_type());
         //ftp特有
         ftp_gkzb.put("CS_PKTS",sessionRecordLog.getCommon_c2s_pkt_num());

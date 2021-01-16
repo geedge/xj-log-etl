@@ -187,18 +187,14 @@ public class TransFormUtils {
         return i;
     }
 
-    public static int getYys(String common_isp) {
-        switch (common_isp) {
-            case "移动":
+    public static int getYys(String common_data_center) {
+        switch (common_data_center) {
+            case "CMCC":
                 return 1;
-            case "联通":
+            case "CUCC":
                 return 2;
-            case "电信":
+            case "CTCC":
                 return 3;
-            case "铁通":
-                return 4;
-            case "教育网":
-                return 5;
             default:return 0;
         }
     }
@@ -235,6 +231,7 @@ public class TransFormUtils {
         }
         return null;
     }
+
 
 
 }

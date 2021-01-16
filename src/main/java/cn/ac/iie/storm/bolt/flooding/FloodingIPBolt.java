@@ -94,7 +94,7 @@ public class FloodingIPBolt extends BaseBasicBolt {
         IP_rzzb.put("PROTO_ID","1");  ///--转化表 还没弄
         IP_rzzb.put("DETAIL_ID","1"); //同上
         IP_rzzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
-        IP_rzzb.put("YYS",0); //-**common_isp这个字段 getYys(sessionRecordLog.getCommon_isp())//
+        IP_rzzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段 getYys(sessionRecordLog.getCommon_isp())//
         IP_rzzb.put("YL1",sessionRecordLog.getCommon_address_type());
      //dns特有
         IP_rzzb.put("CS_PKTS",sessionRecordLog.getCommon_c2s_pkt_num());

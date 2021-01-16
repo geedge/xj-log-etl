@@ -5,6 +5,7 @@ package cn.ac.iie.storm.bean;
  */
 public class SessionRecordLog  {
 
+    private String common_data_center;
     private String labels;
     private long common_recv_time;
     private String common_l4_protocol;
@@ -470,6 +471,14 @@ public class SessionRecordLog  {
 
     public void setMail_snapshot(String mail_snapshot) {
         this.mail_snapshot = mail_snapshot;
+    }
+
+    public String getCommon_data_center() {
+        return common_data_center;
+    }
+
+    public void setCommon_data_center(String common_data_center) {
+        this.common_data_center = common_data_center;
     }
     //应用类
     //邮件类---Location
