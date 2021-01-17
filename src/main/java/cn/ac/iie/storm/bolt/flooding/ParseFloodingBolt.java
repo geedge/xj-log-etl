@@ -12,8 +12,6 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
-import static cn.ac.iie.storm.utils.general.TransFormUtils.getJsonMessage;
-
 public class ParseFloodingBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(ParseFloodingBolt.class);
     private static final long serialVersionUID = 7483439472002862539L;
@@ -40,14 +38,16 @@ public class ParseFloodingBolt extends BaseBasicBolt {
         //首先获取一条数据
         try {
             String line = tuple.getStringByField(StreamAggregateConfig.FLOODING_SPOUT_FIELD);
-            String jsonMessage = getJsonMessage(line);
-            SessionRecordLog sessionRecordLog = JSONObject.parseObject(jsonMessage, SessionRecordLog.class);
+
+            SessionRecordLog sessionRecordLog = JSONObject.parseObject(line, SessionRecordLog.class);
             String common_schema_type = sessionRecordLog.getCommon_schema_type();
+            String common_l7_protocol = sessionRecordLog.getCommon_l7_protocol();
             ybInputSize=line.getBytes().length;
             //按common_schema_type的值对数据进行分类发送
             switch(common_schema_type){
                 case "BASE":
-                if(sessionRecordLog.getCommon_schema_type()==null){
+                if(common_l7_protocol.equals("PPTP")||common_l7_protocol.equals("L2TP")||common_l7_protocol.equals("OPENVPN")||common_l7_protocol.equals("IPSEC")){
+                    sessionRecordLog.setCommon_schema_type("VPN");
                     vpnSource=line;
                 }else {
                     sessionRecordLog.setCommon_schema_type("IP类");
@@ -75,6 +75,7 @@ public class ParseFloodingBolt extends BaseBasicBolt {
                 default:
                     break;
             }
+
             basicOutputCollector.emit(StreamAggregateConfig.FLOODING_VPN_STREAMID,new Values(vpnSource));
             basicOutputCollector.emit(StreamAggregateConfig.FLOODING_IP_STREAMID,new Values(ipSource));
             basicOutputCollector.emit(StreamAggregateConfig.FLOODING_DNS_STREAMID,new Values(dnsSource));
@@ -83,6 +84,7 @@ public class ParseFloodingBolt extends BaseBasicBolt {
             basicOutputCollector.emit(StreamAggregateConfig.FLOODING_JSTX_STREAMID,new Values(jstxSource));
             basicOutputCollector.emit(StreamAggregateConfig.FLOODING_FTP_STREAMID,new Values(ftpSource));
             basicOutputCollector.emit(StreamAggregateConfig.FLOODING_SSL_STREAMID,new Values(sslSource));
+
 
             basicOutputCollector.emit(StreamAggregateConfig.FLOODING_YBInputSize_STREAMID,new Values(ybInputSize));
         } catch (Exception e) {

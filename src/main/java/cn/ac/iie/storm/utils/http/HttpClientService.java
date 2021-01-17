@@ -181,11 +181,13 @@ public class HttpClientService {
             resultMap.put("status", String.valueOf(HttpStatus.SC_INTERNAL_SERVER_ERROR));
             resultMap.put("message", e.getMessage());
         } finally {
+            if (null != response) {
                 try {
+                    EntityUtils.consumeQuietly(response.getEntity());
                     response.close();
                 } catch (IOException e) {
                     log.error("释放链接错误: {}"+e.getMessage());
-
+                }
             }
         }
         return resultMap;

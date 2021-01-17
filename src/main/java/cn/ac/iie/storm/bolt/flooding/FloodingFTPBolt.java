@@ -25,7 +25,7 @@ import java.util.Map;
 
 import static cn.ac.iie.storm.utils.combine.httpurl.Http_URL_process.getFile_Name;
 import static cn.ac.iie.storm.utils.general.TransFormUtils.*;
-import static cn.ac.iie.storm.utils.http.HttpGetUrl.getFloodingPostUrl;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
 
 public class FloodingFTPBolt extends BaseBasicBolt {
     private static final Logger logger = Logger.getLogger(FloodingFTPBolt.class);
@@ -49,7 +49,7 @@ public class FloodingFTPBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if ((TupleUtils.isTick(tuple)&&!FTPList.isEmpty())||FTPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){            //定时
-            Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getFloodingPostUrl(), generate(schema,FTPList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_FTP_TOPIC);
+            Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getPostUrl(), generate(schema,FTPList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_FTP_TOPIC);
             logger.info("返回信息"+stringStringMap);
             ftpdatasize = ftpdatasize + getValidLength(generate(schema, FTPList));
             FTPList.clear();
@@ -93,8 +93,8 @@ public class FloodingFTPBolt extends BaseBasicBolt {
         ftp_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         ftp_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         ftp_rzzb.put("DPORT",sessionRecordLog.getCommon_server_port());
-        ftp_rzzb.put("PROTO_ID","1");  ///--转化表 还没弄
-        ftp_rzzb.put("DETAIL_ID","1"); //同上
+        ftp_rzzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
+        ftp_rzzb.put("DETAIL_ID","06999"); //同上
         ftp_rzzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         ftp_rzzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段 //getYys(sessionRecordLog.getCommon_isp())
         ftp_rzzb.put("YL1",sessionRecordLog.getCommon_address_type());

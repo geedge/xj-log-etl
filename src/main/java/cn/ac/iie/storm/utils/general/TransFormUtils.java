@@ -40,33 +40,6 @@ public class TransFormUtils {
 //    private static SnowflakeId snowflakeId = new SnowflakeId();
 
     /**
-     * 解析日志
-     *
-     * @param message 原始日志
-     * @return 修正后的日志
-     */
-    public static String getJsonMessage(String message) {
-        SessionRecordLog sessionRecordLog = JSONObject.parseObject(message, SessionRecordLog.class);
-        //    String serverIp = sessionRecordLog.getCommon_server_ip();
-        //    String clientIp = sessionRecordLog.getCommon_client_ip();
-        try {
-
-            //sessionRecordLog.setUid(SnowflakeId.generateId());
-            // sessionRecordLog.setCommon_server_location(ipLookup.countryLookup(serverIp));
-            //sessionRecordLog.getCommon_client_location(ipLookup.cityLookupDetail(clientIp));
-            //sessionRecordLog.setClient_asn(ipLookup.asnLookup(clientIp, true));
-            // sessionRecordLog.setServer_asn(ipLookup.asnLookup(serverIp, true));
-            // sessionRecordLog.setDomain(getTopDomain(sessionRecordLog.getSni(), sessionRecordLog.getHost()));
-            //protocol对应的common_l4_protocol
-//            sessionRecordLog.setSubscribe_id(getSubscribeId(clientIp));
-            return JSONObject.toJSONString(sessionRecordLog);
-        } catch (Exception e) {
-            logger.error("日志解析过程出现异常", e);
-            return "";
-        }
-    }
-
-    /**
      * 有sni通过sni获取域名，有hots根据host获取域名
      *
      * @param sni  sni
@@ -187,6 +160,11 @@ public class TransFormUtils {
         return i;
     }
 
+    /**
+     * 获取运营商
+     * @param common_data_center
+     * @return
+     */
     public static int getYys(String common_data_center) {
         switch (common_data_center) {
             case "CMCC":
@@ -198,6 +176,51 @@ public class TransFormUtils {
             default:return 0;
         }
     }
+
+
+
+    public static String  getVpnDetail_id(String common_l7_protocol) throws IOException {
+
+        switch (common_l7_protocol){
+            case "PPTP":
+                return "04001";
+            case "L2TP":
+                return "04002";
+            case "OPENVPN":
+                return "04003";
+            case "IPSEC":
+                return "04004";
+            default:
+                return null;
+        }
+    }
+
+    public static String  getJstxDetail_id(String common_app_id) throws IOException {
+        Map<String, String> appId = getAppId();
+            return appId.get(common_app_id);
+    }
+
+
+
+    public static String  getMailDetail_id(String mail_protocol_type) throws IOException {
+        switch (mail_protocol_type){
+            case "MAIL":
+                return "03001";
+            case "SMTPS":
+                return "03002";
+            case "POP3S":
+                return "03003";
+            case "IMAPS":
+                return "03004";
+            default:
+                return null;
+        }
+    }
+
+
+
+
+
 
 
         private static Map getAppId () throws IOException {
@@ -214,6 +237,13 @@ public class TransFormUtils {
             return Map;
         }
 
+
+    /**
+     * avro对象的序列化方式
+     * @param schema
+     * @param genericRecordList
+     * @return
+     */
     public static byte[] generate(Schema schema, List<GenericRecord> genericRecordList){
         GenericDatumWriter<GenericRecord> writer = new GenericDatumWriter<>(schema);
         ByteArrayOutputStream out = new ByteArrayOutputStream();

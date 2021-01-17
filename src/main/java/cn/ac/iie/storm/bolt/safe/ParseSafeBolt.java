@@ -14,7 +14,6 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
 
-import static cn.ac.iie.storm.utils.general.TransFormUtils.getJsonMessage;
 
 public class ParseSafeBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(ParseSafeBolt.class);
@@ -65,8 +64,7 @@ public class ParseSafeBolt extends BaseBasicBolt {
         //首先获取一条数据
         try {
             String line = tuple.getStringByField(StreamAggregateConfig.SAFE_SPOUT_FIELD);
-            String jsonMessage = getJsonMessage(line);
-            SessionRecordLog sessionRecordLog = JSONObject.parseObject(jsonMessage, SessionRecordLog.class);
+            SessionRecordLog sessionRecordLog = JSONObject.parseObject(line, SessionRecordLog.class);
 
 
             UserRegion userRegion =JSONObject.parseObject(sessionRecordLog.getUserregion(), UserRegion.class);

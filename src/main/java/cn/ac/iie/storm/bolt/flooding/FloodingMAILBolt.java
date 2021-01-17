@@ -24,8 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import static cn.ac.iie.storm.utils.general.MailTrans.*;
+import static cn.ac.iie.storm.utils.general.MailTrans.getMailRecever;
 import static cn.ac.iie.storm.utils.general.TransFormUtils.*;
-import static cn.ac.iie.storm.utils.http.HttpGetUrl.getFloodingPostUrl;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
 
 public class FloodingMAILBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(FloodingMAILBolt.class);
@@ -50,7 +51,7 @@ public class FloodingMAILBolt extends BaseBasicBolt {
 
         HttpClientService httpClientService = new HttpClientService();
         if ((TupleUtils.isTick(tuple)&&!MAILList.isEmpty())||MAILList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){            //定时
-            Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getFloodingPostUrl(), generate(schema, MAILList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_MAIL_TOPIC);
+            Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getPostUrl(), generate(schema, MAILList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_MAIL_TOPIC);
             logger.info("返回信息"+stringStringMap);
             maildatasize = maildatasize + getValidLength(generate(schema, MAILList));
             MAILList.clear();
@@ -63,7 +64,7 @@ public class FloodingMAILBolt extends BaseBasicBolt {
 
         }
         else {
-            if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_HTTP_STREAMID)){
+            if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_MAIL_STREAMID)){
                 String line =tuple.getString(0);
                 sessionRecordLog = JSONObject.parseObject(line, SessionRecordLog.class);
             }
@@ -96,14 +97,13 @@ public class FloodingMAILBolt extends BaseBasicBolt {
         mail_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         mail_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         mail_rzzb.put("DPORT",sessionRecordLog.getCommon_server_port());
-        mail_rzzb.put("PROTO_ID","1");  ///--转化表 还没弄
-        mail_rzzb.put("DETAIL_ID","1"); //同上
+        mail_rzzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
+        mail_rzzb.put("DETAIL_ID",getMailDetail_id(sessionRecordLog.getMail_protocol_type())); //同上
         mail_rzzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         mail_rzzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段 getYys(sessionRecordLog.getCommon_isp())//
         mail_rzzb.put("YL1",sessionRecordLog.getCommon_address_type());
         //根据mail_bcc填充
-        /* mail_rzzb.put("YL2",sessionRecordLog.getMail_bcc);*/
-        /*mail_rzzb.put("YL4",sessionRecordLog.getMail_bcc);*/
+
         //mail特有
         mail_rzzb.put("CS_PKTS",sessionRecordLog.getCommon_c2s_pkt_num());
         mail_rzzb.put("CS_BYTES",sessionRecordLog.getCommon_c2s_byte_num());
@@ -126,9 +126,11 @@ public class FloodingMAILBolt extends BaseBasicBolt {
         mail_rzzb.put("FILE_CONTENT",sessionRecordLog.getMail_attachment_content());
         mail_rzzb.put("PWD",sessionRecordLog.getMail_passwd());
         mail_rzzb.put("FJFWS",getFjfws(sessionRecordLog.getMail_from()));
-        //mail_rzzb.put("FJFWS_SZD",sessionRecordLog.getMail_content()); //  //境内境外未知，根据Location填充
-        mail_rzzb.put("SJFWS",getFjfws(sessionRecordLog.getMail_to()));
-        //mail_rzzb.put("SJFWS_SZD",sessionRecordLog.getMail_content());//境内境外未知，根据Location填充
+        mail_rzzb.put("FJFWS_SZD",sessionRecordLog.getCommon_client_location()); //  //境内境外未知，根据Location填充
+        mail_rzzb.put("SJFWS",sessionRecordLog.getCommon_server_location());
+        mail_rzzb.put("SJFWS_SZD",sessionRecordLog.getMail_content());//境内境外未知，根据Location填充
+        mail_rzzb.put("YL2",getMailRecever(sessionRecordLog.getMail_bcc()));
+        mail_rzzb.put("YL4",getNum(sessionRecordLog.getMail_bcc()));
 
         mail_rzzb.put("XYLX",sessionRecordLog.getMail_protocol_type());
 

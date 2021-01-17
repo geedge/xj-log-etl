@@ -5,6 +5,7 @@ package cn.ac.iie.storm.bean;
  */
 public class SessionRecordLog  {
 
+
     private String common_data_center;
     private String labels;
     private long common_recv_time;
@@ -483,5 +484,6 @@ public class SessionRecordLog  {
     //应用类
     //邮件类---Location
     //邮件类透传
+
 
 }

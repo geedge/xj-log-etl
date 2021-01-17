@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import static cn.ac.iie.storm.utils.general.TransFormUtils.*;
-import static cn.ac.iie.storm.utils.http.HttpGetUrl.getFloodingPostUrl;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
 
 public class FloodingIPBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(FloodingIPBolt.class);
@@ -44,7 +44,7 @@ public class FloodingIPBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if ((TupleUtils.isTick(tuple)&&!IPList.isEmpty())||IPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){            //定时
-            Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getFloodingPostUrl(), generate(schema, IPList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_IP_TOPIC);
+            Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getPostUrl(), generate(schema, IPList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_IP_TOPIC);
             ipdatasize = ipdatasize + getValidLength(generate(schema, IPList));
             System.out.println(stringStringMap);
             logger.info("返回信息"+stringStringMap);
@@ -84,15 +84,15 @@ public class FloodingIPBolt extends BaseBasicBolt {
     }
     private void setIP_RZZB(GenericRecord IP_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
         IP_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
-        IP_rzzb.put("YDY","null");
-        IP_rzzb.put("MDDY","null"); //sessionRecordLog.getCommon_server_location()
+        IP_rzzb.put("YDY",sessionRecordLog.getCommon_client_location());
+        IP_rzzb.put("MDDY",sessionRecordLog.getCommon_server_location()); //sessionRecordLog.getCommon_server_location()
         IP_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip())); //--其实是使用网络序列
         IP_rzzb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         IP_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         IP_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         IP_rzzb.put("DPORT",sessionRecordLog.getCommon_server_port());
-        IP_rzzb.put("PROTO_ID","1");  ///--转化表 还没弄
-        IP_rzzb.put("DETAIL_ID","1"); //同上
+        IP_rzzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
+        IP_rzzb.put("DETAIL_ID","08003"); //同上
         IP_rzzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         IP_rzzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段 getYys(sessionRecordLog.getCommon_isp())//
         IP_rzzb.put("YL1",sessionRecordLog.getCommon_address_type());

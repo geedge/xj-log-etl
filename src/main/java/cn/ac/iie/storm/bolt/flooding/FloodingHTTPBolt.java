@@ -25,7 +25,7 @@ import java.util.Map;
 
 import static cn.ac.iie.storm.utils.combine.httpurl.Http_URL_process.getFile_Name;
 import static cn.ac.iie.storm.utils.general.TransFormUtils.*;
-import static cn.ac.iie.storm.utils.http.HttpGetUrl.getFloodingPostUrl;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
 
 public class FloodingHTTPBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(FloodingHTTPBolt.class);
@@ -48,17 +48,15 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if ((TupleUtils.isTick(tuple)&&!HTTPList.isEmpty())||HTTPList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){            //定时
-            Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getFloodingPostUrl(), generate(schema,HTTPList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_HTTP_TOPIC);
+            Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getPostUrl(), generate(schema,HTTPList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_HTTP_TOPIC);
             logger.info("返回信息:"+stringStringMap);
             httpdatasize = httpdatasize + getValidLength(generate(schema, HTTPList));
             HTTPList.clear();
-
                 //向下发送指标数据
                 basicOutputCollector.emit(new Values(httpcount,httploadfail,httpdatasize));
                 httpdatasize = 0L;
                 httpcount = 0L;
                 httploadfail = 0L;
-
         }
         else {
             if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_HTTP_STREAMID)){
@@ -94,8 +92,8 @@ public class FloodingHTTPBolt extends BaseBasicBolt {
         http_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         http_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         http_rzzb.put("DPORT",sessionRecordLog.getCommon_server_port());
-        http_rzzb.put("PROTO_ID","1");  ///--转化表 还没弄
-        http_rzzb.put("DETAIL_ID","1"); //同上
+        http_rzzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
+        http_rzzb.put("DETAIL_ID","01999"); //同上
         http_rzzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         http_rzzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段 //getYys(sessionRecordLog.getCommon_isp())
         http_rzzb.put("YL1",sessionRecordLog.getCommon_address_type());

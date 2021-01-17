@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import static cn.ac.iie.storm.utils.general.TransFormUtils.*;
-import static cn.ac.iie.storm.utils.http.HttpGetUrl.getFloodingPostUrl;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
 
 public class FloodingVPNBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(FloodingVPNBolt.class);
@@ -47,7 +47,7 @@ public class FloodingVPNBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if ((TupleUtils.isTick(tuple)&&!VPNList.isEmpty())||VPNList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){            //定时
-            Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getFloodingPostUrl(), generate(schema, VPNList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_VPN_TOPIC);
+            Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getPostUrl(), generate(schema, VPNList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_VPN_TOPIC);
             vpndatasize = vpndatasize + getValidLength(generate(schema, VPNList));
             VPNList.clear();
             logger.info("返回信息"+stringStringMap);
@@ -91,8 +91,8 @@ public class FloodingVPNBolt extends BaseBasicBolt {
         vpn_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         vpn_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         vpn_rzzb.put("DPORT",sessionRecordLog.getCommon_server_port());
-        vpn_rzzb.put("PROTO_ID","1");  ///--转化表 还没弄
-        vpn_rzzb.put("DETAIL_ID","1"); //同上
+        vpn_rzzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
+        vpn_rzzb.put("DETAIL_ID",getVpnDetail_id(sessionRecordLog.getCommon_l7_protocol())); //同上
         vpn_rzzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         vpn_rzzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段 getYys(sessionRecordLog.getCommon_isp())//
         vpn_rzzb.put("YL1",sessionRecordLog.getCommon_address_type());

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import static cn.ac.iie.storm.utils.general.TransFormUtils.*;
-import static cn.ac.iie.storm.utils.http.HttpGetUrl.getFloodingPostUrl;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
 
 public class FloodingSSLBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(FloodingSSLBolt.class);
@@ -46,7 +46,7 @@ public class FloodingSSLBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         HttpClientService httpClientService = new HttpClientService();
         if ((TupleUtils.isTick(tuple)&&!SSLList.isEmpty())||SSLList.size()>=StreamAggregateConfig.FLOODING_BATCH_INTER_NUM){            //定时
-            Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getFloodingPostUrl(), generate(schema, SSLList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_SSL_TOPIC);
+            Map<String, String> stringStringMap = httpClientService.gethttpFloodingPost(getPostUrl(), generate(schema, SSLList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_SSL_TOPIC);
             ssldatasize = ssldatasize + getValidLength(generate(schema, SSLList));
             SSLList.clear();
             logger.info("返回信息"+stringStringMap);
@@ -55,10 +55,9 @@ public class FloodingSSLBolt extends BaseBasicBolt {
                 ssldatasize = 0L;
                 sslcount = 0L;
                 sslloadfail = 0L;
-
         }
         else {
-            if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_HTTP_STREAMID)){
+            if(tuple.getSourceStreamId().equals(StreamAggregateConfig.FLOODING_SSL_STREAMID)){
                 String line =tuple.getString(0);
                 sessionRecordLog = JSONObject.parseObject(line, SessionRecordLog.class);
             }
@@ -83,20 +82,20 @@ public class FloodingSSLBolt extends BaseBasicBolt {
     }
     private void setIP_RZZB(GenericRecord ssl_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
         ssl_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
-        ssl_rzzb.put("YDY","null");  //sessionRecordLog.getCommon_client_location()
-        ssl_rzzb.put("MDDY","null"); //sessionRecordLog.getCommon_server_location()
+        ssl_rzzb.put("YDY",sessionRecordLog.getCommon_client_location());
+        ssl_rzzb.put("MDDY",sessionRecordLog.getCommon_server_location());
         ssl_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip())); //--其实是使用网络序列
         ssl_rzzb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         ssl_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         ssl_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         ssl_rzzb.put("DPORT",sessionRecordLog.getCommon_server_port());
-        ssl_rzzb.put("PROTO_ID","1");  ///--转化表 还没弄
-        ssl_rzzb.put("DETAIL_ID","1"); //同上
+        ssl_rzzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
+        ssl_rzzb.put("DETAIL_ID","07999"); //同上
         ssl_rzzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         ssl_rzzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段 getYys(sessionRecordLog.getCommon_isp())//
         ssl_rzzb.put("YL1",sessionRecordLog.getCommon_address_type());
 
-     //dns特有
+     //ssl特有
         ssl_rzzb.put("CS_PKTS",sessionRecordLog.getCommon_c2s_pkt_num());
         ssl_rzzb.put("CS_BYTES",sessionRecordLog.getCommon_c2s_byte_num());
         ssl_rzzb.put("SC_PKTS",sessionRecordLog.getCommon_s2c_pkt_num());
