@@ -148,12 +148,11 @@ public class CountBolt extends BaseBasicBolt {
             floodingsucesscount = 0L;
             floodingloadfailcount = 0L;
         }else {
-            if (input.getSourceComponent().equals(StreamAggregateConfig.FLOODING_DNS_COMPONENTID)) {
-                long dnscount = input.getLongByField(StreamAggregateConfig.FLOODING_DNSCOUNT_FIELD);
-                long dnsloadfail = input.getLongByField(StreamAggregateConfig.FLOODING_DNSLOADFAIL_FIELD);
-                long dnsdatasize = input.getLongByField(StreamAggregateConfig.FLOODING_DNSDATASIZE_FIELD);
+            Long aLong = input.getLong(0);
+            Long aLong1 = input.getLong(2);
+            Long aLong2 = input.getLong(1);
 
-                yboutputsize = yboutputsize + dnsdatasize;
+            yboutputsize = yboutputsize + dnsdatasize;
                 floodingcount = floodingcount + dnscount;
                 floodingloadfailcount = floodingloadfailcount + dnsloadfail;
             }else if (input.getSourceComponent().equals(StreamAggregateConfig.FLOODING_FTP_COMPONENTID)) {
