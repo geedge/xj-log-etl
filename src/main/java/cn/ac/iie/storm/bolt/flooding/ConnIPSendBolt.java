@@ -20,6 +20,7 @@ public class ConnIPSendBolt extends BaseBasicBolt {
           if(tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_IP_STREAMID)) {
               byte[] ipSource = (byte[]) tuple.getValue(0);
                HttpClientService.getConnHttpPost(getPostUrl(), ipSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_IP_TOPIC);
+               logger.info("-----------------ip_rzzb已经发送----------------------");
           }
 
     }

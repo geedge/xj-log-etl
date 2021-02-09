@@ -4,6 +4,9 @@ import cn.ac.iie.storm.bean.SessionRecordLog;
 import cn.ac.iie.storm.utils.config.StreamAggregateConfigurations;
 import com.alibaba.fastjson.JSONObject;
 import com.zdjizhi.utils.StringUtil;
+import nl.bitwalker.useragentutils.Browser;
+import nl.bitwalker.useragentutils.OperatingSystem;
+import nl.bitwalker.useragentutils.UserAgent;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
@@ -129,7 +132,7 @@ public class TransFormUtils {
             int ip10 = 0;
             String[] ss = common_client_ip.trim().split("\\.");
             if (ss.length != 4)
-                return "null";
+                return "";
             for (int i = 0; i < 4; i++) {
                 ip10 |= Integer.parseInt(ss[i]) << ((i) * 8);
             }
@@ -162,6 +165,7 @@ public class TransFormUtils {
      * @return
      */
     public static int getYys(String common_data_center) {
+        if (common_data_center!=null){
         switch (common_data_center) {
             case "CMCC":
                 return 1;
@@ -170,7 +174,9 @@ public class TransFormUtils {
             case "CTCC":
                 return 3;
             default:return 0;
+            }
         }
+        return 0;
     }
 
 
@@ -210,6 +216,23 @@ public class TransFormUtils {
         }
     }
 
+    public static String getYl3(String labels){
+       StringBuilder str = new StringBuilder();
+        if (labels!=null){
+            String[] s = labels.split(",");
+            for (int i = 0; i <s.length ; i++) {
+                if(i<s.length-1){
+                    str.append(s[i]).append(";");
+                }else {
+                    str.append(s[i]);
+                }
+            }
+        }
+        return str.toString();
+    }
+
+
+
     /**
      * avro对象的序列化方式
      * @param schema
@@ -237,5 +260,17 @@ public class TransFormUtils {
         }
     }
 
+    public static String getSsqy(String http_user_agent){
+        if (http_user_agent==null){
+            return " ";
+        }else {
+            UserAgent userAgent = UserAgent.parseUserAgentString(http_user_agent);
+            Browser browser = userAgent.getBrowser();
+            OperatingSystem os = userAgent.getOperatingSystem();
+            String system = os.getName();
+            String browserName = browser.getName();
+            return browserName;
+        }
+    }
 }
 

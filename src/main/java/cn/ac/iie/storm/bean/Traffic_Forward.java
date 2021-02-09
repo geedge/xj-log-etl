@@ -10,6 +10,15 @@ public class Traffic_Forward {
     private int lhid;
     private int pzlx;
     private int gklb;
+    private int yyzl;
+
+    public int getYyzl() {
+        return yyzl;
+    }
+
+    public void setYyzl(int yyzl) {
+        this.yyzl = yyzl;
+    }
 
     public int getEnable() {
         return enable;

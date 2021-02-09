@@ -39,7 +39,7 @@ public class MailTrans {
      */
     public static int getNum(String s){
         int num = 0;
-        if(!(s==null)) {
+        if(s!=null) {
             Pattern pattern = Pattern.compile("<([\\s\\S]*?)>");
             Matcher matcher = pattern.matcher(s);
             while (matcher.find()) {
@@ -71,7 +71,6 @@ public class MailTrans {
             Matcher matcher = pattern.matcher(mail_from);
             int i = 0;
             while(matcher.find()) {
-
                 if (str.length() > 0) {
                     str.append(";");
                 }

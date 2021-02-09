@@ -63,10 +63,10 @@ public class HttpClientService {
             connectionManager = new PoolingHttpClientConnectionManager();
             // 整个连接池最大连接数
             // connectionManager.setMaxTotal(httpConfig.getMaxConnectionNum());
-            connectionManager.setMaxTotal(400);
+            connectionManager.setMaxTotal(2000);
             // 每路由最大连接数，默认值是2
             //  connectionManager.setDefaultMaxPerRoute(httpConfig.getMaxPerRoute());
-            connectionManager.setDefaultMaxPerRoute(80);
+            connectionManager.setDefaultMaxPerRoute(400);
         }
         log.info("Initializing PoolingHttpClientConnectionManager Complete");
 
@@ -76,7 +76,7 @@ public class HttpClientService {
          *  这里会根据情况进行判断是否重试
          */
         HttpRequestRetryHandler retry = (exception, executionCount, context) -> {
-            if (executionCount >= 1) {// 如果已经重试了3次，就放弃
+            if (executionCount >= 3) {// 如果已经重试了3次，就放弃
                 return false;
             }
             if (exception instanceof NoHttpResponseException) {// 如果服务器丢掉了连接，那么就重试

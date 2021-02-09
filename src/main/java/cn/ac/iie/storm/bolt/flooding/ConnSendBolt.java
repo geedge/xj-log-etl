@@ -13,38 +13,30 @@ import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
 public class ConnSendBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(ConnSendBolt.class);
 
-
-
-
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
 
    if(tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_DNS_STREAMID)) {
             byte[] dnsSource = (byte[]) tuple.getValue(0);
-            if (dnsSource.length>0) {
-                HttpClientService.getConnHttpPost(getPostUrl(), dnsSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_DNS_TOPIC);
-            }
-        }else if(tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_MAIL_STREAMID)) {
+            HttpClientService.getConnHttpPost(getPostUrl(), dnsSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_DNS_TOPIC);
+            logger.info("------------------------CONN—DNS数据已发送------------------");
+         }else if(tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_MAIL_STREAMID)) {
             byte[] mailSource = (byte[]) tuple.getValue(0);
-            if (mailSource.length>0) {
-                HttpClientService.getConnHttpPost(getPostUrl(), mailSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_MAIL_TOPIC);
-            }
-        }else if(tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_VPN_STREAMID)) {
+            HttpClientService.getConnHttpPost(getPostUrl(), mailSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_MAIL_TOPIC);
+            logger.info("------------------------CONN—MAIL数据已发送------------------");
+         }else if(tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_VPN_STREAMID)) {
             byte[] vpnSource = (byte[]) tuple.getValue(0);
-            if (vpnSource.length>0) {
-                 HttpClientService.getConnHttpPost(getPostUrl(), vpnSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_VPN_TOPIC);
-             }
-        }else if(tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_JSTX_STREAMID)) {
+            HttpClientService.getConnHttpPost(getPostUrl(), vpnSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_VPN_TOPIC);
+            logger.info("------------------------CONN—VPN数据已发送------------------");
+         }else if(tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_JSTX_STREAMID)) {
             byte[] jstxSource = (byte[]) tuple.getValue(0);
-            if(jstxSource.length>0) {
-               HttpClientService.getConnHttpPost(getPostUrl(), jstxSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_JSTX_TOPIC);
-            }
+            HttpClientService.getConnHttpPost(getPostUrl(), jstxSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_JSTX_TOPIC);
+            logger.info("------------------------CONN—JSTX数据已发送------------------");
         } else if(tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_FTP_STREAMID)) {
             byte[] ftpSource = (byte[]) tuple.getValue(0);
-            if(ftpSource.length>0) {
-              HttpClientService.getConnHttpPost(getPostUrl(), ftpSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_FTP_TOPIC);
-            }
-        }
+            HttpClientService.getConnHttpPost(getPostUrl(), ftpSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_FTP_TOPIC);
+            logger.info("------------------------CONN—FTP数据已发送------------------");
+         }
     }
 
 

@@ -4,7 +4,7 @@ package cn.ac.iie.storm.bean;
  * @author wangchengcheng
  */
 public class SessionRecordLog  {
-
+    private String http_request_header;
     private String common_user_region;
     private String common_data_center;
     private String labels;
@@ -15,15 +15,7 @@ public class SessionRecordLog  {
     private String common_sled_ip;
     private String common_client_ip;
     private String common_server_ip;
-
-    public String getCommon_user_region() {
-        return common_user_region;
-    }
-
-    public void setCommon_user_region(String common_user_region) {
-        this.common_user_region = common_user_region;
-    }
-
+    private String http_content_type;
     private int common_client_port;
     private int common_server_port;
     private String common_schema_type;
@@ -59,9 +51,26 @@ public class SessionRecordLog  {
     private String mail_snapshot;
     private String mail_bcc;
 
+    private String http_response_body;
     private int enable;
     private String pzid;
     private long timestamp;
+
+
+    private int flid;
+    private int xzid;
+    private int lhid;
+    private int pzlx;
+    private int gklb;
+    private int yyzl;
+
+    public String getHttp_content_type() {
+        return http_content_type;
+    }
+
+    public void setHttp_content_type(String http_content_type) {
+        this.http_content_type = http_content_type;
+    }
 
     public String getLabels() {
         return labels;
@@ -71,11 +80,14 @@ public class SessionRecordLog  {
         this.labels = labels;
     }
 
-    private int flid;
-    private int xzid;
-    private int lhid;
-    private int pzlx;
-    private int gklb;
+
+    public int getYyzl() {
+        return yyzl;
+    }
+
+    public void setYyzl(int yyzl) {
+        this.yyzl = yyzl;
+    }
 
     public int getEnable() {
         return enable;
@@ -179,12 +191,13 @@ public class SessionRecordLog  {
         this.common_recv_time = common_recv_time;
     }
 
-    public String getCommon_client_location() {
-        return common_client_location;
-    }
+
 
     public void setCommon_client_location(String common_client_location) {
         this.common_client_location = common_client_location;
+    }
+    public String getCommon_client_location() {
+        return common_client_location;
     }
 
     public String getCommon_server_location() {
@@ -482,9 +495,28 @@ public class SessionRecordLog  {
     public void setCommon_data_center(String common_data_center) {
         this.common_data_center = common_data_center;
     }
-    //应用类
-    //邮件类---Location
-    //邮件类透传
 
+    public String getCommon_user_region() {
+        return common_user_region;
+    }
 
+    public void setCommon_user_region(String common_user_region) {
+        this.common_user_region = common_user_region;
+    }
+
+    public String getHttp_request_header() {
+        return http_request_header;
+    }
+
+    public void setHttp_request_header(String http_request_header) {
+        this.http_request_header = http_request_header;
+    }
+
+    public String getHttp_response_body() {
+        return http_response_body;
+    }
+
+    public void setHttp_response_body(String http_response_body) {
+        this.http_response_body = http_response_body;
+    }
 }

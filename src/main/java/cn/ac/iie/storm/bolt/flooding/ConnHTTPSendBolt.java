@@ -19,6 +19,7 @@ public class ConnHTTPSendBolt  extends BaseBasicBolt {
         if(tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_HTTP_STREAMID)) {
             byte[] httpSource = (byte[]) tuple.getValue(0);
             HttpClientService.getConnHttpPost(getPostUrl(), httpSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_HTTP_TOPIC);
+            logger.info("-----------------http_rzzb已经发送----------------------");
         }
     }
 

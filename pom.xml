@@ -14,7 +14,7 @@
             <storm.version>1.0.2</storm.version>
 <!--            <hbase.version>2.2.1</hbase.version>-->
 <!--            <hadoop.version>2.7.1</hadoop.version>-->
-            <kotlin.version>1.4.21</kotlin.version>
+            <kotlin.version>1.4.30-RC</kotlin.version>
 <!--        <slf4j.version>1.7.25</slf4j.version>-->
         <log4j.version>1.2.16</log4j.version>
     </properties>
@@ -87,6 +87,13 @@
                         <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>conntest-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>test-compile</goal>
                         </goals>
                     </execution>
                     <execution>
@@ -165,7 +172,7 @@
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
             <version>${storm.version}</version>
-<!--            <scope>provided</scope>-->
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -335,15 +342,38 @@
 <!--        </dependency>-->
 <!--        <dependency>-->
 <!--            <groupId>org.jetbrains.kotlin</groupId>-->
-<!--            <artifactId>kotlin-test</artifactId>-->
+<!--            <artifactId>kotlin-conntest</artifactId>-->
 <!--            <version>${kotlin.version}</version>-->
-<!--            <scope>test</scope>-->
+<!--            <scope>conntest</scope>-->
 <!--        </dependency>-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>nl.bitwalker</groupId>
+            <artifactId>UserAgentUtils</artifactId>
+            <version>1.2.4</version>
         </dependency>
 
     </dependencies>

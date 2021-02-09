@@ -48,7 +48,6 @@ public class FloodingKafkaSpout extends BaseRichSpout {
         this.consumer = new KafkaConsumer<>(prop);
         this.consumer.subscribe(Collections.singletonList(StreamAggregateConfig.KAFKA_TOPIC));
     }
-
     @Override
     public void close() {
         consumer.close();

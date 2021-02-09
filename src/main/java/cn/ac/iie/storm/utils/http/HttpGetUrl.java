@@ -16,11 +16,16 @@ public class HttpGetUrl {
     }
 
 
-    public static String getHttpHost(String url) {
-        String host = url.substring(7, 27);
-
-        return host;
+    public static String getHttpHost(String urlString) {
+        int index = urlString.indexOf("://");
+        if (index != -1) {
+            urlString = urlString.substring(index + 3);
+        }
+        index = urlString.indexOf("/");
+        if (index != -1) {
+            urlString = urlString.substring(0, index);
+        }
+        return urlString;
     }
-
 }
 

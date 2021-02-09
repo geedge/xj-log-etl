@@ -89,8 +89,6 @@ public class StreamAggregateConfig {
 
     //Flooding-spout-field
     public static final String SAFE_SPOUT_FIELD = StreamAggregateConfigurations.getStringProperty(0, "safe.spout.field");
-    //Flooding-ComponentId-spout
-    public static final String SAFE_KAFKA_SPOUT = StreamAggregateConfigurations.getStringProperty(0, "safe.kafka.spout");
 
 
     /**
@@ -144,13 +142,18 @@ public class StreamAggregateConfig {
      */
     public static final int GK_PARSE_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"gk.parse.parallelism");
     public static final int GK_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"gk.send.parallelism");
+    public static final int GK_HTTP_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"gk.http.send.parallelism");
+    public static final int GK_IP_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"gk.ip.send.parallelism");
+    public static final int GK_SSL_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"gk.ssl.send.parallelism");
+    public static final int GK_COUNT_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"gk.count.send.parallelism");
+
 
 
     public static final String IP_GKRZ_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "ip.gkrz.schema");
     public static final String DNS_GKZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "dns.gkzb.schema");
     public static final String HTTP_GKZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "http.gkzb.schema");
     public static final String SSL_GKZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "ssl.gkzb.schema");
-    public static final String WYGJC_GKRZ_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "wygjc.gjcrz.schema");
+    public static final String WYGJC_GKRZ_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "wygjc.gkrz.schema");
     public static final String MAIL_GKZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "mail.gkzb.schema");
     public static final String FTP_GKZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "ftp.gkzb.schema");
     public static final String VPN_GKZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "vpn.gkzb.schema");
@@ -181,6 +184,61 @@ public class StreamAggregateConfig {
     public static final String GK_POST_SSL_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "gk.post.ssl.topic");
     public static final String GK_POST_VPN_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "gk.post.vpn.topic");
     public static final String GK_POST_WYGJC_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "gk.post.wygjc.topic");
+
+
+    /**
+     * jc
+     */
+    public static final String JC_IP_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.ip.streamid");
+    public static final String JC_DNS_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.dns.streamid");
+    public static final String JC_HTTP_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.http.streamid");
+    public static final String JC_SSL_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.ssl.streamid");
+    public static final String JC_WYGJC_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.wygjc.streamid");
+    public static final String JC_MAIL_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.mail.streamid");
+    public static final String JC_FTP_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.ftp.streamid");
+    public static final String JC_VPN_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.vpn.streamid");
+    public static final String JC_JSTX_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.jstx.streamid");
+    public static final String JC_PIC_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.pic.streamid");
+    public static final String JC_MEDIA_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.media.streamid");
+    public static final String JC_COUNT_STREAMID = StreamAggregateConfigurations.getStringProperty(0, "jc.count.streamid");
+
+
+    public static final String DNS_JCZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "dns.jczb.schema");
+    public static final String FTP_JCZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "ftp.jczb.schema");
+    public static final String HTTP_JCZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "http.jczb.schema");
+    public static final String IP_JCZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "ip.jczb.schema");
+    public static final String JSTX_JCZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "jstx.jczb.schema");
+    public static final String MAIL_JCZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "mail.jczb.schema");
+    public static final String SSL_JCZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "ssl.jczb.schema");
+    public static final String VPN_JCZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "vpn.jczb.schema");
+    public static final String WYGJZ_JCZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "wygjz.jczb.schema");
+    public static final String PIC_JCZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "pic.jczb.schema");
+    public static final String MEDIA_JCZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "media.jczb.schema");
+
+
+
+    public static final String JC_POST_DNS_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "jc.post.dns.topic");
+    public static final String JC_POST_FTP_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "jc.post.ftp.topic");
+    public static final String JC_POST_HTTP_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "jc.post.http.topic");
+    public static final String JC_POST_IP_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "jc.post.ip.topic");
+    public static final String JC_POST_JSTX_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "jc.post.jstx.topic");
+    public static final String JC_POST_MAIL_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "jc.post.mail.topic");
+    public static final String JC_POST_SSL_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "jc.post.ssl.topic");
+    public static final String JC_POST_VPN_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "jc.post.vpn.topic");
+    public static final String JC_POST_WYGJC_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "jc.post.wygjc.topic");
+    public static final String JC_POST_PIC_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "jc.post.pic.topic");
+    public static final String JC_POST_MEDIA_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "jc.post.media.topic");
+
+
+
+    public static final int JC_PARSE_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.parse.parallelism");
+    public static final int JC_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.send.parallelism");
+    public static final int JC_HTTP_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.http.send.parallelism");
+    public static final int JC_IP_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.ip.send.parallelism");
+    public static final int JC_SSL_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.ssl.send.parallelism");
+    public static final int JC_COUNT_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.count.send.parallelism");
+    public static final int JC_DNS_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.dns.send.parallelism");
+
 
 
 

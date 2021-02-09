@@ -17,6 +17,7 @@ public class ConnSSLSendBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
             byte[] sslSource = (byte[]) tuple.getValue(0);
             HttpClientService.getConnHttpPost(getPostUrl(), sslSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_SSL_TOPIC);
+            logger.info("-----------------http_rzzb已经发送----------------------");
     }
 
     @Override
