@@ -1,6 +1,5 @@
 package cn.ac.iie.storm.bolt.gk;
 
-import cn.ac.iie.storm.bolt.flooding.ConnIPSendBolt;
 import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
 import cn.ac.iie.storm.utils.http.HttpClientService;
 import org.apache.log4j.Logger;
@@ -8,8 +7,6 @@ import org.apache.storm.topology.BasicOutputCollector;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
 import org.apache.storm.tuple.Tuple;
-
-import java.util.Map;
 
 import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
 

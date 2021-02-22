@@ -1,4 +1,4 @@
-package cn.ac.iie.storm.bolt.flooding;
+package cn.ac.iie.storm.bolt.conn;
 
 import cn.ac.iie.storm.bean.SessionRecordLog;
 import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
@@ -167,7 +167,7 @@ public class ConnParseBolt extends BaseBasicBolt {
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                logger.error("-----------ip_rzzb数据封装处理异常-----yyy为：------"+e );
+                                logger.error("-----------ip_rzzb数据封装处理异常-----：------"+e );
                                 loadFail++;
                             }
                         }
@@ -175,6 +175,7 @@ public class ConnParseBolt extends BaseBasicBolt {
                     case "HTTP":
                         try {
                                 GenericRecord http_rzzb = new GenericData.Record(httpSchema);
+
                                 setHTTP_RZZB(http_rzzb, sessionRecordLog);
                                 HTTPList.add(http_rzzb);
                                 count++;

@@ -3,7 +3,7 @@ package cn.ac.iie.storm.bolt.gk;
 import cn.ac.iie.storm.bean.SessionRecordLog;
 import cn.ac.iie.storm.bean.Traffic_Forward;
 import cn.ac.iie.storm.bean.UserRegion;
-import cn.ac.iie.storm.bolt.flooding.ConnParseBolt;
+import cn.ac.iie.storm.bolt.conn.ConnParseBolt;
 import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.avro.Schema;
@@ -26,7 +26,6 @@ import java.util.Map;
 
 import static cn.ac.iie.storm.utils.general.GKAssignment.*;
 import static cn.ac.iie.storm.utils.general.TransFormUtils.generate;
-import static cn.ac.iie.storm.utils.general.TransFormUtils.getValidLength;
 
 public class GkParseBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(ConnParseBolt.class);

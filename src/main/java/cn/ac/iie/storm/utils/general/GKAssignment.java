@@ -89,6 +89,7 @@ public class GKAssignment {
         http_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
         http_gkzb.put("YL1",sessionRecordLog.getCommon_address_type());
         //http特有
+        http_gkzb.put("HOST",sessionRecordLog.getHttp_host());
         http_gkzb.put("URL",sessionRecordLog.getHttp_url());
         http_gkzb.put("USER_AGENT",sessionRecordLog.getHttp_user_agent());
         http_gkzb.put("COOKIE",sessionRecordLog.getHttp_cookie());
@@ -150,6 +151,7 @@ public class GKAssignment {
         //wygjc特有
         wygjc_gkzb.put("JC_URL",getFile_Name(sessionRecordLog.getHttp_url()));
         wygjc_gkzb.put("SSYQ",getSsqy(sessionRecordLog.getHttp_user_agent()));
+        wygjc_gkzb.put("CONTENT",sessionRecordLog.getHttp_snapshot());
         wygjc_gkzb.put("YYZL",sessionRecordLog.getYyzl());
     }
 
@@ -182,15 +184,17 @@ public class GKAssignment {
 
         mail_gkzb.put("MAIL_SENDER",sessionRecordLog.getMail_from());
 
-        mail_gkzb.put("MAIL_SENDER",sessionRecordLog.getMail_from());
         mail_gkzb.put("MAIL_RECEVER",getMailRecever(sessionRecordLog.getMail_to()));
+
         mail_gkzb.put("RECEVER_NUM",getNum(sessionRecordLog.getMail_to()));
 
         mail_gkzb.put("MAIL_CC",sessionRecordLog.getMail_cc());
         mail_gkzb.put("CC_NUM",getNum(sessionRecordLog.getMail_cc()));
 
-        mail_gkzb.put("CONTENT",sessionRecordLog.getMail_subject());
-        mail_gkzb.put("MAIL_RECEVER",sessionRecordLog.getMail_content());
+        mail_gkzb.put("MAIL_SUBJECT",sessionRecordLog.getMail_subject());
+
+        mail_gkzb.put("CONTENT",sessionRecordLog.getMail_content());
+
         mail_gkzb.put("ACCESSORY",getAccessory(sessionRecordLog.getMail_attachment_name()));
 
         mail_gkzb.put("FILE_NAME",sessionRecordLog.getMail_attachment_name());
@@ -204,6 +208,10 @@ public class GKAssignment {
 
 
         mail_gkzb.put("XYLX",sessionRecordLog.getMail_protocol_type());
+
+        mail_gkzb.put("GJZ",sessionRecordLog.getMail_snapshot());
+        mail_gkzb.put("YYZL",sessionRecordLog.getYyzl());
+
     }
 
 

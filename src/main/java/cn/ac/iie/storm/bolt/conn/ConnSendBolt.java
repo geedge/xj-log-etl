@@ -1,4 +1,4 @@
-package cn.ac.iie.storm.bolt.flooding;
+package cn.ac.iie.storm.bolt.conn;
 
 import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
 import cn.ac.iie.storm.utils.http.HttpClientService;

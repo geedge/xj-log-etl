@@ -1,6 +1,6 @@
 package cn.ac.iie.storm.topology;
 
-import cn.ac.iie.storm.bolt.flooding.*;
+import cn.ac.iie.storm.bolt.conn.*;
 
 
 import cn.ac.iie.storm.bolt.gk.*;

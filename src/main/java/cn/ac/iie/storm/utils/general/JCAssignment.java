@@ -167,6 +167,8 @@ public class JCAssignment {
 
        wygjc_jczb.put("JC_URL",getFile_Name(sessionRecordLog.getHttp_url()));
        wygjc_jczb.put("SSYQ",getSsqy(sessionRecordLog.getHttp_user_agent()));
+
+       wygjc_jczb.put("CONTENT",sessionRecordLog.getHttp_snapshot());
        wygjc_jczb.put("YYZL",sessionRecordLog.getYyzl());
     }
     public static void  setMAIL_JCZB(GenericRecord mail_jczb, SessionRecordLog sessionRecordLog) throws IOException {
@@ -208,19 +210,25 @@ public class JCAssignment {
         mail_jczb.put("MAIL_CC",sessionRecordLog.getMail_cc());
         mail_jczb.put("CC_NUM",getNum(sessionRecordLog.getMail_cc()));
 
-        mail_jczb.put("CONTENT",sessionRecordLog.getMail_subject());
-        mail_jczb.put("MAIL_RECEVER",sessionRecordLog.getMail_content());
+        mail_jczb.put("MAIL_SUBJECT",sessionRecordLog.getMail_subject());
+
+        mail_jczb.put("CONTENT",sessionRecordLog.getMail_content());
         mail_jczb.put("ACCESSORY",getAccessory(sessionRecordLog.getMail_attachment_name()));
 
         mail_jczb.put("FILE_NAME",sessionRecordLog.getMail_attachment_name());
         mail_jczb.put("FILE_CONTENT",sessionRecordLog.getMail_attachment_content());
         mail_jczb.put("PWD",sessionRecordLog.getMail_passwd());
         mail_jczb.put("FJFWS",getFjfws(sessionRecordLog.getMail_from()));
-
         mail_jczb.put("FJFWS_SZD",getSzd(sessionRecordLog.getCommon_client_location())); //  //境内境外未知，根据Location填充
-
         mail_jczb.put("SJFWS",sessionRecordLog.getMail_to());
         mail_jczb.put("SJFWS_SZD",getSzd(sessionRecordLog.getCommon_server_location()));//境内境外未知，根据Location填充
+
+        mail_jczb.put("XYLX",sessionRecordLog.getMail_protocol_type());
+
+        mail_jczb.put("GJZ",sessionRecordLog.getMail_snapshot());
+        mail_jczb.put("YYZL",sessionRecordLog.getYyzl());
+
+
 
     }
 
