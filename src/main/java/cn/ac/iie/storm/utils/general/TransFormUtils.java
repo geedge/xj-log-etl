@@ -165,19 +165,25 @@ public class TransFormUtils {
      * @return
      */
     public static int getYys(String common_data_center) {
-        if (common_data_center!=null){
+        int yys;
         switch (common_data_center) {
             case "CMCC":
-                return 1;
+                yys = 1;
+                break;
             case "CUCC":
-                return 2;
+                yys = 2;
+                break;
             case "CTCC":
-                return 3;
-            default:return 0;
-            }
+                yys = 3;
+                break;
+            default:
+                yys = 0;
+                break;
         }
-        return 0;
+         return yys;
     }
+
+
 
 
 
@@ -216,20 +222,7 @@ public class TransFormUtils {
         }
     }
 
-    public static String getYl3(String labels){
-       StringBuilder str = new StringBuilder();
-        if (labels!=null){
-            String[] s = labels.split(",");
-            for (int i = 0; i <s.length ; i++) {
-                if(i<s.length-1){
-                    str.append(s[i]).append(";");
-                }else {
-                    str.append(s[i]);
-                }
-            }
-        }
-        return str.toString();
-    }
+
 
 
 

@@ -82,39 +82,40 @@ public class GkParseBolt extends BaseBasicBolt {
             if (TupleUtils.isTick(tuple)) {
                 try {
                     if (!IPList.isEmpty()){
-                        basicOutputCollector.emit(StreamAggregateConfig.GK_IP_STREAMID, new Values((Object) generate(ipSchema, IPList)));
+                        basicOutputCollector.emit(StreamAggregateConfig.GK_IP_STREAMID, new Values((Object) generate(ipSchema, IPList),IPList.size()));
                         IPList.clear();
                     }
                     if (!HTTPList.isEmpty()){
-                        basicOutputCollector.emit(StreamAggregateConfig.GK_HTTP_STREAMID, new Values((Object) generate(httpSchema, HTTPList)));
+                        basicOutputCollector.emit(StreamAggregateConfig.GK_HTTP_STREAMID, new Values((Object) generate(httpSchema, HTTPList),HTTPList.size()));
                         HTTPList.clear();
                     }
+                    if (!SSLList.isEmpty()){
+                        basicOutputCollector.emit(StreamAggregateConfig.GK_SSL_STREAMID, new Values((Object) generate(sslSchema, SSLList),SSLList.size()));
+                        SSLList.clear();
+                    }
                     if (!DNSList.isEmpty()){
-                       basicOutputCollector.emit(StreamAggregateConfig.GK_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList)));
+                       basicOutputCollector.emit(StreamAggregateConfig.GK_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList),DNSList.size()));
                        DNSList.clear();
                     }
-                    if (!IPList.isEmpty()){
-                        basicOutputCollector.emit(StreamAggregateConfig.GK_IP_STREAMID, new Values((Object) generate(ipSchema, IPList)));
-                        IPList.clear();
-                    }
+
                     if (!(FTPList.isEmpty())) {
-                        basicOutputCollector.emit(StreamAggregateConfig.GK_FTP_STREAMID, new Values((Object) generate(ftpSchema, FTPList)));
+                        basicOutputCollector.emit(StreamAggregateConfig.GK_FTP_STREAMID, new Values((Object) generate(ftpSchema, FTPList),FTPList.size()));
                         FTPList.clear();
                     }
                     if (!(WYGJCList.isEmpty())) {
-                        basicOutputCollector.emit(StreamAggregateConfig.GK_WYGJC_STREAMID, new Values((Object) generate(wygjcSchema, WYGJCList)));
+                        basicOutputCollector.emit(StreamAggregateConfig.GK_WYGJC_STREAMID, new Values((Object) generate(wygjcSchema, WYGJCList),WYGJCList.size()));
                         WYGJCList.clear();
                     }
                     if (!(JSTXList.isEmpty())) {
-                        basicOutputCollector.emit(StreamAggregateConfig.GK_JSTX_STREAMID, new Values((Object) generate(jstxSchema, JSTXList)));
+                        basicOutputCollector.emit(StreamAggregateConfig.GK_JSTX_STREAMID, new Values((Object) generate(jstxSchema, JSTXList),JSTXList.size()));
                         JSTXList.clear();
                     }
                     if (!VPNList.isEmpty()) {
-                        basicOutputCollector.emit(StreamAggregateConfig.GK_VPN_STREAMID, new Values((Object) generate(vpnSchema, VPNList)));
+                        basicOutputCollector.emit(StreamAggregateConfig.GK_VPN_STREAMID, new Values((Object) generate(vpnSchema, VPNList),VPNList.size()));
                         VPNList.clear();
                     }
                     if (!(MAILList.isEmpty())) {
-                        basicOutputCollector.emit(StreamAggregateConfig.GK_MAIL_STREAMID, new Values((Object) generate(mailSchema, MAILList)));
+                        basicOutputCollector.emit(StreamAggregateConfig.GK_MAIL_STREAMID, new Values((Object) generate(mailSchema, MAILList),MAILList.size()));
                         MAILList.clear();
                     }
                     basicOutputCollector.emit(StreamAggregateConfig.GK_COUNT_STREAMID, new Values(count,loadfail));
@@ -140,6 +141,9 @@ public class GkParseBolt extends BaseBasicBolt {
                 sessionRecordLog.setGklb(traffic_forward.getGklb());
                 sessionRecordLog.setLabels(traffic_forward.getLabels());
                 sessionRecordLog.setYyzl(traffic_forward.getYyzl());
+                sessionRecordLog.setGjc(traffic_forward.getGjc());
+                sessionRecordLog.setZsmc(traffic_forward.getZsmc());
+
                 int pzlx = traffic_forward.getPzlx();
                 //按pzlx的值对数据进行分类发送
                 //按pzlx的值对数据进行分类发送
@@ -149,14 +153,14 @@ public class GkParseBolt extends BaseBasicBolt {
                     case 601:  //网安IP管控
                     case 701:  //反诈IP管控
                     case 801:  //工业互联网IP管控
+                        count++;
                         try {
                             GenericRecord ip_gkrz = new GenericData.Record(ipSchema);
                             sessionRecordLog.setCommon_schema_type("IP");
                             setIP_GKRZ(ip_gkrz, sessionRecordLog);
                             IPList.add(ip_gkrz);
-                            count++;
                             if (IPList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.GK_IP_STREAMID, new Values((Object) generate(ipSchema, IPList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.GK_IP_STREAMID, new Values((Object) generate(ipSchema, IPList),IPList.size()));
                                 IPList.clear();
                             }
                         } catch (Exception e) {
@@ -169,14 +173,14 @@ public class GkParseBolt extends BaseBasicBolt {
                     case 602:   //网安DNS管控
                     case 702:   //反诈DNS管控
                     case 802:   //工业互联网DNS管控
+                        count++;
                         try {
                             GenericRecord dns_gkzb = new GenericData.Record(dnsSchema);
                             sessionRecordLog.setCommon_schema_type("DNS");
                             setDNS_GKZB(dns_gkzb, sessionRecordLog);
                             DNSList.add(dns_gkzb);
-                            count++;
                             if (DNSList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.GK_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.GK_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList),DNSList.size()));
                                 DNSList.clear();
                             }
 
@@ -190,14 +194,13 @@ public class GkParseBolt extends BaseBasicBolt {
                     case 404:   //网站封堵
                     case 603:   //网安URL管控
                     case 703:   //反诈URL管控
+                        count++;
                         try {
                             GenericRecord http_gkzb = new GenericData.Record(httpSchema);
                             sessionRecordLog.setCommon_schema_type("HTTP");
                             setHTTP_GKZB(http_gkzb, sessionRecordLog);
-                            HTTPList.add(http_gkzb);
-                            count++;
                             if (HTTPList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.GK_HTTP_STREAMID, new Values((Object) generate(httpSchema, HTTPList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.GK_HTTP_STREAMID, new Values((Object) generate(httpSchema, HTTPList),HTTPList.size()));
                                 HTTPList.clear();
                             }
                         } catch (Exception e) {
@@ -207,14 +210,14 @@ public class GkParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case 405:   //特定证书封堵
+                        count++;
                         try {
                             GenericRecord ssl_gkzb = new GenericData.Record(sslSchema);
                             sessionRecordLog.setCommon_schema_type("SSL");
                             setSSL_GKZB(ssl_gkzb, sessionRecordLog);
                             SSLList.add(ssl_gkzb);
-                            count++;
                             if (SSLList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.GK_SSL_STREAMID, new Values((Object) generate(sslSchema, SSLList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.GK_SSL_STREAMID, new Values((Object) generate(sslSchema, SSLList),SSLList.size()));
                                 SSLList.clear();
                             }
 
@@ -227,14 +230,14 @@ public class GkParseBolt extends BaseBasicBolt {
                         break;
                     case 406:   //网站关键字封堵
                     case 409:   //搜索词封堵
+                        count++;
                         try {
                             GenericRecord wygjc_gkzb = new GenericData.Record(wygjcSchema);
                             sessionRecordLog.setCommon_schema_type("HTTP");
                             setWYGJC_GKZB(wygjc_gkzb, sessionRecordLog);
                             WYGJCList.add(wygjc_gkzb);
-                            count++;
                             if (WYGJCList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.GK_WYGJC_STREAMID, new Values((Object) generate(wygjcSchema, WYGJCList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.GK_WYGJC_STREAMID, new Values((Object) generate(wygjcSchema, WYGJCList),WYGJCList.size()));
                                 WYGJCList.clear();
                             }
                         } catch (Exception e) {
@@ -245,14 +248,14 @@ public class GkParseBolt extends BaseBasicBolt {
                         break;
                     case 407:   //邮件关键字封堵
                     case 410:
+                        count++;
                         try {
                             GenericRecord mail_gkzb = new GenericData.Record(mailSchema);
                             sessionRecordLog.setCommon_schema_type("MAIL");
                             setMAIL_GKZB(mail_gkzb, sessionRecordLog);
                             MAILList.add(mail_gkzb);
-                            count++;
                             if (MAILList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.GK_MAIL_STREAMID, new Values((Object) generate(mailSchema, MAILList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.GK_MAIL_STREAMID, new Values((Object) generate(mailSchema, MAILList),MAILList.size()));
                                 MAILList.clear();
                             }
                         } catch (Exception e) {
@@ -260,17 +263,16 @@ public class GkParseBolt extends BaseBasicBolt {
                             logger.error("-----------mail_gkzb数据封装处理异常-----------" + e);
                             loadfail++;
                         }
-
                         break;
                     case 408:   //FTP关键字封堵
+                        count++;
                         try {
                             GenericRecord ftp_gkzb = new GenericData.Record(ftpSchema);
                             sessionRecordLog.setCommon_schema_type("FTP");
                             setFTP_GKZB(ftp_gkzb, sessionRecordLog);
                             FTPList.add(ftp_gkzb);
-                            count++;
                             if (FTPList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.GK_FTP_STREAMID, new Values((Object) generate(ftpSchema, FTPList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.GK_FTP_STREAMID, new Values((Object) generate(ftpSchema, FTPList),FTPList.size()));
                                 FTPList.clear();
                             }
                         } catch (Exception e) {
@@ -280,14 +282,14 @@ public class GkParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case 411:   //VPN封堵
+                        count++;
                         try {
                             GenericRecord vpn_gkzb = new GenericData.Record(vpnSchema);
                             sessionRecordLog.setCommon_schema_type("VPN");
                             setVPN_GKZB(vpn_gkzb, sessionRecordLog);
                             VPNList.add(vpn_gkzb);
-                            count++;
                             if (VPNList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.GK_VPN_STREAMID, new Values((Object) generate(vpnSchema, VPNList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.GK_VPN_STREAMID, new Values((Object) generate(vpnSchema, VPNList),VPNList.size()));
                                 VPNList.clear();
                             }
                         } catch (Exception e) {
@@ -298,14 +300,14 @@ public class GkParseBolt extends BaseBasicBolt {
                         break;
                     case 412:   //特定应用封堵
                     case 413:   //社交应用封堵
+                        count++;
                         try {
                             GenericRecord jstx_gkzb = new GenericData.Record(jstxSchema);
                             sessionRecordLog.setCommon_schema_type("JSTX");
                             setJSTX_GKZB(jstx_gkzb, sessionRecordLog);
                             JSTXList.add(jstx_gkzb);
-                            count++;
                             if (JSTXList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.GK_JSTX_STREAMID, new Values((Object) generate(jstxSchema, JSTXList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.GK_JSTX_STREAMID, new Values((Object) generate(jstxSchema, JSTXList),JSTXList.size()));
                                 JSTXList.clear();
                             }
                         } catch (Exception e) {
@@ -325,15 +327,15 @@ public class GkParseBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_IP_STREAMID,new Fields(StreamAggregateConfig.GK_IP_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_DNS_STREAMID,new Fields(StreamAggregateConfig.GK_DNS_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_HTTP_STREAMID,new Fields(StreamAggregateConfig.GK_HTTP_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_SSL_STREAMID,new Fields(StreamAggregateConfig.GK_SSL_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_WYGJC_STREAMID,new Fields(StreamAggregateConfig.GK_WYGJC_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_MAIL_STREAMID,new Fields(StreamAggregateConfig.GK_MAIL_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_FTP_STREAMID,new Fields(StreamAggregateConfig.GK_FTP_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_VPN_STREAMID,new Fields(StreamAggregateConfig.GK_VPN_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_JSTX_STREAMID,new Fields(StreamAggregateConfig.GK_JSTX_STREAMID));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_IP_STREAMID,new Fields(StreamAggregateConfig.GK_IP_STREAMID,"ipcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_DNS_STREAMID,new Fields(StreamAggregateConfig.GK_DNS_STREAMID,"dnscount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_HTTP_STREAMID,new Fields(StreamAggregateConfig.GK_HTTP_STREAMID,"httpcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_SSL_STREAMID,new Fields(StreamAggregateConfig.GK_SSL_STREAMID,"sslcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_WYGJC_STREAMID,new Fields(StreamAggregateConfig.GK_WYGJC_STREAMID,"wygjccount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_MAIL_STREAMID,new Fields(StreamAggregateConfig.GK_MAIL_STREAMID,"mailcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_FTP_STREAMID,new Fields(StreamAggregateConfig.GK_FTP_STREAMID,"ftpcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_VPN_STREAMID,new Fields(StreamAggregateConfig.GK_VPN_STREAMID,"vpncount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_JSTX_STREAMID,new Fields(StreamAggregateConfig.GK_JSTX_STREAMID,"jstxcount"));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_COUNT_STREAMID, new Fields("count","loadfail"));
     }
 

@@ -7,32 +7,56 @@ import org.apache.log4j.Logger;
 import org.apache.storm.topology.BasicOutputCollector;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
+import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.Values;
+import org.apache.storm.utils.TupleUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
 
 public class JCHTTPSendBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(JCHTTPSendBolt.class);
+
+
+    private long jc_http_success=0L;
+    private long jc_http_fail=0L;
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
+        if(TupleUtils.isTick(tuple)){
 
-        try {
-            if (tuple.getSourceStreamId().equals(StreamAggregateConfig.JC_HTTP_STREAMID)){
-                byte[] httpSource = (byte[]) tuple.getValue(0);
-                HttpClientService.getConnHttpPost(getPostUrl(), httpSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_HTTP_TOPIC);
-                logger.info("-----------------http_jczb已经发送----------------------");
+            basicOutputCollector.emit(new Values(jc_http_success,jc_http_fail));
+            jc_http_fail = 0L;
+            jc_http_success = 0L;
+
+        } else {
+            if (tuple.getSourceStreamId().equals(StreamAggregateConfig.JC_HTTP_STREAMID)) {
+
+                byte[] httpSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_HTTP_STREAMID);
+                Integer httpcount = tuple.getIntegerByField("httpcount");
+                Map<String, String> jcHttpPost = HttpClientService.getConnHttpPost(getPostUrl(), httpSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_HTTP_TOPIC);
+                if (jcHttpPost.containsValue("200")){
+                    logger.info("-------条数为:"+httpcount+"jchttp数据发送成功-----"+jcHttpPost);
+                    jc_http_success = jc_http_success + httpcount;
+                }else {
+                    logger.error("-------条数为:"+httpcount+"jchttp数据发送失败-----"+jcHttpPost);
+                    jc_http_fail = jc_http_fail + httpcount;
+                }
             }
-        }catch(Exception e){
-            logger.error("http_jczb发送异常"+e);
         }
-
-
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
+        outputFieldsDeclarer.declare(new Fields("jc_http_success","jc_http_fail"));
+    }
 
+    @Override
+    public Map<String, Object> getComponentConfiguration() {
+        Map<String, Object> conf = new HashMap<String, Object>();
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.SAFE_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        return conf;
     }
 }

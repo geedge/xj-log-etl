@@ -11,6 +11,7 @@ import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.BasicOutputCollector;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
+import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.utils.TupleUtils;
 import java.io.IOException;
@@ -26,7 +27,24 @@ public class ConnCountBolt extends BaseBasicBolt {
     private long ConnSendCount = 0L;
     private long InputSize = 0L;
     private long OutputSize = 0L;
-    private long connloadFail = 0L;
+    private long connParseFail = 0L;
+    private long connSendFail = 0L;
+    private long conn_http_success=0L;
+    private long conn_http_fail=0L;
+    private long conn_ip_success = 0L;
+    private long conn_ip_fail = 0L;
+    private long conn_dns_success=0L;
+    private long conn_dns_fail=0L;
+    private long conn_mail_success=0L;
+    private long conn_mail_fail=0L;
+    private long conn_vpn_success=0L;
+    private long conn_vpn_fail=0L;
+    private long conn_jstx_success=0L;
+    private long conn_jstx_fail=0L;
+    private long conn_ftp_success=0L;
+    private long conn_ftp_fail=0L;
+    private long conn_ssl_success = 0L;
+    private long conn_ssl_fail = 0L;
 
     InetAddress ip=null;
     private String localip;
@@ -44,17 +62,62 @@ public class ConnCountBolt extends BaseBasicBolt {
     static final Gauge connOutputLog = Gauge.build()
             .name("connOutputLog").labelNames("ServName","Duration").help("The general output log volume, the unit is slip").register();
 
+    static final Gauge connHttpSuccess = Gauge.build()
+            .name("connHttpsuccess").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
 
-//    @Override
-//    public void prepare(Map stormConf, TopologyContext context) {
-//        try {
-//            ip=ip.getLocalHost();
-//        } catch (UnknownHostException e) {
-//            e.printStackTrace();
-//        }
-//        String localname=ip.getHostName();
-//             localip=ip.getHostAddress();
-//    }
+    static final Gauge connHttpFail = Gauge.build()
+            .name("connHttpFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connIpSuccess = Gauge.build()
+            .name("connIpsuccess").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connIpFail = Gauge.build()
+            .name("connIpFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connSslSuccess = Gauge.build()
+            .name("connSslsuccess").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connSslFail = Gauge.build()
+            .name("connSslFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connVpnSuccess = Gauge.build()
+            .name("connVpnsuccess").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connVpnFail = Gauge.build()
+            .name("connVpnFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connDnsSuccess = Gauge.build()
+            .name("connDnssuccess").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connDnsFail = Gauge.build()
+            .name("connDnsFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connMailSuccess = Gauge.build()
+            .name("connMailsuccess").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connMailFail = Gauge.build()
+            .name("connMailFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connJstxSuccess = Gauge.build()
+            .name("connJstxsuccess").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connJstxFail = Gauge.build()
+            .name("connJstxFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connFtpSuccess = Gauge.build()
+            .name("connFtpsuccess").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge connFtpFail = Gauge.build()
+            .name("connFtpFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+
+
+    static final Gauge ConnSendFail = Gauge.build()
+            .name("ConnSendFail").labelNames("ServName","Duration").help("Program receiving flow rate, the unit is Mbps").register();
+
+    static final Gauge ConnParseFail = Gauge.build()
+            .name("connParseFail").labelNames("ServName","Duration").help("Program output flow rate, the unit is Mbps").register();
+
 
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
@@ -63,30 +126,123 @@ public class ConnCountBolt extends BaseBasicBolt {
             inputrate=(float)InputSize/StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/125000;
             outputrate =(float)OutputSize/StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/125000;
 
+            connSendFail = conn_http_fail +  conn_ip_fail + conn_ssl_fail + conn_dns_fail + conn_ftp_fail + conn_jstx_fail + conn_mail_fail +conn_vpn_fail;
+
+            ConnSendCount = conn_http_success +  conn_ip_success + conn_ssl_success + conn_dns_success + conn_ftp_success + conn_jstx_success + conn_mail_success +conn_vpn_success;
+
+
             //一般
             InputRate.labels("input-rate",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(inputrate);
             OutputRate.labels("output-rate",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(outputrate);
+
             connInputLog.labels("conn-input-count",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(connCount);
             connOutputLog.labels("conn-output-count",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(ConnSendCount);
+
+            ConnSendFail.labels("conn-send-fail",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(connSendFail);
+            ConnParseFail.labels("conn-parse-fail",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(connParseFail);
+
+            connHttpSuccess.labels("conn-http-success",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_http_success);
+            connHttpFail.labels("conn-http-fail",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_http_fail);
+
+            connIpSuccess.labels("conn-ip-success",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_ip_success);
+            connIpFail.labels("conn-ip-fail",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_ip_fail);
+
+            connSslSuccess.labels("conn-ssl-success",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_ssl_success);
+            connSslFail.labels("conn-ssl-fail",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_ssl_fail);
+
+            connVpnSuccess.labels("conn-vpn-success",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_vpn_success);
+            connVpnFail.labels("conn-vpn-fail",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_vpn_fail);
+
+            connDnsSuccess.labels("conn-dns-success",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_dns_success);
+            connDnsFail.labels("conn-dns-fail",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_dns_fail);
+
+
+            connMailSuccess.labels("conn-mail-success",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_mail_success);
+            connMailFail.labels("conn-mail-fail",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_mail_fail);
+
+            connJstxSuccess.labels("conn-jstx-success",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_jstx_success);
+            connJstxFail.labels("conn-jstx-fail",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_jstx_fail);
+
+            connFtpSuccess.labels("conn-ftp-success",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_ftp_success);
+            connFtpFail.labels("conn-ftp-fail",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_ftp_fail);
+
+
+
             try {
                 push();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-           connCount= 0L;
-           ConnSendCount = 0L;
+            connCount= 0L;
+            ConnSendCount = 0L;
             InputSize = 0L;
             OutputSize = 0L;
-           connloadFail = 0L;
+            connParseFail = 0L;
+            connSendFail = 0L;
+            conn_http_success=0L;
+            conn_http_fail=0L;
+            conn_ip_success = 0L;
+            conn_ip_fail = 0L;
+            conn_dns_success=0L;
+            conn_dns_fail=0L;
+            conn_mail_success=0L;
+            conn_mail_fail=0L;
+            conn_vpn_success=0L;
+            conn_vpn_fail=0L;
+            conn_jstx_success=0L;
+            conn_jstx_fail=0L;
+            conn_ftp_success=0L;
+            conn_ftp_fail=0L;
+            conn_ssl_success = 0L;
+            conn_ssl_fail = 0L;
         }else {
-            if (input.getSourceStreamId().equals(StreamAggregateConfig.CONN_YBInputSize_STREAMID)){
+            String sourceComponent = input.getSourceComponent();
+            switch (sourceComponent){
 
-                InputSize = InputSize + input.getLongByField("connInputSize");
-                connCount = connCount + input.getLongByField("count");
-                connloadFail = connloadFail + input.getLongByField("loadFail");
-                OutputSize = OutputSize + input.getLongByField("connOutputSize");
-                ConnSendCount = connCount - connloadFail;
+                case "CONN-PARSE-COMPONENTID":
+                    if (input.getSourceStreamId().equals(StreamAggregateConfig.CONN_YBInputSize_STREAMID)){
+
+                        InputSize = InputSize + input.getLongByField("connInputSize");
+                        connCount = connCount + input.getLongByField("count");
+                        connParseFail = connParseFail + input.getLongByField("loadFail");
+                        OutputSize = OutputSize + input.getLongByField("connOutputSize");
+                    }
+                    break;
+                case "CONN-SEND":
+                    conn_dns_success = conn_dns_success + input.getLongByField("conn_dns_success");
+                    conn_dns_fail = conn_dns_fail + input.getLongByField("conn_dns_fail");
+
+                    conn_mail_success = conn_mail_success + input.getLongByField("conn_mail_success");
+                    conn_mail_fail = conn_mail_fail + input.getLongByField("conn_mail_fail");
+
+                    conn_vpn_success =conn_vpn_success + input.getLongByField("conn_vpn_success");
+                    conn_vpn_fail =conn_vpn_fail + input.getLongByField("conn_vpn_fail");
+
+                    conn_jstx_success =conn_jstx_success + input.getLongByField("conn_jstx_success");
+                    conn_jstx_fail =conn_jstx_fail + input.getLongByField("conn_jstx_fail");
+
+                    conn_jstx_success =conn_jstx_success + input.getLongByField("conn_jstx_success");
+                    conn_jstx_fail =conn_jstx_fail + input.getLongByField("conn_jstx_fail");
+
+                    conn_ftp_success =conn_ftp_success + input.getLongByField("conn_ftp_success");
+                    conn_ftp_fail =conn_ftp_fail + input.getLongByField("conn_ftp_fail");
+                    break;
+                case "CONN-IP-SEND":
+                    conn_ip_success = conn_ip_success + input.getLongByField("conn_ip_success");
+                    conn_ip_fail = conn_ip_fail + input.getLongByField("conn_ip_fail");
+                    break;
+                case  "CONN-HTTP-SEND":
+                    conn_http_success = conn_http_success + input.getLongByField("conn_http_success");
+                    conn_http_fail = conn_http_fail + input.getLongByField("conn_http_fail");
+                    break;
+                case "CONN-SSL-SEND":
+                    conn_ssl_success = conn_ssl_success + input.getLongByField("conn_ssl_success");
+                    conn_ssl_fail = conn_ssl_fail + input.getLongByField("conn_ssl_fail");
+                    break;
+                default:
+                    break;
             }
+
         }
     }
 

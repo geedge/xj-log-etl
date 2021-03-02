@@ -3,7 +3,7 @@ package cn.ac.iie.storm.utils.general;
 import cn.ac.iie.storm.bean.SessionRecordLog;
 import cn.ac.iie.storm.utils.config.GetMap;
 import org.apache.avro.generic.GenericRecord;
-import scala.collection.$plus$colon;
+
 
 import java.io.IOException;
 
@@ -22,10 +22,10 @@ public class JCAssignment {
         ip_jcrz.put("LHID",sessionRecordLog.getLhid());
         ip_jcrz.put("PZLX",sessionRecordLog.getPzlx());
         ip_jcrz.put("GKLB",sessionRecordLog.getGklb());
-        ip_jcrz.put("YL3",getYl3(sessionRecordLog.getLabels()));
-        ip_jcrz.put("YDY",getSafeDy(sessionRecordLog.getCommon_client_location()));
-        ip_jcrz.put("MDDY",getSafeDy(sessionRecordLog.getCommon_server_location()));
-        ip_jcrz.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip())); //--其实是使用网络序列
+        ip_jcrz.put("YL3",sessionRecordLog.getLabels());
+        ip_jcrz.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
+        ip_jcrz.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
+        ip_jcrz.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip())); //--其实是使用网络序列
         ip_jcrz.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         ip_jcrz.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         ip_jcrz.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -51,10 +51,10 @@ public class JCAssignment {
         dns_jczb.put("LHID",sessionRecordLog.getLhid());
         dns_jczb.put("PZLX",sessionRecordLog.getPzlx());
         dns_jczb.put("GKLB",sessionRecordLog.getGklb());
-        dns_jczb.put("YL3",getYl3(sessionRecordLog.getLabels()));
-        dns_jczb.put("YDY",getSafeDy(sessionRecordLog.getCommon_client_location()));
-        dns_jczb.put("MDDY",getSafeDy(sessionRecordLog.getCommon_server_location()));
-        dns_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip())); //--其实是使用网络序列
+        dns_jczb.put("YL3",sessionRecordLog.getLabels() );
+        dns_jczb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
+        dns_jczb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
+        dns_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip())); //--其实是使用网络序列
         dns_jczb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         dns_jczb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         dns_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -82,9 +82,9 @@ public class JCAssignment {
         http_jczb.put("PZLX",sessionRecordLog.getPzlx());
         http_jczb.put("GKLB",sessionRecordLog.getGklb());
         http_jczb.put("YL3",sessionRecordLog.getLabels());
-        http_jczb.put("YDY",getSafeDy(sessionRecordLog.getCommon_client_location()));
-        http_jczb.put("MDDY",getSafeDy(sessionRecordLog.getCommon_server_location()));
-        http_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip())); //--其实是使用网络序列
+        http_jczb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
+        http_jczb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
+        http_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip())); //--其实是使用网络序列
         http_jczb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         http_jczb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         http_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -117,9 +117,9 @@ public class JCAssignment {
         ssl_jczb.put("PZLX",sessionRecordLog.getPzlx());
         ssl_jczb.put("GKLB",sessionRecordLog.getGklb());
         ssl_jczb.put("YL3",sessionRecordLog.getLabels());
-        ssl_jczb.put("YDY",getSafeDy(sessionRecordLog.getCommon_client_location()));
-        ssl_jczb.put("MDDY",getSafeDy(sessionRecordLog.getCommon_server_location()));
-        ssl_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip())); //--其实是使用网络序列
+        ssl_jczb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
+        ssl_jczb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
+        ssl_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip())); //--其实是使用网络序列
         ssl_jczb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         ssl_jczb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         ssl_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -135,6 +135,7 @@ public class JCAssignment {
         ssl_jczb.put("SC_PKTS",sessionRecordLog.getCommon_s2c_pkt_num());
         ssl_jczb.put("SC_BYTES",sessionRecordLog.getCommon_s2c_byte_num());
         ssl_jczb.put("FWQMC",sessionRecordLog.getSsl_sni());
+        ssl_jczb.put("ZSMC",sessionRecordLog.getZsmc());
 
     }
 
@@ -146,10 +147,10 @@ public class JCAssignment {
        wygjc_jczb.put("LHID",sessionRecordLog.getLhid());
        wygjc_jczb.put("PZLX",sessionRecordLog.getPzlx());
        wygjc_jczb.put("GKLB",sessionRecordLog.getGklb());
-       wygjc_jczb.put("YL3",getYl3(sessionRecordLog.getLabels()));
-       wygjc_jczb.put("YDY",getSafeDy(sessionRecordLog.getCommon_client_location()));
-       wygjc_jczb.put("MDDY",getSafeDy(sessionRecordLog.getCommon_server_location()));
-       wygjc_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip())); //--其实是使用网络序列
+       wygjc_jczb.put("YL3",sessionRecordLog.getLabels());
+       wygjc_jczb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
+       wygjc_jczb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
+       wygjc_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip())); //--其实是使用网络序列
        wygjc_jczb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
        wygjc_jczb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
        wygjc_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -165,8 +166,9 @@ public class JCAssignment {
        wygjc_jczb.put("SC_PKTS",sessionRecordLog.getCommon_s2c_pkt_num());
        wygjc_jczb.put("SC_BYTES",sessionRecordLog.getCommon_s2c_byte_num());
 
-       wygjc_jczb.put("JC_URL",getFile_Name(sessionRecordLog.getHttp_url()));
+       wygjc_jczb.put("JC_URL",sessionRecordLog.getHttp_url());
        wygjc_jczb.put("SSYQ",getSsqy(sessionRecordLog.getHttp_user_agent()));
+       wygjc_jczb.put("GJZ",sessionRecordLog.getGjc());
 
        wygjc_jczb.put("CONTENT",sessionRecordLog.getHttp_snapshot());
        wygjc_jczb.put("YYZL",sessionRecordLog.getYyzl());
@@ -179,10 +181,10 @@ public class JCAssignment {
         mail_jczb.put("LHID",sessionRecordLog.getLhid());
         mail_jczb.put("PZLX",sessionRecordLog.getPzlx());
         mail_jczb.put("GKLB",sessionRecordLog.getGklb());
-        mail_jczb.put("YL3",getYl3(sessionRecordLog.getLabels()));
-        mail_jczb.put("YDY",getSafeDy(sessionRecordLog.getCommon_client_location()));
-        mail_jczb.put("MDDY",getSafeDy(sessionRecordLog.getCommon_server_location()));
-        mail_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip())); //--其实是使用网络序列
+        mail_jczb.put("YL3",sessionRecordLog.getLabels());
+        mail_jczb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
+        mail_jczb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
+        mail_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip())); //--其实是使用网络序列
         mail_jczb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         mail_jczb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         mail_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -225,7 +227,7 @@ public class JCAssignment {
 
         mail_jczb.put("XYLX",sessionRecordLog.getMail_protocol_type());
 
-        mail_jczb.put("GJZ",sessionRecordLog.getMail_snapshot());
+        mail_jczb.put("GJZ",sessionRecordLog.getGjc());
         mail_jczb.put("YYZL",sessionRecordLog.getYyzl());
 
 
@@ -240,10 +242,10 @@ public class JCAssignment {
         ftp_jczb.put("LHID",sessionRecordLog.getLhid());
         ftp_jczb.put("PZLX",sessionRecordLog.getPzlx());
         ftp_jczb.put("GKLB",sessionRecordLog.getGklb());
-        ftp_jczb.put("YL3",getYl3(sessionRecordLog.getLabels()));
-        ftp_jczb.put("YDY",getSafeDy(sessionRecordLog.getCommon_client_location()));
-        ftp_jczb.put("MDDY",getSafeDy(sessionRecordLog.getCommon_server_location()));
-        ftp_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip())); //--其实是使用网络序列
+        ftp_jczb.put("YL3",sessionRecordLog.getLabels());
+        ftp_jczb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
+        ftp_jczb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
+        ftp_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip())); //--其实是使用网络序列
         ftp_jczb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         ftp_jczb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         ftp_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -260,7 +262,7 @@ public class JCAssignment {
         ftp_jczb.put("SC_BYTES",sessionRecordLog.getCommon_s2c_byte_num());
         ftp_jczb.put("FILE_NAME",getFile_Name(sessionRecordLog.getFtp_url()));
         ftp_jczb.put("FILE_CONTENT",sessionRecordLog.getFtp_url());
-        ftp_jczb.put("GJZ",sessionRecordLog.getFtp_content());
+        ftp_jczb.put("GJZ",sessionRecordLog.getGjc());
         ftp_jczb.put("YYZL",sessionRecordLog.getYyzl());
 
 
@@ -275,10 +277,10 @@ public class JCAssignment {
         vpn_jczb.put("LHID",sessionRecordLog.getLhid());
         vpn_jczb.put("PZLX",sessionRecordLog.getPzlx());
         vpn_jczb.put("GKLB",sessionRecordLog.getGklb());
-        vpn_jczb.put("YL3",getYl3(sessionRecordLog.getLabels()));
-        vpn_jczb.put("YDY",getSafeDy(sessionRecordLog.getCommon_client_location()));
-        vpn_jczb.put("MDDY",getSafeDy(sessionRecordLog.getCommon_server_location()));
-        vpn_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip())); //--其实是使用网络序列
+        vpn_jczb.put("YL3",sessionRecordLog.getLabels());
+        vpn_jczb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
+        vpn_jczb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
+        vpn_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip())); //--其实是使用网络序列
         vpn_jczb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         vpn_jczb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         vpn_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -303,10 +305,10 @@ public class JCAssignment {
         jstx_jczb.put("LHID",sessionRecordLog.getLhid());
         jstx_jczb.put("PZLX",sessionRecordLog.getPzlx());
         jstx_jczb.put("GKLB",sessionRecordLog.getGklb());
-        jstx_jczb.put("YL3",getYl3(sessionRecordLog.getLabels()));
-        jstx_jczb.put("YDY",getSafeDy(sessionRecordLog.getCommon_client_location()));
-        jstx_jczb.put("MDDY",getSafeDy(sessionRecordLog.getCommon_server_location()));
-        jstx_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip())); //--其实是使用网络序列
+        jstx_jczb.put("YL3",sessionRecordLog.getLabels());
+        jstx_jczb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
+        jstx_jczb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
+        jstx_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip())); //--其实是使用网络序列
         jstx_jczb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         jstx_jczb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         jstx_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -336,9 +338,9 @@ public class JCAssignment {
         pic_jczb.put("PZLX",sessionRecordLog.getPzlx());
         pic_jczb.put("GKLB",sessionRecordLog.getGklb());
         pic_jczb.put("YL3",sessionRecordLog.getLabels());
-        pic_jczb.put("YDY",getSafeDy(sessionRecordLog.getCommon_client_location()));
-        pic_jczb.put("MDDY",getSafeDy(sessionRecordLog.getCommon_server_location()));
-        pic_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip())); //--其实是使用网络序列
+        pic_jczb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
+        pic_jczb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
+        pic_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip())); //--其实是使用网络序列
         pic_jczb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         pic_jczb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         pic_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -374,9 +376,9 @@ public class JCAssignment {
         media_jczb.put("PZLX",sessionRecordLog.getPzlx());
         media_jczb.put("GKLB",sessionRecordLog.getGklb());
         media_jczb.put("YL3",sessionRecordLog.getLabels());
-        media_jczb.put("YDY",getSafeDy(sessionRecordLog.getCommon_client_location()));
-        media_jczb.put("MDDY",getSafeDy(sessionRecordLog.getCommon_server_location()));
-        media_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip())); //--其实是使用网络序列
+        media_jczb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
+        media_jczb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
+        media_jczb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip())); //--其实是使用网络序列
         media_jczb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         media_jczb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         media_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());

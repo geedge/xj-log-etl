@@ -15,7 +15,26 @@ import java.io.InputStream;
 public class UploadObject {
     public static void main(String[] args) throws IOException {
 
-        String endpoint = "http://192.168.44.12:9098/hos/";
+        /**
+         * // endpointip:http://192.168.40.111:8080/hos
+         * String endpoint = "endpoint";
+         * // hosaccessKeydefaultsecretKeydefault
+         * String accessKey = "default";
+         * String secretKey = "default";
+         * // AmazonS3Client
+         * AmazonS3 s3 = AmazonS3ClientBuilder.standard()
+         *  .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey,
+         * secretKey)))
+         *  .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, "us-east-1"))
+         *  .withChunkedEncodingDisabled(true)
+         *  .build();
+         * //
+         * s3.createBucket("bucketname");
+         * // AmazonS3Client
+         * s3.shutdown();
+         */
+
+        String endpoint = "http://10.111.72.200:9098/hos/";
         String accessKey = "default";
         String secretKey = "default";
         AmazonS3 s3 = AmazonS3ClientBuilder.standard().
@@ -23,6 +42,7 @@ public class UploadObject {
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, "us-east-1"))
                 .withChunkedEncodingDisabled(true)
                 .build();
+//        s3.createBucket("test");
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType("avsc");
@@ -30,7 +50,7 @@ public class UploadObject {
         metadata.setHeader("x-hos-meta-message", "message");
 
         InputStream input = new FileInputStream(new File("src/resources/common_app_id_coding.properties"));
-        s3.putObject("test218", "appid",input,metadata);
+        s3.putObject("test", "bianhao",input,metadata);
 
         input.close(); // AmazonS3Client
        s3.shutdown();

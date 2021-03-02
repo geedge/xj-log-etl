@@ -129,6 +129,7 @@ public class HttpClientService {
                 // 配置连接池管理对象
                 .setConnectionManager(connectionManager)
                 .build();
+
     }
 
 
@@ -153,6 +154,7 @@ public class HttpClientService {
             httpPost.setHeader("Conection",StreamAggregateConfig.HTTP_HEARDER_CONECTION);
             httpPost.setEntity(new ByteArrayEntity(s));
             response = getHttpClient(socketTimeOut).execute(httpPost);
+
             // 获取响应实体
             HttpEntity entity = response.getEntity();
             // 获取响应信息
@@ -186,56 +188,5 @@ public class HttpClientService {
         }
         return resultMap;
     }
-
-    public static Map<String, String> getSafeHttpPost(String url, byte[] s, int socketTimeOut, String topic) {
-        Map<String, String> resultMap = Maps.newHashMap();
-        // 创建GET请求对象
-        CloseableHttpResponse response = null;
-        try {
-            HttpPost httpPost = new HttpPost(url);
-            //头部消息
-            httpPost.setHeader("Content-Type", StreamAggregateConfig.HTTP_HEARD_CONTENT_TYPE);
-            httpPost.setHeader("User", StreamAggregateConfig.HTTP_HEARDER_USER);
-            httpPost.setHeader("Password", StreamAggregateConfig.HTTP_HEARDER_PASSWORD);
-            httpPost.setHeader("Topic",topic);
-            httpPost.setHeader("Format",StreamAggregateConfig.HTTP_HEARDER_FORMAT);
-            httpPost.setHeader("Host",getHttpHost(url));
-            httpPost.setHeader("Conection",StreamAggregateConfig.HTTP_HEARDER_CONECTION);
-            httpPost.setEntity(new ByteArrayEntity(s));
-            response = getHttpClient(socketTimeOut).execute(httpPost);
-            // 获取响应实体
-            HttpEntity entity = response.getEntity();
-            // 获取响应信息
-            resultMap.put("status", String.valueOf(response.getStatusLine().getStatusCode()));
-            resultMap.put("result", EntityUtils.toString(entity, "UTF-8"));
-        } catch (ClientProtocolException e) {
-            log.error("协议错误: {}"+e.getMessage() );
-            resultMap.put("status", String.valueOf(HttpStatus.SC_SERVICE_UNAVAILABLE));
-            resultMap.put("message", e.getMessage());
-        } catch (ParseException e) {
-            log.error("解析错误: {}"+ e.getMessage());
-            resultMap.put("status", String.valueOf(HttpStatus.SC_SERVICE_UNAVAILABLE));
-            resultMap.put("message", e.getMessage());
-        } catch (IOException e) {
-            log.error("IO错误: {}"+ e.getMessage());
-            resultMap.put("status", String.valueOf(HttpStatus.SC_BAD_GATEWAY));
-            resultMap.put("message", e.getMessage());
-        } catch (Exception e) {
-            log.error("其它错误: {}"+e.getMessage());
-            resultMap.put("status", String.valueOf(HttpStatus.SC_INTERNAL_SERVER_ERROR));
-            resultMap.put("message", e.getMessage());
-        } finally {
-            if (null != response) {
-                try {
-                    EntityUtils.consumeQuietly(response.getEntity());
-                    response.close();
-                } catch (IOException e) {
-                    log.error("释放链接错误: {}"+e.getMessage());
-                }
-            }
-        }
-        return resultMap;
-    }
-
 }
 

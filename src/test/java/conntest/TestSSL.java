@@ -29,9 +29,9 @@ public class TestSSL {
         SSLList.add(jstx_rzzb);
         HttpClientService httpClientService = new HttpClientService();
 
-        Map<String, String> stringStringMap = httpClientService.getConnHttpPost("http://10.111.153.249:10080/", generate(sslSchema, SSLList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_SSL_TOPIC);
+        Map<String, String> stringStringMap = httpClientService.getConnHttpPost("http://10.111.208.1:10080/", generate(sslSchema, SSLList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_SSL_TOPIC);
         System.out.println(stringStringMap);
-        SSLList.clear();
+
 
     }
 

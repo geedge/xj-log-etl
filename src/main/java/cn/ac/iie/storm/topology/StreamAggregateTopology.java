@@ -81,7 +81,11 @@ public class StreamAggregateTopology {
                         .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_SSL_STREAMID);
 
                 topologyBuilder.setBolt("CONN-COUNT", new ConnCountBolt(),StreamAggregateConfig.CONN_COUNT_SEND_PARALLELISM)
-                        .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_YBInputSize_STREAMID);
+                        .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_YBInputSize_STREAMID)
+                        .shuffleGrouping("CONN-SEND")
+                        .shuffleGrouping("CONN-IP-SEND")
+                        .shuffleGrouping("CONN-HTTP-SEND")
+                        .shuffleGrouping("CONN-SSL-SEND");
                 break;
             case "gk":
                 topologyBuilder.setSpout(StreamAggregateConfig.KAFKA_SPOUT, new SafeKafkaSpout(), StreamAggregateConfig.SAFE_SPOUT_PARALLELISM);
@@ -107,8 +111,12 @@ public class StreamAggregateTopology {
                            .shuffleGrouping("GK-PARSE",StreamAggregateConfig.GK_SSL_STREAMID);
 
                 topologyBuilder.setBolt("GK-COUNT", new GkCountBolt(),StreamAggregateConfig.GK_COUNT_SEND_PARALLELISM)
-                        .shuffleGrouping("GK-PARSE",StreamAggregateConfig.GK_COUNT_STREAMID);
-                break;
+                        .shuffleGrouping("GK-PARSE",StreamAggregateConfig.GK_COUNT_STREAMID)
+                        .shuffleGrouping("GK-HTTP-SEND")
+                        .shuffleGrouping("GK-IP-SEND")
+                        .shuffleGrouping("GK-SSL-SEND")
+                        .shuffleGrouping("GK-SEND");
+            break;
             case "jc":
                 topologyBuilder.setSpout(StreamAggregateConfig.KAFKA_SPOUT, new SafeKafkaSpout(), StreamAggregateConfig.SAFE_SPOUT_PARALLELISM);
 
@@ -137,7 +145,12 @@ public class StreamAggregateTopology {
                         .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_SSL_STREAMID);
 
                 topologyBuilder.setBolt("JC-COUNT", new JCCountBolt(),StreamAggregateConfig.JC_COUNT_SEND_PARALLELISM)
-                        .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_COUNT_STREAMID);
+                        .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_COUNT_STREAMID)
+                        .shuffleGrouping("JC-SEND")
+                        .shuffleGrouping("JC-IP-SEND")
+                        .shuffleGrouping("JC-DNS-SEND")
+                        .shuffleGrouping("JC-HTTP-SEND")
+                        .shuffleGrouping("JC-SSL-SEND");
                 break;
             default:
                 break;

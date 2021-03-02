@@ -47,15 +47,8 @@ public class JCParseBolt extends BaseBasicBolt {
     private List<GenericRecord> WYGJCList = new ArrayList<GenericRecord>();
     private List<GenericRecord> PICList = new ArrayList<GenericRecord>();
     private List<GenericRecord> MEDIAList = new ArrayList<GenericRecord>();
-
-
-
-
-
     private long count = 0L;
     private long loadfail = 0L;
-
-
     private Schema vpnSchema;
     private Schema ipSchema;
     private Schema httpSchema;
@@ -92,49 +85,50 @@ public class JCParseBolt extends BaseBasicBolt {
         if (TupleUtils.isTick(tuple)) {
             try {
                 if (!IPList.isEmpty()){
-                    basicOutputCollector.emit(StreamAggregateConfig.JC_IP_STREAMID, new Values((Object) generate(ipSchema, IPList)));
+                    basicOutputCollector.emit(StreamAggregateConfig.JC_IP_STREAMID, new Values((Object) generate(ipSchema, IPList),IPList.size()));
                     IPList.clear();
                 }
-
-
                 if (!HTTPList.isEmpty()){
-                    basicOutputCollector.emit(StreamAggregateConfig.JC_HTTP_STREAMID, new Values((Object) generate(httpSchema, HTTPList)));
+                    basicOutputCollector.emit(StreamAggregateConfig.JC_HTTP_STREAMID, new Values((Object) generate(httpSchema, HTTPList),HTTPList.size()));
                     HTTPList.clear();
                 }
 
                 if (!SSLList.isEmpty()){
-                    basicOutputCollector.emit(StreamAggregateConfig.JC_SSL_STREAMID, new Values((Object) generate(sslSchema, SSLList)));
+                    basicOutputCollector.emit(StreamAggregateConfig.JC_SSL_STREAMID, new Values((Object) generate(sslSchema, SSLList),SSLList.size()));
                     SSLList.clear();
                 }
                 if (!DNSList.isEmpty()){
-                    basicOutputCollector.emit(StreamAggregateConfig.JC_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList)));
+                    basicOutputCollector.emit(StreamAggregateConfig.JC_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList),DNSList.size()));
                     DNSList.clear();
                 }
-
                 if (!(WYGJCList.isEmpty())) {
-                    basicOutputCollector.emit(StreamAggregateConfig.JC_WYGJC_STREAMID, new Values((Object) generate(wygjcSchema,WYGJCList)));
+                    basicOutputCollector.emit(StreamAggregateConfig.JC_WYGJC_STREAMID, new Values((Object) generate(wygjcSchema,WYGJCList),WYGJCList.size()));
                     WYGJCList.clear();
                 }
                 if (!(JSTXList.isEmpty())) {
-                    basicOutputCollector.emit(StreamAggregateConfig.JC_JSTX_STREAMID, new Values((Object) generate(jstxSchema,VPNList)));
+                    basicOutputCollector.emit(StreamAggregateConfig.JC_JSTX_STREAMID, new Values((Object) generate(jstxSchema,JSTXList),JSTXList.size()));
                     JSTXList.clear();
                 }
                 if (!(FTPList.isEmpty())) {
-                    basicOutputCollector.emit(StreamAggregateConfig.JC_FTP_STREAMID, new Values((Object) generate(ftpSchema,MAILList)));
+                    basicOutputCollector.emit(StreamAggregateConfig.JC_FTP_STREAMID, new Values((Object) generate(ftpSchema,FTPList),FTPList.size()));
                     FTPList.clear();
                 }
                 if (!(PICList.isEmpty())) {
-                    basicOutputCollector.emit(StreamAggregateConfig.JC_PIC_STREAMID, new Values((Object) generate(picSchema,PICList)));
+                    basicOutputCollector.emit(StreamAggregateConfig.JC_PIC_STREAMID, new Values((Object) generate(picSchema,PICList),PICList.size()));
                     PICList.clear();
                 }
                 if (!(MEDIAList.isEmpty())) {
-                    basicOutputCollector.emit(StreamAggregateConfig.JC_MEDIA_STREAMID, new Values((Object) generate(mediaSchema,MEDIAList)));
+                    basicOutputCollector.emit(StreamAggregateConfig.JC_MEDIA_STREAMID, new Values((Object) generate(mediaSchema,MEDIAList),MEDIAList.size()));
                     MEDIAList.clear();
                 }
                  if(!(MAILList.isEmpty())) {
-                     basicOutputCollector.emit(StreamAggregateConfig.JC_MAIL_STREAMID, new Values((Object) generate(mailSchema,MAILList)));
+                     basicOutputCollector.emit(StreamAggregateConfig.JC_MAIL_STREAMID, new Values((Object) generate(mailSchema,MAILList),MAILList.size()));
                      MAILList.clear();
                  }
+                if (!VPNList.isEmpty()){
+                    basicOutputCollector.emit(StreamAggregateConfig.JC_VPN_STREAMID, new Values((Object) generate(vpnSchema, VPNList),VPNList.size()));
+                    VPNList.clear();
+                }
                 basicOutputCollector.emit(StreamAggregateConfig.JC_COUNT_STREAMID, new Values(count,loadfail));
              }catch (Exception e) {
                 logger.error("----------批数据发送异常-----------" +e);
@@ -156,19 +150,22 @@ public class JCParseBolt extends BaseBasicBolt {
                 sessionRecordLog.setGklb(traffic_forward.getGklb());
                 sessionRecordLog.setLabels(traffic_forward.getLabels());
                 sessionRecordLog.setYyzl(traffic_forward.getYyzl());
+                sessionRecordLog.setGjc(traffic_forward.getGjc());
+                sessionRecordLog.setZsmc(traffic_forward.getZsmc());
                 int pzlx = traffic_forward.getPzlx();
+
                 //按pzlx的值对数据进行分类发送
                 //按pzlx的值对数据进行分类发送
                 switch (pzlx) {
                     case 501:   //IP监测
+                        count++;
                         try {
                             GenericRecord ip_jcrz = new GenericData.Record(ipSchema);
                             sessionRecordLog.setCommon_schema_type("IP");
                             setIP_JCRZ(ip_jcrz, sessionRecordLog);
                             IPList.add(ip_jcrz);
-                            count++;
                         if (IPList.size() >=  StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                            basicOutputCollector.emit(StreamAggregateConfig.JC_IP_STREAMID, new Values((Object) generate(ipSchema, IPList)));
+                            basicOutputCollector.emit(StreamAggregateConfig.JC_IP_STREAMID, new Values((Object) generate(ipSchema, IPList),IPList.size()));
                             IPList.clear();
                          }
                           } catch (Exception e) {
@@ -178,14 +175,14 @@ public class JCParseBolt extends BaseBasicBolt {
                      }
                          break;
                     case 502:   //DNS监测
+                        count++;
                         try {
                             GenericRecord dns_jczb = new GenericData.Record(dnsSchema);
                             sessionRecordLog.setCommon_schema_type("DNS");
                             setDNS_JCZB(dns_jczb, sessionRecordLog);
                             DNSList.add(dns_jczb);
-                            count++;
                             if (DNSList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.JC_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.JC_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList),DNSList.size()));
                                 DNSList.clear();
                             }
                         } catch (Exception e) {
@@ -196,14 +193,14 @@ public class JCParseBolt extends BaseBasicBolt {
                         break;
                     case 503:   //URL监测
                     case 504:   //网站监测
+                        count++;
                         try {
                             GenericRecord http_jczb = new GenericData.Record(httpSchema);
                             sessionRecordLog.setCommon_schema_type("HTTP");
                             setHTTP_JCZB(http_jczb, sessionRecordLog);
                             HTTPList.add(http_jczb);
-                            count++;
                             if (HTTPList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.JC_HTTP_STREAMID, new Values((Object) generate(httpSchema, HTTPList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.JC_HTTP_STREAMID, new Values((Object) generate(httpSchema, HTTPList),HTTPList.size()));
                                 HTTPList.clear();
                             }
                         } catch (Exception e) {
@@ -213,14 +210,14 @@ public class JCParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case 505:   //特定证书监测
+                        count++;
                         try {
                             GenericRecord ssl_jczb = new GenericData.Record(sslSchema);
                             sessionRecordLog.setCommon_schema_type("SSL");
                             setSSL_JCZB(ssl_jczb, sessionRecordLog);
                             SSLList.add(ssl_jczb);
-                            count++;
                             if (SSLList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.JC_SSL_STREAMID, new Values((Object) generate(sslSchema, SSLList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.JC_SSL_STREAMID, new Values((Object) generate(sslSchema, SSLList),SSLList.size()));
                                 SSLList.clear();
                             }
                         } catch (Exception e) {
@@ -231,14 +228,14 @@ public class JCParseBolt extends BaseBasicBolt {
                         break;
                     case 506:   //网站关键词监测
                     case 509:   //搜索词监测
+                        count++;
                         try {
                             GenericRecord wygjc_jczb = new GenericData.Record(wygjcSchema);
                             sessionRecordLog.setCommon_schema_type("HTTP");
                             setWYGJC_JCZB(wygjc_jczb, sessionRecordLog);
                             WYGJCList.add(wygjc_jczb);
-                            count++;
                             if (WYGJCList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.JC_WYGJC_STREAMID, new Values((Object) generate(wygjcSchema,WYGJCList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.JC_WYGJC_STREAMID, new Values((Object) generate(wygjcSchema,WYGJCList),WYGJCList.size()));
                                 WYGJCList.clear();
                             }
                         } catch (Exception e) {
@@ -249,14 +246,14 @@ public class JCParseBolt extends BaseBasicBolt {
                         break;
                     case 507:   //邮件监测
                     case 510:   //邮件监测
+                        count++;
                         try {
                             GenericRecord mail_jczb = new GenericData.Record(mailSchema);
                             sessionRecordLog.setCommon_schema_type("MAIL");
                             setMAIL_JCZB(mail_jczb, sessionRecordLog);
                             MAILList.add(mail_jczb);
-                            count++;
                             if (MAILList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.JC_MAIL_STREAMID, new Values((Object) generate(mailSchema,MAILList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.JC_MAIL_STREAMID, new Values((Object) generate(mailSchema,MAILList),MAILList.size()));
                                 MAILList.clear();
                             }
                         } catch (Exception e) {
@@ -266,14 +263,14 @@ public class JCParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case 508:   //FTP关键词监测
+                        count++;
                         try {
                             GenericRecord ftp_jczb = new GenericData.Record(ftpSchema);
                             sessionRecordLog.setCommon_schema_type("FTP");
                             setFTP_JCZB(ftp_jczb,sessionRecordLog);
                             FTPList.add(ftp_jczb);
-                            count++;
                             if (MAILList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.JC_FTP_STREAMID, new Values((Object) generate(ftpSchema,MAILList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.JC_FTP_STREAMID, new Values((Object) generate(ftpSchema,MAILList),FTPList.size()));
                                 FTPList.clear();
                             }
                         } catch (Exception e) {
@@ -283,14 +280,14 @@ public class JCParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case 511:   //VPN监测
+                        count++;
                         try {
                             GenericRecord vpn_jczb = new GenericData.Record(vpnSchema);
                             sessionRecordLog.setCommon_schema_type("VPN");
                             setVPN_JCZB(vpn_jczb, sessionRecordLog);
                             VPNList.add(vpn_jczb);
-                            count++;
                             if (VPNList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.JC_VPN_STREAMID, new Values((Object) generate(vpnSchema,VPNList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.JC_VPN_STREAMID, new Values((Object) generate(vpnSchema,VPNList),VPNList.size()));
                                 VPNList.clear();
                             }
                         } catch (Exception e) {
@@ -301,14 +298,14 @@ public class JCParseBolt extends BaseBasicBolt {
                         break;
                     case 512:   //特定应用监测
                     case 513:   //社交应用监测
+                        count++;
                         try {
                             GenericRecord jstx_jczb = new GenericData.Record(jstxSchema);
                             sessionRecordLog.setCommon_schema_type("JSTX");
                             setJSTX_JCZB(jstx_jczb, sessionRecordLog);
                             JSTXList.add(jstx_jczb);
-                            count++;
                             if (JSTXList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.JC_JSTX_STREAMID, new Values((Object) generate(jstxSchema,VPNList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.JC_JSTX_STREAMID, new Values((Object) generate(jstxSchema,JSTXList),JSTXList.size()));
                                 JSTXList.clear();
                             }
                         } catch (Exception e) {
@@ -318,14 +315,14 @@ public class JCParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case 514:   //图片监测
+                        count++;
                         try {
                             GenericRecord pic_jczb = new GenericData.Record(picSchema);
                             sessionRecordLog.setCommon_schema_type("HTTP");
                             setPIC_JCZB(pic_jczb, sessionRecordLog);
                             PICList.add(pic_jczb);
-                            count++;
                             if (PICList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.JC_PIC_STREAMID, new Values((Object) generate(picSchema,PICList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.JC_PIC_STREAMID, new Values((Object) generate(picSchema,PICList),PICList.size()));
                                 PICList.clear();
                             }
                         } catch (Exception e) {
@@ -335,14 +332,14 @@ public class JCParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case 515:   //多媒体监测
+                        count++;
                         try {
                             GenericRecord media_jczb = new GenericData.Record(mediaSchema);
                             sessionRecordLog.setCommon_schema_type("HTTP");
                             setMEDIA_JCZB(media_jczb, sessionRecordLog);
                             MEDIAList.add(media_jczb);
-                            count++;
                             if (MEDIAList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.JC_MEDIA_STREAMID, new Values((Object) generate(mediaSchema,MEDIAList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.JC_MEDIA_STREAMID, new Values((Object) generate(mediaSchema,MEDIAList),MEDIAList.size()));
                                 MEDIAList.clear();
                             }
                         } catch (Exception e) {
@@ -362,17 +359,17 @@ public class JCParseBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_IP_STREAMID,new Fields(StreamAggregateConfig.JC_IP_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_DNS_STREAMID,new Fields(StreamAggregateConfig.JC_DNS_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_HTTP_STREAMID,new Fields(StreamAggregateConfig.JC_HTTP_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_SSL_STREAMID,new Fields(StreamAggregateConfig.JC_SSL_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_WYGJC_STREAMID,new Fields(StreamAggregateConfig.JC_WYGJC_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_MAIL_STREAMID,new Fields(StreamAggregateConfig.JC_MAIL_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_FTP_STREAMID,new Fields(StreamAggregateConfig.JC_FTP_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_VPN_STREAMID,new Fields(StreamAggregateConfig.JC_VPN_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_JSTX_STREAMID,new Fields(StreamAggregateConfig.JC_JSTX_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_PIC_STREAMID,new Fields(StreamAggregateConfig.JC_PIC_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_MEDIA_STREAMID,new Fields(StreamAggregateConfig.JC_MEDIA_STREAMID));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_IP_STREAMID,new Fields(StreamAggregateConfig.JC_IP_STREAMID,"ipcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_DNS_STREAMID,new Fields(StreamAggregateConfig.JC_DNS_STREAMID,"dnscount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_HTTP_STREAMID,new Fields(StreamAggregateConfig.JC_HTTP_STREAMID,"httpcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_SSL_STREAMID,new Fields(StreamAggregateConfig.JC_SSL_STREAMID,"sslcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_WYGJC_STREAMID,new Fields(StreamAggregateConfig.JC_WYGJC_STREAMID,"wygjccount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_MAIL_STREAMID,new Fields(StreamAggregateConfig.JC_MAIL_STREAMID,"mailcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_FTP_STREAMID,new Fields(StreamAggregateConfig.JC_FTP_STREAMID,"ftpcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_VPN_STREAMID,new Fields(StreamAggregateConfig.JC_VPN_STREAMID,"vpncount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_JSTX_STREAMID,new Fields(StreamAggregateConfig.JC_JSTX_STREAMID,"jstxcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_PIC_STREAMID,new Fields(StreamAggregateConfig.JC_PIC_STREAMID,"piccount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_MEDIA_STREAMID,new Fields(StreamAggregateConfig.JC_MEDIA_STREAMID,"mediacount"));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_COUNT_STREAMID, new Fields("count","loadfail"));
     }
 

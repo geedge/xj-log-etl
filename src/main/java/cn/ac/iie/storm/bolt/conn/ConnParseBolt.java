@@ -48,6 +48,15 @@ public class ConnParseBolt extends BaseBasicBolt {
     private long connOutputSize = 0L;
     private long connInputSize = 0L;
 
+    private long conn_http=0L;
+    private long conn_ip=0L;
+    private long conn_ssl=0L;
+    private long conn_jstx=0L;
+    private long conn_mail=0L;
+    private long conn_ftp=0L;
+    private long conn_dns=0L;
+    private long conn_vpn=0L;
+
     private Schema vpnSchema;
     private Schema ipSchema;
     private Schema httpSchema;
@@ -56,8 +65,6 @@ public class ConnParseBolt extends BaseBasicBolt {
     private Schema ftpSchema;
     private Schema mailSchema;
     private Schema jstxSchema;
-
-
 
 
     public void prepare(Map stormConf, TopologyContext context) {
@@ -81,25 +88,26 @@ public class ConnParseBolt extends BaseBasicBolt {
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
             if(TupleUtils.isTick(tuple)){
+
                try {
                     if (!VPNList.isEmpty()){
-                        basicOutputCollector.emit(StreamAggregateConfig.CONN_VPN_STREAMID, new Values((Object) generate(vpnSchema, VPNList)));
+                        basicOutputCollector.emit(StreamAggregateConfig.CONN_VPN_STREAMID, new Values((Object) generate(vpnSchema, VPNList),VPNList.size()));
                         VPNList.clear();
                     }
                    if (!DNSList.isEmpty()){
-                       basicOutputCollector.emit(StreamAggregateConfig.CONN_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList)));
+                       basicOutputCollector.emit(StreamAggregateConfig.CONN_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList),DNSList.size()));
                        DNSList.clear();
                    }
                    if (!MAILList.isEmpty()){
-                       basicOutputCollector.emit(StreamAggregateConfig.CONN_MAIL_STREAMID, new Values((Object) generate(mailSchema, MAILList)));
+                       basicOutputCollector.emit(StreamAggregateConfig.CONN_MAIL_STREAMID, new Values((Object) generate(mailSchema, MAILList),MAILList.size()));
                        MAILList.clear();
                    }
                    if (!FTPList.isEmpty()){
-                       basicOutputCollector.emit(StreamAggregateConfig.CONN_FTP_STREAMID, new Values((Object) generate(ftpSchema, FTPList)));
+                       basicOutputCollector.emit(StreamAggregateConfig.CONN_FTP_STREAMID, new Values((Object) generate(ftpSchema, FTPList),FTPList.size()));
                        FTPList.clear();
                    }
                    if (!JSTXList.isEmpty()){
-                       basicOutputCollector.emit(StreamAggregateConfig.CONN_JSTX_STREAMID, new Values((Object) generate(jstxSchema, JSTXList)));
+                       basicOutputCollector.emit(StreamAggregateConfig.CONN_JSTX_STREAMID, new Values((Object) generate(jstxSchema, JSTXList),JSTXList.size()));
                        JSTXList.clear();
                    }
                 }catch (Exception e){
@@ -111,13 +119,14 @@ public class ConnParseBolt extends BaseBasicBolt {
                 count = 0;
                 loadFail = 0;
                 connOutputSize = 0;
+
             }else {
                 try {
                     String line = tuple.getString(0);
                     sessionRecordLog = JSONObject.parseObject(line, SessionRecordLog.class);
                     connInputSize =connInputSize + sessionRecordLog.getCommon_s2c_byte_num();
                     connOutputSize = connOutputSize + sessionRecordLog.getCommon_c2s_byte_num();
-
+                    count = count + 1;
                     //按common_schema_type的值对数据进行分类发
                 switch ( sessionRecordLog.getCommon_schema_type()) {
                     case "BASE":
@@ -127,9 +136,8 @@ public class ConnParseBolt extends BaseBasicBolt {
                                     GenericRecord vpn_rzzb = new GenericData.Record(vpnSchema);
                                     setVPN_RZZB(vpn_rzzb, sessionRecordLog);
                                     VPNList.add(vpn_rzzb);
-                                    count++;
                                 if (VPNList.size() >= StreamAggregateConfig.CONN_BATCH_INTER_NUM) {
-                                    basicOutputCollector.emit(StreamAggregateConfig.CONN_VPN_STREAMID, new Values((Object) generate(vpnSchema, VPNList)));
+                                    basicOutputCollector.emit(StreamAggregateConfig.CONN_VPN_STREAMID, new Values((Object) generate(vpnSchema, VPNList),VPNList.size()));
                                     VPNList.clear();
                                 }
                             } catch (Exception e) {
@@ -142,12 +150,10 @@ public class ConnParseBolt extends BaseBasicBolt {
                                     GenericRecord ftp_rzzb = new GenericData.Record(ftpSchema);
                                     setFTP_RZZB(ftp_rzzb, sessionRecordLog);
                                     FTPList.add(ftp_rzzb);
-                                    count++;
                                     if (FTPList.size() >= StreamAggregateConfig.CONN_BATCH_INTER_NUM) {
-                                        basicOutputCollector.emit(StreamAggregateConfig.CONN_FTP_STREAMID, new Values((Object) generate(ftpSchema, FTPList)));
+                                        basicOutputCollector.emit(StreamAggregateConfig.CONN_FTP_STREAMID, new Values((Object) generate(ftpSchema, FTPList),FTPList.size()));
                                         FTPList.clear();
                                     }
-
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     logger.error("-----------ftp_rzzb数据封装处理异常-----------" + e);
@@ -160,9 +166,8 @@ public class ConnParseBolt extends BaseBasicBolt {
                                     GenericRecord ip_rzzb = new GenericData.Record(ipSchema);
                                     setIP_RZZB(ip_rzzb, sessionRecordLog);
                                     IPList.add(ip_rzzb);
-                                    count++;
                                 if (IPList.size() >= StreamAggregateConfig.CONN_BATCH_INTER_NUM) {
-                                   basicOutputCollector.emit(StreamAggregateConfig.CONN_IP_STREAMID, new Values((Object) generate(ipSchema, IPList)));
+                                    basicOutputCollector.emit(StreamAggregateConfig.CONN_IP_STREAMID, new Values((Object) generate(ipSchema, IPList),IPList.size()));
                                     IPList.clear();
                                 }
                             } catch (Exception e) {
@@ -173,18 +178,16 @@ public class ConnParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case "HTTP":
+                        sessionRecordLog.setCommon_schema_type("HTTP");
                         try {
                                 GenericRecord http_rzzb = new GenericData.Record(httpSchema);
-
                                 setHTTP_RZZB(http_rzzb, sessionRecordLog);
                                 HTTPList.add(http_rzzb);
-                                count++;
-                            if (HTTPList.size() >= StreamAggregateConfig.CONN_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.CONN_HTTP_STREAMID, new Values((Object) generate(httpSchema, HTTPList)));
 
+                            if (HTTPList.size() >= StreamAggregateConfig.CONN_BATCH_INTER_NUM) {
+                                basicOutputCollector.emit(StreamAggregateConfig.CONN_HTTP_STREAMID, new Values((Object) generate(httpSchema, HTTPList),HTTPList.size()));
                                 HTTPList.clear();
                             }
-
                         } catch (Exception e) {
                             e.printStackTrace();
                             logger.error("-----------http_rzzb数据封装处理异常-----------"+e);
@@ -192,13 +195,14 @@ public class ConnParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case "SSL":
+                        sessionRecordLog.setCommon_schema_type("SSL");
                         try {
                             GenericRecord ssl_rzzb = new GenericData.Record(sslSchema);
+
                                 setSSL_RZZB(ssl_rzzb, sessionRecordLog);
                                 SSLList.add(ssl_rzzb);
-                                count++;
                             if (SSLList.size() >= StreamAggregateConfig.CONN_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.CONN_SSL_STREAMID, new Values((Object) generate(sslSchema, SSLList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.CONN_SSL_STREAMID, new Values((Object) generate(sslSchema, SSLList),SSLList.size()));
                                 SSLList.clear();
                             }
                         } catch (Exception e) {
@@ -208,13 +212,13 @@ public class ConnParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case "DNS":
+                        sessionRecordLog.setCommon_schema_type("DNS");
                         try {
                                 GenericRecord dns_rzzb = new GenericData.Record(dnsSchema);
                                 setDNS_RZZB(dns_rzzb, sessionRecordLog);
                                 DNSList.add(dns_rzzb);
-                                count++;
                             if (DNSList.size() >= StreamAggregateConfig.CONN_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.CONN_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.CONN_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList),DNSList.size()));
                                 DNSList.clear();
                             }
                         } catch (Exception e) {
@@ -224,30 +228,29 @@ public class ConnParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case "MAIL":
+                        sessionRecordLog.setCommon_schema_type("MAIL");
                         try {
                                 GenericRecord mail_rzzb = new GenericData.Record(mailSchema);
                                 setMAIL_RZZB(mail_rzzb, sessionRecordLog);
                                 MAILList.add(mail_rzzb);
-                                count++;
                             if (MAILList.size() >= StreamAggregateConfig.CONN_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.CONN_MAIL_STREAMID, new Values((Object) generate(mailSchema, MAILList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.CONN_MAIL_STREAMID, new Values((Object) generate(mailSchema, MAILList),MAILList.size()));
                                 MAILList.clear();
                             }
-
                         } catch (Exception e) {
                             e.printStackTrace();
-                            logger.error("-----------mail_rzzb数据封装处理异常-----------" + e);
+                            logger.error("-----------mail_rzzb数据封装处理异常-----------" + e +"异常数据为:"+line);
                             loadFail++;
                         }
                         break;
                     case "APP":
+                        sessionRecordLog.setCommon_schema_type("JSTX");
                         try {
                                 GenericRecord jstx_rzzb = new GenericData.Record(jstxSchema);
                                 setJSTX_RZZB(jstx_rzzb, sessionRecordLog);
                                 JSTXList.add(jstx_rzzb);
-                                count++;
                             if (JSTXList.size() >= StreamAggregateConfig.CONN_BATCH_INTER_NUM) {
-                                basicOutputCollector.emit(StreamAggregateConfig.CONN_JSTX_STREAMID, new Values((Object) generate(jstxSchema, JSTXList)));
+                                basicOutputCollector.emit(StreamAggregateConfig.CONN_JSTX_STREAMID, new Values((Object) generate(jstxSchema, JSTXList),JSTXList.size()));
                                 JSTXList.clear();
                             }
                         } catch (Exception e) {
@@ -268,14 +271,14 @@ public class ConnParseBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_VPN_STREAMID, new Fields(StreamAggregateConfig.CONN_VPN_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_IP_STREAMID, new Fields(StreamAggregateConfig.CONN_IP_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_DNS_STREAMID, new Fields(StreamAggregateConfig.CONN_DNS_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_HTTP_STREAMID, new Fields(StreamAggregateConfig.CONN_HTTP_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_MAIL_STREAMID, new Fields(StreamAggregateConfig.CONN_MAIL_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_JSTX_STREAMID, new Fields(StreamAggregateConfig.CONN_JSTX_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_FTP_STREAMID, new Fields(StreamAggregateConfig.CONN_FTP_STREAMID));
-        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_SSL_STREAMID, new Fields(StreamAggregateConfig.CONN_SSL_STREAMID));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_VPN_STREAMID, new Fields(StreamAggregateConfig.CONN_VPN_STREAMID,"vpncount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_IP_STREAMID, new Fields(StreamAggregateConfig.CONN_IP_STREAMID,"ipcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_DNS_STREAMID, new Fields(StreamAggregateConfig.CONN_DNS_STREAMID,"dnscount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_HTTP_STREAMID, new Fields(StreamAggregateConfig.CONN_HTTP_STREAMID,"httpcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_MAIL_STREAMID, new Fields(StreamAggregateConfig.CONN_MAIL_STREAMID,"mailcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_JSTX_STREAMID, new Fields(StreamAggregateConfig.CONN_JSTX_STREAMID,"jstxcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_FTP_STREAMID, new Fields(StreamAggregateConfig.CONN_FTP_STREAMID,"ftpcount"));
+        outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_SSL_STREAMID, new Fields(StreamAggregateConfig.CONN_SSL_STREAMID,"sslcount"));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_YBInputSize_STREAMID, new Fields("connInputSize","count","loadFail","connOutputSize"));
     }
 

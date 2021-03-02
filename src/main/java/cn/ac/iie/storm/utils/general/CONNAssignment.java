@@ -22,7 +22,7 @@ public class CONNAssignment {
         dns_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
         dns_rzzb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
         dns_rzzb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
-        dns_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip()));
+        dns_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip()));
         dns_rzzb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         dns_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         dns_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -45,7 +45,7 @@ public class CONNAssignment {
         IP_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
         IP_rzzb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
         IP_rzzb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
-        IP_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip()));
+        IP_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip()));
         IP_rzzb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         IP_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         IP_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -67,7 +67,7 @@ public class CONNAssignment {
            http_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
            http_rzzb.put("YDY", getDy(sessionRecordLog.getCommon_client_location()));
            http_rzzb.put("MDDY", getDy(sessionRecordLog.getCommon_server_location()));
-           http_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip()));
+           http_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip()));
            http_rzzb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(), sessionRecordLog.getCommon_client_ip()));
            http_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(), sessionRecordLog.getCommon_server_ip()));
            http_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -94,7 +94,7 @@ public class CONNAssignment {
         vpn_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
         vpn_rzzb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
         vpn_rzzb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
-        vpn_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip()));
+        vpn_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip()));
         vpn_rzzb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         vpn_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         vpn_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -115,7 +115,7 @@ public class CONNAssignment {
         ssl_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
         ssl_rzzb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
         ssl_rzzb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
-        ssl_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip()));
+        ssl_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip()));
         ssl_rzzb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         ssl_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         ssl_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -139,7 +139,7 @@ public class CONNAssignment {
         ftp_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
         ftp_rzzb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
         ftp_rzzb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
-        ftp_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip()));
+        ftp_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip()));
         ftp_rzzb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         ftp_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         ftp_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -163,7 +163,7 @@ public class CONNAssignment {
         mail_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
         mail_rzzb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
         mail_rzzb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
-        mail_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip()));
+        mail_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip()));
         mail_rzzb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         mail_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         mail_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
@@ -218,7 +218,7 @@ public class CONNAssignment {
         jstx_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
         jstx_rzzb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
         jstx_rzzb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
-        jstx_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_server_ip()));
+        jstx_rzzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip()));
         jstx_rzzb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         jstx_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         jstx_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());

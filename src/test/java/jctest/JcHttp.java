@@ -43,7 +43,10 @@ public class JcHttp {
         setHTTP_JCZB(http_jczb, sessionRecordLog);
         HTTPList.add(http_jczb);
 
-        Map<String, String> stringStringMap = HttpClientService.getConnHttpPost("http://10.111.153.249:10080/", generate(httpSchema, HTTPList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_HTTP_TOPIC);
-        System.out.println(stringStringMap);
+        Map<String, String> stringStringMap = HttpClientService.getConnHttpPost("http://10.111.208.1:10080/", generate(httpSchema, HTTPList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_HTTP_TOPIC);
+        System.out.println("这是消息头"+stringStringMap);
+        if (stringStringMap.containsValue("502")){
+            System.out.println("发送失败"+"失败原因为"+stringStringMap);
+        }
     }
 }

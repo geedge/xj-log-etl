@@ -15,14 +15,14 @@ import java.io.*;
 
 public class DownloadObject {
     public static void main(String[] args) throws IOException {
-        String endpoint = "http://192.168.44.12:9098/hos/";
+        String endpoint = "http://10.111.72.200:9098/hos/";
         String accessKey = "default";
         String secretKey = "default";
 
         AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, "us-east-1")).withChunkedEncodingDisabled(true).build();
 
-        S3Object s3Object = s3.getObject("test218", "ceshi");
+        S3Object s3Object = s3.getObject("test", "bianhao");
 
         ObjectMetadata objectMetadata = s3Object.getObjectMetadata();
 

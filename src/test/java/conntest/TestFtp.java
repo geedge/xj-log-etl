@@ -28,9 +28,8 @@ public class TestFtp {
         GenericRecord ftp_rzzb = new GenericData.Record(ftpSchema);
         setFTP_RZZB(ftp_rzzb, sessionRecordLog);
         FTPList.add(ftp_rzzb);
-        System.out.println(ftp_rzzb.get("PROTO_ID"));
 
-        Map<String, String> stringStringMap = HttpClientService.getConnHttpPost("http://10.111.153.249:10080/", generate(ftpSchema, FTPList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_FTP_TOPIC);
+        Map<String, String> stringStringMap = HttpClientService.getConnHttpPost("http://10.111.208.3:10080/", generate(ftpSchema, FTPList), StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_FTP_TOPIC);
         System.out.println(stringStringMap);
     }
 }

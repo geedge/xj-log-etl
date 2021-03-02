@@ -44,26 +44,28 @@ public class GetMap {
         return labelMap.get(common_schema_type);
     }
 
-
-
     public static String getDy(String location){
-        String str ="";
+        String[] split;
         if(location==null){
             return "0";
         }else if (location.contains(",,")){
-            String[] split = location.split(",,");
-            str = split[0];
-            if (str==null){
-                str = split[1];
-                if (str == null){
-                    str = "0";
+           split = location.split(",,");
+            if (split.length == 2) {
+                String s = split[0];
+                if (s.length()<1) {
+                    s = split[1];
+                    if (s == null) {
+                        s = "0";
+                    }
                 }
+                return s;
+            }else {
+                return "0";
             }
-            return str;
         } else {
-            str = cityMap.get(location);
-            if (str == null) {
-                String[] split = location.split(",");
+            String str = cityMap.get(location);
+            split = location.split(",");
+            if ((str == null&&split.length==3)) {
                 str = provinceMap.get(split[1].replace(" ", ""));
                 if (str == null) {
                     str = countryMap.get(split[2].replace(" ", ""));
@@ -71,54 +73,37 @@ public class GetMap {
                         str = "0";
                     }
                 }
+                return str;
+            }else if(str !=null){
+                return str;
+            }else {
+                return "0";
             }
-            return str;
-        }
-    }
-
-    public static String getSafeDy(String location){
-        String str ="";
-        if(location==null){
-            return "0";
-        }else if (location.contains(",,")){
-            String[] split = location.split(",,");
-            str = split[0];
-
-            if (str==null){
-                str = split[1];
-                if (str == null){
-                    str = "0";
-                }
-            }
-            return str;
-        } else {
-            str = cityMap.get(location);
-            if (str == null) {
-                String[] split = location.split(",");
-                str = provinceMap.get(split[1].replace(" ", ""));
-                if (str == null) {
-                    str = countryMap.get(split[2].replace(" ", ""));
-                    if (str == null) {
-                        str = "0";
-                    }
-                }
-            }
-            return str;
         }
     }
 
 
     public static String getSzd(String location){
-        String[] split = location.split(",");
-        String str = split[2].replace(" ","");
-        String s = countryMap.get(str);
-        if(str.equals("China")){
+        String[] split;
+        if(location==null){
+            return String.valueOf(3);
+        }else if (location.contains(",,")){
             return String.valueOf(1);
-        }else {
-            if (s==null){
-                return String.valueOf(3);
+        } else {
+            split = location.split(",");
+            if (split.length==3) {
+                String country = split[2].replace(" ","");
+                System.out.println(country);
+                String s = countryMap.get(country);
+                if (country.equals("China")){
+                    return String.valueOf(1);
+                }else if(s!=null) {
+                    return String.valueOf(2);
+                }else {
+                    return String.valueOf(3);
+                }
             }else {
-                return String.valueOf(2);
+                return String.valueOf(3);
             }
         }
     }
@@ -144,7 +129,7 @@ public class GetMap {
             propService_country.load(countryNumbering);
 
 
-            appId = new HashMap<String, String>((Map) propService1);
+            appId = new HashMap<String, String>((Map)propService1);
             labelMap = new HashMap<String, String>((Map) propService);
             jstxIdMap = new HashMap<String, String>((Map) propService_jstx);
             cityMap = new HashMap<String, String>((Map) propService_city);

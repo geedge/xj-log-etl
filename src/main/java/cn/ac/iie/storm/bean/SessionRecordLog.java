@@ -5,6 +5,7 @@ package cn.ac.iie.storm.bean;
  */
 public class SessionRecordLog  {
     private String http_request_header;
+    private String gjc;
     private String common_user_region;
     private String common_data_center;
     private String labels;
@@ -63,6 +64,7 @@ public class SessionRecordLog  {
     private int pzlx;
     private int gklb;
     private int yyzl;
+    private String zsmc;
 
     public String getHttp_content_type() {
         return http_content_type;
@@ -519,4 +521,21 @@ public class SessionRecordLog  {
     public void setHttp_response_body(String http_response_body) {
         this.http_response_body = http_response_body;
     }
+
+    public String getGjc() {
+        return gjc;
+    }
+
+    public String getZsmc() {
+        return zsmc;
+    }
+
+    public void setZsmc(String zsmc) {
+        this.zsmc = zsmc;
+    }
+
+    public void setGjc(String gjc) {
+        this.gjc = gjc;
+    }
+
 }

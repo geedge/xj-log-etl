@@ -11,6 +11,10 @@ public class Traffic_Forward {
     private int pzlx;
     private int gklb;
     private int yyzl;
+    private String gjc;
+    private int ipbs;
+    private String labels;
+    private String zsmc;
 
     public int getYyzl() {
         return yyzl;
@@ -100,7 +104,19 @@ public class Traffic_Forward {
         this.labels = labels;
     }
 
-    private int ipbs;
-    private String labels;
+    public String getZsmc() {
+        return zsmc;
+    }
 
+    public void setZsmc(String zsmc) {
+        this.zsmc = zsmc;
+    }
+
+    public String getGjc() {
+        return gjc;
+    }
+
+    public void setGjc(String gjc) {
+        this.gjc = gjc;
+    }
 }
