@@ -32,7 +32,7 @@ public class GKSSLSendBolt extends BaseBasicBolt {
             if (tuple.getSourceStreamId().equals(StreamAggregateConfig.GK_SSL_STREAMID)) {
                 byte[] sslSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.GK_SSL_STREAMID);
                 Integer sslCount = tuple.getIntegerByField("sslcount");
-                Map<String, String> gkSslPost = HttpClientService.getConnHttpPost(getPostUrl(), sslSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_SSL_TOPIC);
+                Map<String, String> gkSslPost = HttpClientService.getConnHttpPost(getPostUrl(), sslSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_SSL_TOPIC);
 
                 if (gkSslPost.containsValue("200")){
                     logger.info("-------条数为:"+sslCount+"gkssl数据发送成功-----"+gkSslPost);
@@ -53,7 +53,7 @@ public class GKSSLSendBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.SAFE_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 

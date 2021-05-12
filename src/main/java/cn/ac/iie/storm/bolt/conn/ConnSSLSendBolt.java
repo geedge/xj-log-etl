@@ -33,7 +33,7 @@ public class ConnSSLSendBolt extends BaseBasicBolt {
 
                 byte[] sslSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.CONN_SSL_STREAMID);
                 Integer sslcount = tuple.getIntegerByField("sslcount");
-                Map<String, String> connSslPost = HttpClientService.getConnHttpPost(getPostUrl(), sslSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_SSL_TOPIC);
+                Map<String, String> connSslPost = HttpClientService.getConnHttpPost(getPostUrl(), sslSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.CONN_POST_SSL_TOPIC);
                 if (connSslPost.containsValue("200")){
                     logger.info("-------条数为:"+sslcount+"connssl数据发送成功-----"+connSslPost);
                     conn_ssl_success = conn_ssl_success + sslcount;
@@ -48,7 +48,7 @@ public class ConnSSLSendBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.CONN_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 

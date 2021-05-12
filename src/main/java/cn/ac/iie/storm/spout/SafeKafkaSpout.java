@@ -25,7 +25,7 @@ public class SafeKafkaSpout extends BaseRichSpout {
     private static Properties createConsumerConfig() {
         Properties props = new Properties();
         props.put("bootstrap.servers", StreamAggregateConfig.BOOTSTRAP_SERVERS);
-        props.put("group.id", StreamAggregateConfig.GROUP_SAFE_ID);
+        props.put("group.id", StreamAggregateConfig.GROUP_ID);
         props.put("session.timeout.ms", "60000");
         props.put("max.poll.records", 3000);
         props.put("max.partition.fetch.bytes", 31457280);
@@ -47,7 +47,6 @@ public class SafeKafkaSpout extends BaseRichSpout {
     @Override
     public void nextTuple() {
         try {
-
             ConsumerRecords<String, String> records = consumer.poll(StreamAggregateConfig.KAFKA_COMSUMER_POLL);
             Thread.sleep(StreamAggregateConfig.TOPOLOGY_SPOUT_SLEEP_TIME);
             for (ConsumerRecord<String, String> record : records) {

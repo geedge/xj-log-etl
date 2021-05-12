@@ -252,18 +252,5 @@ public class TransFormUtils {
             }
         }
     }
-
-    public static String getSsqy(String http_user_agent){
-        if (http_user_agent==null){
-            return " ";
-        }else {
-            UserAgent userAgent = UserAgent.parseUserAgentString(http_user_agent);
-            Browser browser = userAgent.getBrowser();
-            OperatingSystem os = userAgent.getOperatingSystem();
-            String system = os.getName();
-            String browserName = browser.getName();
-            return browserName;
-        }
-    }
 }
 

@@ -3,7 +3,7 @@ package cn.ac.iie.storm.bolt.gk;
 import cn.ac.iie.storm.bean.SessionRecordLog;
 import cn.ac.iie.storm.bean.Traffic_Forward;
 import cn.ac.iie.storm.bean.UserRegion;
-import cn.ac.iie.storm.bolt.conn.ConnParseBolt;
+
 import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.avro.Schema;
@@ -26,15 +26,14 @@ import java.util.Map;
 
 import static cn.ac.iie.storm.utils.general.GKAssignment.*;
 import static cn.ac.iie.storm.utils.general.TransFormUtils.generate;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.getS3Url;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.getYL5;
 
 public class GkParseBolt extends BaseBasicBolt {
-    private final static Logger logger = Logger.getLogger(ConnParseBolt.class);
+    private final static Logger logger = Logger.getLogger(GkParseBolt.class);
     private static final long serialVersionUID = 7483439472002862539L;
 
     private SessionRecordLog sessionRecordLog;
-
-
-
 
     private List<GenericRecord> IPList = new ArrayList<GenericRecord>();
     private List<GenericRecord> HTTPList = new ArrayList<GenericRecord>();
@@ -61,6 +60,9 @@ public class GkParseBolt extends BaseBasicBolt {
     private Schema jstxSchema;
     private Schema wygjcSchema;
 
+    String bucketName = null;
+    String filename = null;
+    String s3Url = null;
 
 
 
@@ -124,7 +126,6 @@ public class GkParseBolt extends BaseBasicBolt {
                     e.printStackTrace();
                     logger.error("----------批数据发送异常-----------" + e);
                 }
-
                 count = 0;
                 loadfail = 0;
             } else {
@@ -143,11 +144,10 @@ public class GkParseBolt extends BaseBasicBolt {
                 sessionRecordLog.setYyzl(traffic_forward.getYyzl());
                 sessionRecordLog.setGjc(traffic_forward.getGjc());
                 sessionRecordLog.setZsmc(traffic_forward.getZsmc());
-
                 int pzlx = traffic_forward.getPzlx();
                 //按pzlx的值对数据进行分类发送
                 //按pzlx的值对数据进行分类发送
-                switch (pzlx) {
+                 switch (pzlx) {
                     //管控
                     case 201:  //IP黑名单
                     case 601:  //网安IP管控
@@ -159,7 +159,7 @@ public class GkParseBolt extends BaseBasicBolt {
                             sessionRecordLog.setCommon_schema_type("IP");
                             setIP_GKRZ(ip_gkrz, sessionRecordLog);
                             IPList.add(ip_gkrz);
-                            if (IPList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (IPList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.GK_IP_STREAMID, new Values((Object) generate(ipSchema, IPList),IPList.size()));
                                 IPList.clear();
                             }
@@ -178,12 +178,15 @@ public class GkParseBolt extends BaseBasicBolt {
                             GenericRecord dns_gkzb = new GenericData.Record(dnsSchema);
                             sessionRecordLog.setCommon_schema_type("DNS");
                             setDNS_GKZB(dns_gkzb, sessionRecordLog);
-                            DNSList.add(dns_gkzb);
-                            if (DNSList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (dns_gkzb.get("DNS_NAME")!=("")){
+                                DNSList.add(dns_gkzb);
+                            }else {
+                                loadfail++;
+                            }
+                            if (DNSList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.GK_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList),DNSList.size()));
                                 DNSList.clear();
                             }
-
                         } catch (Exception e) {
                             e.printStackTrace();
                             logger.error("-----------dns_gkzb数据封装处理异常-----------" + e);
@@ -196,10 +199,19 @@ public class GkParseBolt extends BaseBasicBolt {
                     case 703:   //反诈URL管控
                         count++;
                         try {
+                            if (sessionRecordLog.getHttp_response_body()!=null){
+                                String[] split = sessionRecordLog.getHttp_response_body().split("/");
+                                bucketName = split[split.length-2];
+                                filename = split[split.length-1];
+                                s3Url = getS3Url(StreamAggregateConfig.T_HTTP_GKZB, filename);
+                                basicOutputCollector.emit("gk-unstructured",new Values(bucketName,filename,s3Url));
+                                sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_HTTP_GKZB, filename));
+                            }
                             GenericRecord http_gkzb = new GenericData.Record(httpSchema);
                             sessionRecordLog.setCommon_schema_type("HTTP");
                             setHTTP_GKZB(http_gkzb, sessionRecordLog);
-                            if (HTTPList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            HTTPList.add(http_gkzb);
+                            if (HTTPList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.GK_HTTP_STREAMID, new Values((Object) generate(httpSchema, HTTPList),HTTPList.size()));
                                 HTTPList.clear();
                             }
@@ -216,7 +228,7 @@ public class GkParseBolt extends BaseBasicBolt {
                             sessionRecordLog.setCommon_schema_type("SSL");
                             setSSL_GKZB(ssl_gkzb, sessionRecordLog);
                             SSLList.add(ssl_gkzb);
-                            if (SSLList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (SSLList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.GK_SSL_STREAMID, new Values((Object) generate(sslSchema, SSLList),SSLList.size()));
                                 SSLList.clear();
                             }
@@ -232,11 +244,20 @@ public class GkParseBolt extends BaseBasicBolt {
                     case 409:   //搜索词封堵
                         count++;
                         try {
+                            if (sessionRecordLog.getHttp_response_body()!=null){
+                                String[] split = sessionRecordLog.getHttp_response_body().split("/");
+                                bucketName = split[split.length-2];
+                                filename = split[split.length-1];
+                                s3Url = getS3Url(StreamAggregateConfig.T_WYGJC_GKRZ, filename);
+                                basicOutputCollector.emit("gk-unstructured",new Values(bucketName,filename,s3Url));
+                                sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_WYGJC_GKRZ, filename));
+                            }
                             GenericRecord wygjc_gkzb = new GenericData.Record(wygjcSchema);
                             sessionRecordLog.setCommon_schema_type("HTTP");
+
                             setWYGJC_GKZB(wygjc_gkzb, sessionRecordLog);
                             WYGJCList.add(wygjc_gkzb);
-                            if (WYGJCList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (WYGJCList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.GK_WYGJC_STREAMID, new Values((Object) generate(wygjcSchema, WYGJCList),WYGJCList.size()));
                                 WYGJCList.clear();
                             }
@@ -250,17 +271,25 @@ public class GkParseBolt extends BaseBasicBolt {
                     case 410:
                         count++;
                         try {
+                            if (sessionRecordLog.getHttp_response_body()!=null){
+                                String[] split = sessionRecordLog.getHttp_response_body().split("/");
+                                bucketName = split[split.length-2];
+                                filename = split[split.length-1];
+                                s3Url = getS3Url(StreamAggregateConfig.T_MAIL_GKZB, filename);
+                                basicOutputCollector.emit("gk-unstructured",new Values(bucketName,filename,s3Url));
+                                sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_MAIL_GKZB, filename));
+                            }
                             GenericRecord mail_gkzb = new GenericData.Record(mailSchema);
                             sessionRecordLog.setCommon_schema_type("MAIL");
                             setMAIL_GKZB(mail_gkzb, sessionRecordLog);
                             MAILList.add(mail_gkzb);
-                            if (MAILList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (MAILList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.GK_MAIL_STREAMID, new Values((Object) generate(mailSchema, MAILList),MAILList.size()));
                                 MAILList.clear();
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
-                            logger.error("-----------mail_gkzb数据封装处理异常-----------" + e);
+                            logger.error("-----------mail_gkzb数据封装处理异常-----------" + e + "异常数据为"+line);
                             loadfail++;
                         }
                         break;
@@ -271,7 +300,7 @@ public class GkParseBolt extends BaseBasicBolt {
                             sessionRecordLog.setCommon_schema_type("FTP");
                             setFTP_GKZB(ftp_gkzb, sessionRecordLog);
                             FTPList.add(ftp_gkzb);
-                            if (FTPList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (FTPList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.GK_FTP_STREAMID, new Values((Object) generate(ftpSchema, FTPList),FTPList.size()));
                                 FTPList.clear();
                             }
@@ -288,7 +317,7 @@ public class GkParseBolt extends BaseBasicBolt {
                             sessionRecordLog.setCommon_schema_type("VPN");
                             setVPN_GKZB(vpn_gkzb, sessionRecordLog);
                             VPNList.add(vpn_gkzb);
-                            if (VPNList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (VPNList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.GK_VPN_STREAMID, new Values((Object) generate(vpnSchema, VPNList),VPNList.size()));
                                 VPNList.clear();
                             }
@@ -306,7 +335,7 @@ public class GkParseBolt extends BaseBasicBolt {
                             sessionRecordLog.setCommon_schema_type("JSTX");
                             setJSTX_GKZB(jstx_gkzb, sessionRecordLog);
                             JSTXList.add(jstx_gkzb);
-                            if (JSTXList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (JSTXList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.GK_JSTX_STREAMID, new Values((Object) generate(jstxSchema, JSTXList),JSTXList.size()));
                                 JSTXList.clear();
                             }
@@ -337,12 +366,13 @@ public class GkParseBolt extends BaseBasicBolt {
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_VPN_STREAMID,new Fields(StreamAggregateConfig.GK_VPN_STREAMID,"vpncount"));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_JSTX_STREAMID,new Fields(StreamAggregateConfig.GK_JSTX_STREAMID,"jstxcount"));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_COUNT_STREAMID, new Fields("count","loadfail"));
+        outputFieldsDeclarer.declareStream("gk-unstructured", new Fields("bucketName","filename","s3Url"));
     }
 
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.SAFE_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 }

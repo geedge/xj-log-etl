@@ -34,7 +34,7 @@ public class JCSSLSendBolt extends BaseBasicBolt {
 
                 byte[] sslSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_SSL_STREAMID);
                 Integer sslcount = tuple.getIntegerByField("sslcount");
-                Map<String, String> jcSslPost = HttpClientService.getConnHttpPost(getPostUrl(), sslSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_SSL_TOPIC);
+                Map<String, String> jcSslPost = HttpClientService.getConnHttpPost(getPostUrl(), sslSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_SSL_TOPIC);
                 if (jcSslPost.containsValue("200")){
                     logger.info("-------条数为:"+sslcount+"jcip数据发送成功-----"+jcSslPost);
                     jc_ssl_success = jc_ssl_success + sslcount;
@@ -54,7 +54,7 @@ public class JCSSLSendBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.SAFE_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 

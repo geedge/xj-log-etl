@@ -58,7 +58,7 @@ public class ConnSendBolt extends BaseBasicBolt {
 
                 byte[] dnsSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.CONN_DNS_STREAMID);
                 Integer dnscount = tuple.getIntegerByField("dnscount");
-                Map<String, String> dnsPost = HttpClientService.getConnHttpPost(getPostUrl(), dnsSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_DNS_TOPIC);
+                Map<String, String> dnsPost = HttpClientService.getConnHttpPost(getPostUrl(), dnsSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.CONN_POST_DNS_TOPIC);
                 if (dnsPost.containsValue("200")){
                     logger.info("-------条数为:"+dnscount+"conndns数据发送成功-----"+dnsPost);
                     conn_dns_success = conn_dns_success + dnscount;
@@ -71,7 +71,7 @@ public class ConnSendBolt extends BaseBasicBolt {
 
                 byte[] mailSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.CONN_MAIL_STREAMID);
                 Integer mailcount = tuple.getIntegerByField("mailcount");
-                Map<String, String> mailPost = HttpClientService.getConnHttpPost(getPostUrl(), mailSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_MAIL_TOPIC);
+                Map<String, String> mailPost = HttpClientService.getConnHttpPost(getPostUrl(), mailSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.CONN_POST_MAIL_TOPIC);
                 if (mailPost.containsValue("200")){
                     logger.info("-------条数为:"+mailcount+"connmail数据发送成功-----"+mailPost);
                     conn_mail_success = conn_mail_success + mailcount;
@@ -84,7 +84,7 @@ public class ConnSendBolt extends BaseBasicBolt {
 
                 byte[] vpnSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.CONN_VPN_STREAMID);
                 Integer vpncount = tuple.getIntegerByField("vpncount");
-                Map<String, String> vpnPost = HttpClientService.getConnHttpPost(getPostUrl(), vpnSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_VPN_TOPIC);
+                Map<String, String> vpnPost = HttpClientService.getConnHttpPost(getPostUrl(), vpnSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.CONN_POST_VPN_TOPIC);
                 if (vpnPost.containsValue("200")){
                     logger.info("-------条数为:"+vpncount+"connvpn数据发送成功-----"+vpnPost);
                     conn_vpn_success = conn_vpn_success + vpncount;
@@ -96,7 +96,7 @@ public class ConnSendBolt extends BaseBasicBolt {
             } else if (tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_JSTX_STREAMID)) {
                 byte[] jstxSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.CONN_JSTX_STREAMID);
                 Integer jstxcount = tuple.getIntegerByField("jstxcount");
-                Map<String, String> jstxPost = HttpClientService.getConnHttpPost(getPostUrl(), jstxSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_JSTX_TOPIC);
+                Map<String, String> jstxPost = HttpClientService.getConnHttpPost(getPostUrl(), jstxSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.CONN_POST_JSTX_TOPIC);
                 if (jstxPost.containsValue("200")){
                     logger.info("-------条数为:"+jstxcount+"connjstx数据发送成功-----"+jstxPost);
                     conn_jstx_success = conn_jstx_success + jstxcount;
@@ -109,7 +109,7 @@ public class ConnSendBolt extends BaseBasicBolt {
             } else if (tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_FTP_STREAMID)) {
                 byte[] ftpSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.CONN_FTP_STREAMID);
                 Integer ftpcount = tuple.getIntegerByField("ftpcount");
-                Map<String, String> ftpPost = HttpClientService.getConnHttpPost(getPostUrl(), ftpSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_FTP_TOPIC);
+                Map<String, String> ftpPost = HttpClientService.getConnHttpPost(getPostUrl(), ftpSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.CONN_POST_FTP_TOPIC);
 
                 if (ftpPost.containsValue("200")){
                     logger.info("-------条数为:"+ftpcount+"connftp数据发送成功-----"+ftpPost);
@@ -134,7 +134,7 @@ public class ConnSendBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.CONN_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 

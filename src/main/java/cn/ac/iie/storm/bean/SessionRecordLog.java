@@ -4,6 +4,7 @@ package cn.ac.iie.storm.bean;
  * @author wangchengcheng
  */
 public class SessionRecordLog  {
+
     private String http_request_header;
     private String gjc;
     private String common_user_region;
@@ -23,7 +24,7 @@ public class SessionRecordLog  {
     private String common_isp;
     private int common_address_type;
     private String common_app_label;
-    private String common_app_id;
+    private int common_app_id;
     private int common_c2s_pkt_num;
     private long common_c2s_byte_num;
     private int common_s2c_pkt_num;
@@ -52,12 +53,15 @@ public class SessionRecordLog  {
     private String mail_snapshot;
     private String mail_bcc;
 
+    private String http_domain;
+
     private String http_response_body;
+    private String http_response_content;
     private int enable;
     private String pzid;
     private long timestamp;
-
-
+    private String http_response_body_key;
+    private String mail_eml_file;
     private int flid;
     private int xzid;
     private int lhid;
@@ -282,11 +286,11 @@ public class SessionRecordLog  {
         this.common_app_label = common_app_label;
     }
 
-    public String getCommon_app_id() {
+    public int getCommon_app_id() {
         return common_app_id;
     }
 
-    public void setCommon_app_id(String common_app_id) {
+    public void setCommon_app_id(int common_app_id) {
         this.common_app_id = common_app_id;
     }
 
@@ -533,9 +537,40 @@ public class SessionRecordLog  {
     public void setZsmc(String zsmc) {
         this.zsmc = zsmc;
     }
-
     public void setGjc(String gjc) {
         this.gjc = gjc;
     }
 
+
+    public String getHttp_response_body_key() {
+        return http_response_body_key;
+    }
+
+    public void setHttp_response_body_key(String http_response_body_key) {
+        this.http_response_body_key = http_response_body_key;
+    }
+
+    public String getMail_eml_file() {
+        return mail_eml_file;
+    }
+
+    public void setMail_eml_file(String mail_eml_file) {
+        this.mail_eml_file = mail_eml_file;
+    }
+
+    public String getHttp_response_content() {
+        return http_response_content;
+    }
+
+    public void setHttp_response_content(String http_response_content) {
+        this.http_response_content = http_response_content;
+    }
+
+    public String getHttp_domain() {
+        return http_domain;
+    }
+
+    public void setHttp_domain(String http_domain) {
+        this.http_domain = http_domain;
+    }
 }

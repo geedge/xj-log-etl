@@ -1,10 +1,14 @@
 package cn.ac.iie.storm.utils.http;
 
+import cn.ac.iie.storm.bolt.conn.ConnParseBolt;
+import cn.ac.iie.storm.topology.StreamAggregateTopology;
+import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
 import com.google.common.collect.Maps;
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.concurrent.FutureCallback;
 
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
@@ -117,15 +121,15 @@ public class HttpAsncClient {
 
             HttpPost request = new HttpPost(url);
 
-            request.setHeader("User-Name","test");
-            request.setHeader("Password","Test123456");
-            request.setHeader("File-Type","pcm");
-            request.setHeader("File-Title","test1file");
-            request.setHeader("Content-Type","application/octet-stream");
+            request.setHeader("User-Name",StreamAggregateConfig.S3_HEARDER_USERNAME);
+            request.setHeader("Password",StreamAggregateConfig.S3_HEARDER_PASSWORD);
+            request.setHeader("File-Type",StreamAggregateConfig.S3_HEARDER_FILETYPE);
+            request.setHeader("File-Title",StreamAggregateConfig.S3_HEARDER_FILETITLE);
+            request.setHeader("Is-Fulltex",StreamAggregateConfig.S3_HEARDER_ISFULLTEX);
+            request.setHeader("Content-Type",StreamAggregateConfig.S3_HEARDER_CONTENTTYPE);
+
 
             request.setEntity(new ByteArrayEntity(s));
-
-            System.out.println(" caller thread id is : " + Thread.currentThread().getId());
             CloseableHttpAsyncClient httpAsynClient = getHttpAsynClient(60);
             httpAsynClient.start();
 
@@ -134,31 +138,24 @@ public class HttpAsncClient {
                 @Override
                 public void completed(final HttpResponse response) {
                         latch.countDown();
-                        System.out.println("这是completed callback thread id is : " + Thread.currentThread().getId());
-                      //  System.out.println(request.getRequestLine() + "->" + response.getStatusLine());
-                    try {
-                        String content = EntityUtils.toString(response.getEntity(), "UTF-8");
-                        System.out.println(" response content is : " + content);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-
+                    int statusCode = response.getStatusLine().getStatusCode();
+                    if (statusCode==200){
+                        log.info(request.getRequestLine() +"文件发送成功，状态码为"+"->" + statusCode);
+                    }else {
+                        log.error(request.getRequestLine() +"文件发送失败，状态码为"+"->" + statusCode);
                     }
-
-
                 }
-
                 @Override
                 public void failed(Exception ex) {
                     latch.countDown();
-                    System.out.println(request.getRequestLine() + "->" + ex);
-                    System.out.println(" 这是failed callback thread id is : " + Thread.currentThread().getId());
+                    log.error(request.getRequestLine() + "->" + ex);
+                    log.error(request.getEntity()+"-----------"+ex);
                 }
 
                 @Override
                 public void cancelled() {
                     latch.countDown();
-                    System.out.println(request.getRequestLine() + " cancelled");
-                    System.out.println("这是cancelled callback thread id is : " + Thread.currentThread().getId());
+                    log.error(request.getRequestLine() + " cancelled");
                 }
             });
             try {

@@ -25,7 +25,8 @@ import java.util.Map;
 
 import static cn.ac.iie.storm.utils.general.JCAssignment.*;
 import static cn.ac.iie.storm.utils.general.TransFormUtils.generate;
-import static cn.ac.iie.storm.utils.general.TransFormUtils.getValidLength;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.getS3Url;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.getYL5;
 
 public class JCParseBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(JCParseBolt.class);
@@ -61,6 +62,9 @@ public class JCParseBolt extends BaseBasicBolt {
     private Schema picSchema;
     private Schema mediaSchema;
 
+    String bucketName = null;
+    String filename = null;
+    String s3Url = null;
 
 
 
@@ -153,7 +157,9 @@ public class JCParseBolt extends BaseBasicBolt {
                 sessionRecordLog.setGjc(traffic_forward.getGjc());
                 sessionRecordLog.setZsmc(traffic_forward.getZsmc());
                 int pzlx = traffic_forward.getPzlx();
-
+                if (sessionRecordLog.getHttp_response_body_key()!=null) {
+                    System.out.println("--------------" + sessionRecordLog.getHttp_response_body_key() + "--------------");
+                }
                 //按pzlx的值对数据进行分类发送
                 //按pzlx的值对数据进行分类发送
                 switch (pzlx) {
@@ -164,7 +170,7 @@ public class JCParseBolt extends BaseBasicBolt {
                             sessionRecordLog.setCommon_schema_type("IP");
                             setIP_JCRZ(ip_jcrz, sessionRecordLog);
                             IPList.add(ip_jcrz);
-                        if (IPList.size() >=  StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                        if (IPList.size() >=  StreamAggregateConfig.BATCH_INTER_NUM) {
                             basicOutputCollector.emit(StreamAggregateConfig.JC_IP_STREAMID, new Values((Object) generate(ipSchema, IPList),IPList.size()));
                             IPList.clear();
                          }
@@ -180,8 +186,12 @@ public class JCParseBolt extends BaseBasicBolt {
                             GenericRecord dns_jczb = new GenericData.Record(dnsSchema);
                             sessionRecordLog.setCommon_schema_type("DNS");
                             setDNS_JCZB(dns_jczb, sessionRecordLog);
-                            DNSList.add(dns_jczb);
-                            if (DNSList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (dns_jczb.get("DNS_NAME")!=("")){
+                                DNSList.add(dns_jczb);
+                            }else {
+                                loadfail++;
+                            }
+                            if (DNSList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.JC_DNS_STREAMID, new Values((Object) generate(dnsSchema, DNSList),DNSList.size()));
                                 DNSList.clear();
                             }
@@ -195,11 +205,19 @@ public class JCParseBolt extends BaseBasicBolt {
                     case 504:   //网站监测
                         count++;
                         try {
+                            if (sessionRecordLog.getHttp_response_body()!=null){
+                                String[] split = sessionRecordLog.getHttp_response_body().split("/");
+                                bucketName = split[split.length-2];
+                                filename = split[split.length-1];
+                                s3Url = getS3Url(StreamAggregateConfig.T_HTTP_JCZB, filename);
+                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,s3Url));
+                                sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_HTTP_JCZB, filename));
+                            }
                             GenericRecord http_jczb = new GenericData.Record(httpSchema);
                             sessionRecordLog.setCommon_schema_type("HTTP");
                             setHTTP_JCZB(http_jczb, sessionRecordLog);
                             HTTPList.add(http_jczb);
-                            if (HTTPList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (HTTPList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.JC_HTTP_STREAMID, new Values((Object) generate(httpSchema, HTTPList),HTTPList.size()));
                                 HTTPList.clear();
                             }
@@ -216,7 +234,7 @@ public class JCParseBolt extends BaseBasicBolt {
                             sessionRecordLog.setCommon_schema_type("SSL");
                             setSSL_JCZB(ssl_jczb, sessionRecordLog);
                             SSLList.add(ssl_jczb);
-                            if (SSLList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (SSLList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.JC_SSL_STREAMID, new Values((Object) generate(sslSchema, SSLList),SSLList.size()));
                                 SSLList.clear();
                             }
@@ -230,11 +248,19 @@ public class JCParseBolt extends BaseBasicBolt {
                     case 509:   //搜索词监测
                         count++;
                         try {
+                            if (sessionRecordLog.getHttp_response_body()!=null){
+                                String[] split = sessionRecordLog.getHttp_response_body().split("/");
+                                bucketName = split[split.length-2];
+                                filename = split[split.length-1];
+                                s3Url = getS3Url(StreamAggregateConfig.T_WYGJC_JCRZ, filename);
+                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,s3Url));
+                                sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_WYGJC_JCRZ, filename));
+                            }
                             GenericRecord wygjc_jczb = new GenericData.Record(wygjcSchema);
                             sessionRecordLog.setCommon_schema_type("HTTP");
                             setWYGJC_JCZB(wygjc_jczb, sessionRecordLog);
                             WYGJCList.add(wygjc_jczb);
-                            if (WYGJCList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (WYGJCList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.JC_WYGJC_STREAMID, new Values((Object) generate(wygjcSchema,WYGJCList),WYGJCList.size()));
                                 WYGJCList.clear();
                             }
@@ -248,11 +274,19 @@ public class JCParseBolt extends BaseBasicBolt {
                     case 510:   //邮件监测
                         count++;
                         try {
+                            if (sessionRecordLog.getHttp_response_body()!=null){
+                                String[] split = sessionRecordLog.getHttp_response_body().split("/");
+                                bucketName = split[split.length-2];
+                                filename = split[split.length-1];
+                                s3Url = getS3Url(StreamAggregateConfig.T_MAIL_JCZB, filename);
+                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,s3Url));
+                                sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_MAIL_JCZB, filename));
+                            }
                             GenericRecord mail_jczb = new GenericData.Record(mailSchema);
                             sessionRecordLog.setCommon_schema_type("MAIL");
                             setMAIL_JCZB(mail_jczb, sessionRecordLog);
                             MAILList.add(mail_jczb);
-                            if (MAILList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (MAILList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.JC_MAIL_STREAMID, new Values((Object) generate(mailSchema,MAILList),MAILList.size()));
                                 MAILList.clear();
                             }
@@ -269,7 +303,7 @@ public class JCParseBolt extends BaseBasicBolt {
                             sessionRecordLog.setCommon_schema_type("FTP");
                             setFTP_JCZB(ftp_jczb,sessionRecordLog);
                             FTPList.add(ftp_jczb);
-                            if (MAILList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (MAILList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.JC_FTP_STREAMID, new Values((Object) generate(ftpSchema,MAILList),FTPList.size()));
                                 FTPList.clear();
                             }
@@ -286,7 +320,7 @@ public class JCParseBolt extends BaseBasicBolt {
                             sessionRecordLog.setCommon_schema_type("VPN");
                             setVPN_JCZB(vpn_jczb, sessionRecordLog);
                             VPNList.add(vpn_jczb);
-                            if (VPNList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (VPNList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.JC_VPN_STREAMID, new Values((Object) generate(vpnSchema,VPNList),VPNList.size()));
                                 VPNList.clear();
                             }
@@ -304,7 +338,7 @@ public class JCParseBolt extends BaseBasicBolt {
                             sessionRecordLog.setCommon_schema_type("JSTX");
                             setJSTX_JCZB(jstx_jczb, sessionRecordLog);
                             JSTXList.add(jstx_jczb);
-                            if (JSTXList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (JSTXList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.JC_JSTX_STREAMID, new Values((Object) generate(jstxSchema,JSTXList),JSTXList.size()));
                                 JSTXList.clear();
                             }
@@ -318,10 +352,19 @@ public class JCParseBolt extends BaseBasicBolt {
                         count++;
                         try {
                             GenericRecord pic_jczb = new GenericData.Record(picSchema);
+
+                            if (sessionRecordLog.getHttp_response_body()!=null){
+                                String[] split = sessionRecordLog.getHttp_response_body().split("/");
+                                bucketName = split[split.length-2];
+                                filename = split[split.length-1];
+                                s3Url = getS3Url(StreamAggregateConfig.T_PIC_JCZB, filename);
+                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,s3Url));
+                                sessionRecordLog.setHttp_response_body(getYL5( StreamAggregateConfig.T_PIC_JCZB,filename));
+                            }
                             sessionRecordLog.setCommon_schema_type("HTTP");
                             setPIC_JCZB(pic_jczb, sessionRecordLog);
                             PICList.add(pic_jczb);
-                            if (PICList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (PICList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.JC_PIC_STREAMID, new Values((Object) generate(picSchema,PICList),PICList.size()));
                                 PICList.clear();
                             }
@@ -334,11 +377,19 @@ public class JCParseBolt extends BaseBasicBolt {
                     case 515:   //多媒体监测
                         count++;
                         try {
+                            if (sessionRecordLog.getHttp_response_body()!=null){
+                                String[] split = sessionRecordLog.getHttp_response_body().split("/");
+                                bucketName = split[split.length-2];
+                                filename = split[split.length-1];
+                                s3Url = getS3Url(StreamAggregateConfig.T_MEDIA_JCZB, filename);
+                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,s3Url));
+                                sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_MEDIA_JCZB, filename));
+                            }
                             GenericRecord media_jczb = new GenericData.Record(mediaSchema);
                             sessionRecordLog.setCommon_schema_type("HTTP");
                             setMEDIA_JCZB(media_jczb, sessionRecordLog);
                             MEDIAList.add(media_jczb);
-                            if (MEDIAList.size() >= StreamAggregateConfig.SAFE_BATCH_INTER_NUM) {
+                            if (MEDIAList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.JC_MEDIA_STREAMID, new Values((Object) generate(mediaSchema,MEDIAList),MEDIAList.size()));
                                 MEDIAList.clear();
                             }
@@ -371,12 +422,13 @@ public class JCParseBolt extends BaseBasicBolt {
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_PIC_STREAMID,new Fields(StreamAggregateConfig.JC_PIC_STREAMID,"piccount"));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_MEDIA_STREAMID,new Fields(StreamAggregateConfig.JC_MEDIA_STREAMID,"mediacount"));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_COUNT_STREAMID, new Fields("count","loadfail"));
+        outputFieldsDeclarer.declareStream("jc-unstructured", new Fields("bucketName","filename","s3Url"));
     }
 
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.SAFE_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 }

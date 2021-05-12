@@ -40,6 +40,9 @@ public class JCAssignment {
         ip_jcrz.put("CS_BYTES",sessionRecordLog.getCommon_c2s_byte_num());
         ip_jcrz.put("SC_PKTS",sessionRecordLog.getCommon_s2c_pkt_num());
         ip_jcrz.put("SC_BYTES",sessionRecordLog.getCommon_s2c_byte_num());
+        ip_jcrz.put("HOST",sessionRecordLog.getHttp_host());
+        ip_jcrz.put("URL",sessionRecordLog.getHttp_url());
+        ip_jcrz.put("CONTENT",sessionRecordLog.getHttp_response_content());
 
     }
 
@@ -69,7 +72,7 @@ public class JCAssignment {
         dns_jczb.put("CS_BYTES",sessionRecordLog.getCommon_c2s_byte_num());
         dns_jczb.put("SC_PKTS",sessionRecordLog.getCommon_s2c_pkt_num());
         dns_jczb.put("SC_BYTES",sessionRecordLog.getCommon_s2c_byte_num());
-        dns_jczb.put("DNS_NAME",sessionRecordLog.getDns_qname());
+        dns_jczb.put("DNS_NAME",getDns_name(sessionRecordLog.getDns_qname()));
         dns_jczb.put("DNS_VALUE",sessionRecordLog.getDns_rr());
     }
 
@@ -94,6 +97,7 @@ public class JCAssignment {
         http_jczb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         http_jczb.put("YYS",getYys(sessionRecordLog.getCommon_data_center()));  //-**common_isp这个字段
         http_jczb.put("YL1",sessionRecordLog.getCommon_address_type());
+        http_jczb.put("YL5",sessionRecordLog.getHttp_response_body());
         //http特有
         http_jczb.put("CS_PKTS",sessionRecordLog.getCommon_c2s_pkt_num());
         http_jczb.put("CS_BYTES",sessionRecordLog.getCommon_c2s_byte_num());
@@ -160,16 +164,15 @@ public class JCAssignment {
        wygjc_jczb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
        wygjc_jczb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
        wygjc_jczb.put("YL1",sessionRecordLog.getCommon_address_type());
+       wygjc_jczb.put("YL5",sessionRecordLog.getHttp_response_body());
         //wygjc特有
        wygjc_jczb.put("CS_PKTS",sessionRecordLog.getCommon_c2s_pkt_num());
        wygjc_jczb.put("CS_BYTES",sessionRecordLog.getCommon_c2s_byte_num());
        wygjc_jczb.put("SC_PKTS",sessionRecordLog.getCommon_s2c_pkt_num());
        wygjc_jczb.put("SC_BYTES",sessionRecordLog.getCommon_s2c_byte_num());
-
        wygjc_jczb.put("JC_URL",sessionRecordLog.getHttp_url());
-       wygjc_jczb.put("SSYQ",getSsqy(sessionRecordLog.getHttp_user_agent()));
+       wygjc_jczb.put("SSYQ",sessionRecordLog.getHttp_domain());
        wygjc_jczb.put("GJZ",sessionRecordLog.getGjc());
-
        wygjc_jczb.put("CONTENT",sessionRecordLog.getHttp_snapshot());
        wygjc_jczb.put("YYZL",sessionRecordLog.getYyzl());
     }
@@ -194,8 +197,9 @@ public class JCAssignment {
         mail_jczb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         mail_jczb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
         mail_jczb.put("YL1",sessionRecordLog.getCommon_address_type());
+        mail_jczb.put("YL5",sessionRecordLog.getHttp_response_body());
 
-        mail_jczb.put("YL2",getNum(sessionRecordLog.getMail_bcc()));
+        mail_jczb.put("YL2",geSecuritytNum(sessionRecordLog.getMail_bcc()));
         mail_jczb.put("YL4",getMailRecever(sessionRecordLog.getMail_bcc()));
 
         //mail特有
@@ -206,11 +210,11 @@ public class JCAssignment {
         mail_jczb.put("MAIL_SENDER",sessionRecordLog.getMail_from());
 
         mail_jczb.put("MAIL_SENDER",sessionRecordLog.getMail_from());
-        mail_jczb.put("MAIL_RECEVER",getMailRecever(sessionRecordLog.getMail_to()));
-        mail_jczb.put("RECEVER_NUM",getNum(sessionRecordLog.getMail_to()));
+        mail_jczb.put("MAIL_RECEVER",sessionRecordLog.getMail_to());
+        mail_jczb.put("RECEVER_NUM",geSecuritytNum(sessionRecordLog.getMail_to()));
 
         mail_jczb.put("MAIL_CC",sessionRecordLog.getMail_cc());
-        mail_jczb.put("CC_NUM",getNum(sessionRecordLog.getMail_cc()));
+        mail_jczb.put("CC_NUM",geSecuritytNum(sessionRecordLog.getMail_cc()));
 
         mail_jczb.put("MAIL_SUBJECT",sessionRecordLog.getMail_subject());
 
@@ -218,7 +222,7 @@ public class JCAssignment {
         mail_jczb.put("ACCESSORY",getAccessory(sessionRecordLog.getMail_attachment_name()));
 
         mail_jczb.put("FILE_NAME",sessionRecordLog.getMail_attachment_name());
-        mail_jczb.put("FILE_CONTENT",sessionRecordLog.getMail_attachment_content());
+        mail_jczb.put("FILE_CONTENT",sessionRecordLog.getMail_eml_file());
         mail_jczb.put("PWD",sessionRecordLog.getMail_passwd());
         mail_jczb.put("FJFWS",getFjfws(sessionRecordLog.getMail_from()));
         mail_jczb.put("FJFWS_SZD",getSzd(sessionRecordLog.getCommon_client_location())); //  //境内境外未知，根据Location填充
@@ -229,9 +233,6 @@ public class JCAssignment {
 
         mail_jczb.put("GJZ",sessionRecordLog.getGjc());
         mail_jczb.put("YYZL",sessionRecordLog.getYyzl());
-
-
-
     }
 
     public static void setFTP_JCZB(GenericRecord ftp_jczb, SessionRecordLog sessionRecordLog) throws IOException {
@@ -264,8 +265,6 @@ public class JCAssignment {
         ftp_jczb.put("FILE_CONTENT",sessionRecordLog.getFtp_url());
         ftp_jczb.put("GJZ",sessionRecordLog.getGjc());
         ftp_jczb.put("YYZL",sessionRecordLog.getYyzl());
-
-
     }
 
 
@@ -285,9 +284,9 @@ public class JCAssignment {
         vpn_jczb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         vpn_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());
         vpn_jczb.put("DPORT",sessionRecordLog.getCommon_server_port());
-        vpn_jczb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
-        vpn_jczb.put("DETAIL_ID","04");  ///--转化表 还没弄
-        vpn_jczb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
+        vpn_jczb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));
+        vpn_jczb.put("DETAIL_ID",getVpnDetail_id(sessionRecordLog.getCommon_l7_protocol()));
+        vpn_jczb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));
         vpn_jczb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
         vpn_jczb.put("YL1",sessionRecordLog.getCommon_address_type());
         //vpn特有
@@ -350,19 +349,15 @@ public class JCAssignment {
         pic_jczb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         pic_jczb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
         pic_jczb.put("YL1",sessionRecordLog.getCommon_address_type());
+        pic_jczb.put("YL5",sessionRecordLog.getHttp_response_body());
         //pic特有
         pic_jczb.put("CS_PKTS",sessionRecordLog.getCommon_c2s_pkt_num());
         pic_jczb.put("CS_BYTES",sessionRecordLog.getCommon_c2s_byte_num());
         pic_jczb.put("SC_PKTS",sessionRecordLog.getCommon_s2c_pkt_num());
         pic_jczb.put("SC_BYTES",sessionRecordLog.getCommon_s2c_byte_num());
-
         pic_jczb.put("PIC_NAME",getFile_Name(sessionRecordLog.getHttp_url()));
-
-        pic_jczb.put("PIC_URL",sessionRecordLog.getHttp_request_header());
-
-        pic_jczb.put("PIC_CONTENT",sessionRecordLog.getHttp_response_body());
-
-        pic_jczb.put("URL",sessionRecordLog.getHttp_url());
+        pic_jczb.put("PIC_URL",sessionRecordLog.getHttp_url());
+        pic_jczb.put("PIC_CONTENT",sessionRecordLog.getHttp_snapshot());
         pic_jczb.put("PIC_TYPE",sessionRecordLog.getHttp_content_type());
         pic_jczb.put("YYZL",sessionRecordLog.getYyzl());
 
@@ -388,15 +383,15 @@ public class JCAssignment {
         media_jczb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         media_jczb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
         media_jczb.put("YL1",sessionRecordLog.getCommon_address_type());
+        media_jczb.put("YL5",sessionRecordLog.getHttp_response_body());
         //media特有
         media_jczb.put("CS_PKTS",sessionRecordLog.getCommon_c2s_pkt_num());
         media_jczb.put("CS_BYTES",sessionRecordLog.getCommon_c2s_byte_num());
         media_jczb.put("SC_PKTS",sessionRecordLog.getCommon_s2c_pkt_num());
         media_jczb.put("SC_BYTES",sessionRecordLog.getCommon_s2c_byte_num());
         media_jczb.put("MEDIA_NAME",getFile_Name(sessionRecordLog.getHttp_url()));
-        media_jczb.put("MEDIA_URL",sessionRecordLog.getHttp_request_header());
-        media_jczb.put("MEDIA_CONTENT",sessionRecordLog.getHttp_response_body());
-        media_jczb.put("URL",sessionRecordLog.getHttp_url());
+        media_jczb.put("MEDIA_URL",sessionRecordLog.getHttp_url());
+//        media_jczb.put("MEDIA_CONTENT",sessionRecordLog.getHttp_response_body());
         media_jczb.put("MEDIA_TYPE",sessionRecordLog.getHttp_content_type());
         media_jczb.put("YYZL",sessionRecordLog.getYyzl());
     }

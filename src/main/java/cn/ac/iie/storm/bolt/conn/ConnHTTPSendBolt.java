@@ -30,14 +30,16 @@ public class ConnHTTPSendBolt  extends BaseBasicBolt {
 
         } else {
             if (tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_HTTP_STREAMID)) {
+
                 byte[] httpSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.CONN_HTTP_STREAMID);
                 Integer httpcount = tuple.getIntegerByField("httpcount");
-                Map<String, String> connHttpPost = HttpClientService.getConnHttpPost(getPostUrl(), httpSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_HTTP_TOPIC);
+                String postUrl = getPostUrl();
+                Map<String, String> connHttpPost = HttpClientService.getConnHttpPost(postUrl, httpSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.CONN_POST_HTTP_TOPIC);
                 if (connHttpPost.containsValue("200")){
-                    logger.info("-------条数为:"+httpcount+"connhttp数据发送成功-----"+connHttpPost);
+                    logger.info("-------条数为:"+httpcount+"connhttp数据发送到"+postUrl+"成功-----"+connHttpPost);
                     conn_http_success = conn_http_success + httpcount;
                 }else {
-                    logger.error("-------条数为:"+httpcount+"connhttp数据发送失败-----"+connHttpPost);
+                    logger.error("-------条数为:"+httpcount+"connhttp数据发送到"+postUrl+"失败-----"+connHttpPost);
                     conn_http_fail = conn_http_fail + httpcount;
                 }
             }
@@ -52,7 +54,7 @@ public class ConnHTTPSendBolt  extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.CONN_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 }

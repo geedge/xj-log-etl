@@ -7,11 +7,11 @@ import java.util.Random;
 public class HttpGetUrl {
 
     public static String getPostUrl() {
-
-        String[] split = StreamAggregateConfig.HTTP_POST_FLOODING_IP.split(",");
+        String url;
+        String[] split = StreamAggregateConfig.HTTP_POST_IP.split(",");
         Random random = new Random();
         int i = random.nextInt(split.length);
-        String url = "http://" + split[i] + ":" + StreamAggregateConfig.HTTP_POST_PORT + "/";
+        url = "http://" + split[i] + ":" + StreamAggregateConfig.HTTP_POST_PORT + "/";
         return url;
     }
 
@@ -27,5 +27,26 @@ public class HttpGetUrl {
         }
         return urlString;
     }
+
+
+    public static String getS3Url(String bucketname,String filename){
+        String url;
+        String[] split = StreamAggregateConfig.S3_POST_IP.split(",");
+        Random random = new Random();
+        int i = random.nextInt(split.length);
+        url = "http://"+split[i]+":"+StreamAggregateConfig.S3_POST_PORT+"/"+bucketname+"/"+filename+"?method=put";
+        return url;
+    }
+
+    public static String getYL5(String bucketname,String filename){
+        String url;
+        String[] split = StreamAggregateConfig.S3_POST_IP.split(",");
+        Random random = new Random();
+        int i = random.nextInt(split.length);
+        url = "http://"+split[i]+":"+StreamAggregateConfig.S3_POST_PORT+"/"+bucketname+"/"+filename;
+        return url;
+    }
+
+
 }
 

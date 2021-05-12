@@ -125,12 +125,8 @@ public class ConnCountBolt extends BaseBasicBolt {
         if(TupleUtils.isTick(input)){
             inputrate=(float)InputSize/StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/125000;
             outputrate =(float)OutputSize/StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/125000;
-
             connSendFail = conn_http_fail +  conn_ip_fail + conn_ssl_fail + conn_dns_fail + conn_ftp_fail + conn_jstx_fail + conn_mail_fail +conn_vpn_fail;
-
             ConnSendCount = conn_http_success +  conn_ip_success + conn_ssl_success + conn_dns_success + conn_ftp_success + conn_jstx_success + conn_mail_success +conn_vpn_success;
-
-
             //一般
             InputRate.labels("input-rate",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(inputrate);
             OutputRate.labels("output-rate",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(outputrate);

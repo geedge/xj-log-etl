@@ -62,7 +62,7 @@ public class GKAssignment {
         dns_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
         dns_gkzb.put("YL1",sessionRecordLog.getCommon_address_type());
         //dns特有
-        dns_gkzb.put("DNS_NAME",sessionRecordLog.getDns_qname());
+        dns_gkzb.put("DNS_NAME",getDns_name(sessionRecordLog.getDns_qname()));
         dns_gkzb.put("DNS_VALUE",sessionRecordLog.getDns_rr());
     }
 
@@ -88,6 +88,7 @@ public class GKAssignment {
         http_gkzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         http_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
         http_gkzb.put("YL1",sessionRecordLog.getCommon_address_type());
+        http_gkzb.put("YL5",sessionRecordLog.getHttp_response_body());
         //http特有
         http_gkzb.put("HOST",sessionRecordLog.getHttp_host());
         http_gkzb.put("URL",sessionRecordLog.getHttp_url());
@@ -143,13 +144,14 @@ public class GKAssignment {
         wygjc_gkzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         wygjc_gkzb.put("DPORT",sessionRecordLog.getCommon_server_port());
         wygjc_gkzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
-        wygjc_gkzb.put("DETAIL_ID","1"); //同上
+        wygjc_gkzb.put("DETAIL_ID","01999"); //同上
         wygjc_gkzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         wygjc_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
         wygjc_gkzb.put("YL1",sessionRecordLog.getCommon_address_type());
+        wygjc_gkzb.put("YL5",sessionRecordLog.getHttp_response_body());
         //wygjc特有
         wygjc_gkzb.put("JC_URL",sessionRecordLog.getHttp_url());
-        wygjc_gkzb.put("SSYQ",getSsqy(sessionRecordLog.getHttp_user_agent()));
+        wygjc_gkzb.put("SSYQ",sessionRecordLog.getHttp_domain());
         wygjc_gkzb.put("CONTENT",sessionRecordLog.getHttp_snapshot());
         wygjc_gkzb.put("YYZL",sessionRecordLog.getYyzl());
         wygjc_gkzb.put("GJZ",sessionRecordLog.getGjc());
@@ -176,20 +178,21 @@ public class GKAssignment {
         mail_gkzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         mail_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
         mail_gkzb.put("YL1",sessionRecordLog.getCommon_address_type());
+        mail_gkzb.put("YL5",sessionRecordLog.getHttp_response_body());
 
-        mail_gkzb.put("YL2",getNum(sessionRecordLog.getMail_bcc()));
+        mail_gkzb.put("YL2",geSecuritytNum(sessionRecordLog.getMail_bcc()));
         mail_gkzb.put("YL4",getMailRecever(sessionRecordLog.getMail_bcc()));
 
         //mail特有
 
         mail_gkzb.put("MAIL_SENDER",sessionRecordLog.getMail_from());
 
-        mail_gkzb.put("MAIL_RECEVER",getMailRecever(sessionRecordLog.getMail_to()));
+        mail_gkzb.put("MAIL_RECEVER",sessionRecordLog.getMail_to());
 
-        mail_gkzb.put("RECEVER_NUM",getNum(sessionRecordLog.getMail_to()));
+        mail_gkzb.put("RECEVER_NUM",geSecuritytNum(sessionRecordLog.getMail_to()));
 
         mail_gkzb.put("MAIL_CC",sessionRecordLog.getMail_cc());
-        mail_gkzb.put("CC_NUM",getNum(sessionRecordLog.getMail_cc()));
+        mail_gkzb.put("CC_NUM",geSecuritytNum(sessionRecordLog.getMail_cc()));
 
         mail_gkzb.put("MAIL_SUBJECT",sessionRecordLog.getMail_subject());
 
@@ -198,7 +201,7 @@ public class GKAssignment {
         mail_gkzb.put("ACCESSORY",getAccessory(sessionRecordLog.getMail_attachment_name()));
 
         mail_gkzb.put("FILE_NAME",sessionRecordLog.getMail_attachment_name());
-        mail_gkzb.put("FILE_CONTENT",sessionRecordLog.getMail_attachment_content());
+        mail_gkzb.put("FILE_CONTENT",sessionRecordLog.getMail_eml_file());
         mail_gkzb.put("PWD",sessionRecordLog.getMail_passwd());
         mail_gkzb.put("FJFWS",getFjfws(sessionRecordLog.getMail_from()));
         mail_gkzb.put("FJFWS_SZD",getSzd(sessionRecordLog.getCommon_client_location())); //  //境内境外未知，根据Location填充
@@ -261,7 +264,7 @@ public class GKAssignment {
         vpn_gkzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         vpn_gkzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         vpn_gkzb.put("DPORT",sessionRecordLog.getCommon_server_port());
-        vpn_gkzb.put("PROTO_ID","04");  ///--转化表 还没弄
+        vpn_gkzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
         vpn_gkzb.put("DETAIL_ID",getVpnDetail_id(sessionRecordLog.getCommon_l7_protocol())); //同上
         vpn_gkzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         vpn_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
@@ -288,7 +291,7 @@ public class GKAssignment {
         jstx_gkzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         jstx_gkzb.put("DPORT",sessionRecordLog.getCommon_server_port());
         jstx_gkzb.put("PROTO_ID", GetMap.getProto_id(sessionRecordLog.getCommon_schema_type()));
-        jstx_gkzb.put("DETAIL_ID","02999"); //同上
+        jstx_gkzb.put("DETAIL_ID", GetMap.getJstxDetail_id(sessionRecordLog.getCommon_app_id()));
         jstx_gkzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         jstx_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段 //getYys(sessionRecordLog.getCommon_isp())
         jstx_gkzb.put("YL1",sessionRecordLog.getCommon_address_type());

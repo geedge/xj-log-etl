@@ -33,12 +33,12 @@ public class GKHTTPSendBolt extends BaseBasicBolt {
             if (tuple.getSourceStreamId().equals(StreamAggregateConfig.GK_HTTP_STREAMID)) {
                 byte[] httpSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.GK_HTTP_STREAMID);
                 Integer httpcount = tuple.getIntegerByField("httpcount");
-                Map<String, String> gkHttpPost = HttpClientService.getConnHttpPost(getPostUrl(), httpSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_HTTP_TOPIC);
+                Map<String, String> gkHttpPost = HttpClientService.getConnHttpPost(getPostUrl(), httpSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_HTTP_TOPIC);
                 if (gkHttpPost.containsValue("200")){
-                    logger.info("-------条数为:"+httpcount+"gkhttp数据发送成功-----"+gkHttpPost);
+                   logger.info("-------条数为:"+httpcount+"gkhttp数据发送成功-----"+gkHttpPost);
                     gk_http_success = gk_http_success + httpcount;
                 }else {
-                    logger.error("-------条数为:"+httpcount+"gkhttp数据发送失败-----"+gkHttpPost);
+                   logger.error("-------条数为:"+httpcount+"gkhttp数据发送失败-----"+gkHttpPost);
                     gk_http_fail = gk_http_fail + httpcount;
                 }
             }
@@ -53,7 +53,7 @@ public class GKHTTPSendBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.SAFE_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 }

@@ -19,6 +19,8 @@ import org.apache.storm.generated.InvalidTopologyException;
 import org.apache.storm.topology.TopologyBuilder;
 
 
+
+
 public class StreamAggregateTopology {
 
  private static Logger logger = Logger.getLogger(StreamAggregateTopology.class);
@@ -59,28 +61,31 @@ public class StreamAggregateTopology {
         //设置拓扑关系(Bolt) --切分行    ---分发bolt
         switch (StreamAggregateConfig.TOPOLOGY_LOGO) {
             case "conn":
-                topologyBuilder.setSpout(StreamAggregateConfig.KAFKA_SPOUT, new FloodingKafkaSpout(), StreamAggregateConfig.CONN_SPOUT_PARALLELISM);
+                topologyBuilder.setSpout(StreamAggregateConfig.KAFKA_SPOUT, new FloodingKafkaSpout(), StreamAggregateConfig.SPOUT_PARALLELISM);
 
-                topologyBuilder.setBolt(StreamAggregateConfig.CONN_PARSE_COMPONENTID, new ConnParseBolt(), StreamAggregateConfig.CONN_PARSE_PARALLELISM)
+                topologyBuilder.setBolt(StreamAggregateConfig.CONN_PARSE_COMPONENTID, new ConnParseBolt(), StreamAggregateConfig.PARSE_PARALLELISM)
                         .shuffleGrouping(StreamAggregateConfig.KAFKA_SPOUT);
 
-                topologyBuilder.setBolt("CONN-SEND", new ConnSendBolt(),StreamAggregateConfig.CONN_SEND_PARALLELISM)
+                topologyBuilder.setBolt("CONN-SEND", new ConnSendBolt(),StreamAggregateConfig.SEND_PARALLELISM)
                         .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_DNS_STREAMID)
                         .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_VPN_STREAMID)
                         .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_MAIL_STREAMID)
                         .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_JSTX_STREAMID)
                         .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_FTP_STREAMID);
 
-                topologyBuilder.setBolt("CONN-IP-SEND",new ConnIPSendBolt(),StreamAggregateConfig.CONN_IP_SEND_PARALLELISM)
+                topologyBuilder.setBolt("CONN-IP-SEND",new ConnIPSendBolt(),StreamAggregateConfig.IP_SEND_PARALLELISM)
                         .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_IP_STREAMID);
 
-                topologyBuilder.setBolt("CONN-HTTP-SEND",new ConnHTTPSendBolt(),StreamAggregateConfig.CONN_HTTP_SEND_PARALLELISM)
+                topologyBuilder.setBolt("CONN-HTTP-SEND",new ConnHTTPSendBolt(),StreamAggregateConfig.HTTP_SEND_PARALLELISM)
                         .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_HTTP_STREAMID);
 
-                topologyBuilder.setBolt("CONN-SSL-SEND",new ConnSSLSendBolt(),StreamAggregateConfig.CONN_SSL_SEND_PARALLELISM)
+                topologyBuilder.setBolt("CONN-SSL-SEND",new ConnSSLSendBolt(),StreamAggregateConfig.SSL_SEND_PARALLELISM)
                         .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_SSL_STREAMID);
 
-                topologyBuilder.setBolt("CONN-COUNT", new ConnCountBolt(),StreamAggregateConfig.CONN_COUNT_SEND_PARALLELISM)
+                topologyBuilder.setBolt("CONN-UNSTRUCTURED-SEND",new ConnUnstructuredSendBolt(),StreamAggregateConfig.UNSTRUCTURED_SEND_PARALLELISM)
+                        .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,"conn-unstructured");
+
+                topologyBuilder.setBolt("CONN-COUNT", new ConnCountBolt(),StreamAggregateConfig.COUNT_SEND_PARALLELISM)
                         .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_YBInputSize_STREAMID)
                         .shuffleGrouping("CONN-SEND")
                         .shuffleGrouping("CONN-IP-SEND")
@@ -88,29 +93,26 @@ public class StreamAggregateTopology {
                         .shuffleGrouping("CONN-SSL-SEND");
                 break;
             case "gk":
-                topologyBuilder.setSpout(StreamAggregateConfig.KAFKA_SPOUT, new SafeKafkaSpout(), StreamAggregateConfig.SAFE_SPOUT_PARALLELISM);
+                topologyBuilder.setSpout(StreamAggregateConfig.KAFKA_SPOUT, new SafeKafkaSpout(), StreamAggregateConfig.SPOUT_PARALLELISM);
 
-                topologyBuilder.setBolt("GK-PARSE",new GkParseBolt(),StreamAggregateConfig.GK_PARSE_PARALLELISM)
+                topologyBuilder.setBolt("GK-PARSE",new GkParseBolt(),StreamAggregateConfig.PARSE_PARALLELISM)
                         .shuffleGrouping(StreamAggregateConfig.KAFKA_SPOUT);
-
-                topologyBuilder.setBolt(("GK-SEND"),new GkSendBolt(),StreamAggregateConfig.GK_SEND_PARALLELISM)
+                topologyBuilder.setBolt(("GK-SEND"),new GkSendBolt(),StreamAggregateConfig.SEND_PARALLELISM)
                             .shuffleGrouping("GK-PARSE",StreamAggregateConfig.GK_DNS_STREAMID)
                             .shuffleGrouping("GK-PARSE",StreamAggregateConfig.GK_FTP_STREAMID)
                             .shuffleGrouping("GK-PARSE",StreamAggregateConfig.GK_VPN_STREAMID)
                             .shuffleGrouping("GK-PARSE",StreamAggregateConfig.GK_MAIL_STREAMID)
                             .shuffleGrouping("GK-PARSE",StreamAggregateConfig.GK_WYGJC_STREAMID)
                             .shuffleGrouping("GK-PARSE",StreamAggregateConfig.GK_JSTX_STREAMID);
-
-                topologyBuilder.setBolt(("GK-HTTP-SEND"),new GKHTTPSendBolt(),StreamAggregateConfig.GK_HTTP_SEND_PARALLELISM)
+                topologyBuilder.setBolt(("GK-HTTP-SEND"),new GKHTTPSendBolt(),StreamAggregateConfig.HTTP_SEND_PARALLELISM)
                     .shuffleGrouping("GK-PARSE",StreamAggregateConfig.GK_HTTP_STREAMID);
-
-                topologyBuilder.setBolt(("GK-IP-SEND"),new GKIPSendBolt(),StreamAggregateConfig.GK_IP_SEND_PARALLELISM)
+                topologyBuilder.setBolt(("GK-IP-SEND"),new GKIPSendBolt(),StreamAggregateConfig.IP_SEND_PARALLELISM)
                            .shuffleGrouping("GK-PARSE",StreamAggregateConfig.GK_IP_STREAMID);
-
-                topologyBuilder.setBolt(("GK-SSL-SEND"),new GKSSLSendBolt(),StreamAggregateConfig.GK_SSL_SEND_PARALLELISM)
+                topologyBuilder.setBolt(("GK-SSL-SEND"),new GKSSLSendBolt(),StreamAggregateConfig.SSL_SEND_PARALLELISM)
                            .shuffleGrouping("GK-PARSE",StreamAggregateConfig.GK_SSL_STREAMID);
-
-                topologyBuilder.setBolt("GK-COUNT", new GkCountBolt(),StreamAggregateConfig.GK_COUNT_SEND_PARALLELISM)
+                topologyBuilder.setBolt("GK-UNSTRUCTURED-SEND",new GkUnstructuredSendBolt(),StreamAggregateConfig.UNSTRUCTURED_SEND_PARALLELISM)
+                        .shuffleGrouping("GK-PARSE","gk-unstructured");
+                topologyBuilder.setBolt("GK-COUNT", new GkCountBolt(),StreamAggregateConfig.COUNT_SEND_PARALLELISM)
                         .shuffleGrouping("GK-PARSE",StreamAggregateConfig.GK_COUNT_STREAMID)
                         .shuffleGrouping("GK-HTTP-SEND")
                         .shuffleGrouping("GK-IP-SEND")
@@ -118,12 +120,12 @@ public class StreamAggregateTopology {
                         .shuffleGrouping("GK-SEND");
             break;
             case "jc":
-                topologyBuilder.setSpout(StreamAggregateConfig.KAFKA_SPOUT, new SafeKafkaSpout(), StreamAggregateConfig.SAFE_SPOUT_PARALLELISM);
+                topologyBuilder.setSpout(StreamAggregateConfig.KAFKA_SPOUT, new SafeKafkaSpout(), StreamAggregateConfig.SPOUT_PARALLELISM);
 
-                topologyBuilder.setBolt("JC-PARSE",new JCParseBolt(),StreamAggregateConfig.JC_PARSE_PARALLELISM)
+                topologyBuilder.setBolt("JC-PARSE",new JCParseBolt(),StreamAggregateConfig.PARSE_PARALLELISM)
                         .shuffleGrouping(StreamAggregateConfig.KAFKA_SPOUT);
-
-                topologyBuilder.setBolt("JC-SEND", new JCSendBolt(),StreamAggregateConfig.JC_SEND_PARALLELISM)
+                topologyBuilder.setBolt("JC-SEND", new JCSendBolt(),StreamAggregateConfig.SEND_PARALLELISM)
+                        .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_DNS_STREAMID)
                         .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_VPN_STREAMID)
                         .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_MAIL_STREAMID)
                         .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_JSTX_STREAMID)
@@ -131,24 +133,18 @@ public class StreamAggregateTopology {
                         .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_MEDIA_STREAMID)
                         .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_WYGJC_STREAMID)
                         .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_FTP_STREAMID);
-
-                topologyBuilder.setBolt("JC-IP-SEND",new JCIPSendBolt(),StreamAggregateConfig.JC_IP_SEND_PARALLELISM)
+                topologyBuilder.setBolt("JC-IP-SEND",new JCIPSendBolt(),StreamAggregateConfig.IP_SEND_PARALLELISM)
                         .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_IP_STREAMID);
-
-                topologyBuilder.setBolt("JC-DNS-SEND",new JCDNSSendBolt(),StreamAggregateConfig.JC_DNS_SEND_PARALLELISM)
-                        .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_DNS_STREAMID);
-
-                topologyBuilder.setBolt("JC-HTTP-SEND",new JCHTTPSendBolt(),StreamAggregateConfig.JC_HTTP_SEND_PARALLELISM)
+                topologyBuilder.setBolt("JC-HTTP-SEND",new JCHTTPSendBolt(),StreamAggregateConfig.HTTP_SEND_PARALLELISM)
                         .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_HTTP_STREAMID);
-
-                topologyBuilder.setBolt("JC-SSL-SEND",new JCSSLSendBolt(),StreamAggregateConfig.JC_SSL_SEND_PARALLELISM)
+                topologyBuilder.setBolt("JC-SSL-SEND",new JCSSLSendBolt(),StreamAggregateConfig.SSL_SEND_PARALLELISM)
                         .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_SSL_STREAMID);
-
-                topologyBuilder.setBolt("JC-COUNT", new JCCountBolt(),StreamAggregateConfig.JC_COUNT_SEND_PARALLELISM)
+                topologyBuilder.setBolt("JC-UNSTRUCTURED-SEND",new JcUnstructuredSendBolt(),StreamAggregateConfig.UNSTRUCTURED_SEND_PARALLELISM)
+                        .shuffleGrouping("JC-PARSE","jc-unstructured");
+                topologyBuilder.setBolt("JC-COUNT", new JCCountBolt(),StreamAggregateConfig.COUNT_SEND_PARALLELISM)
                         .shuffleGrouping("JC-PARSE",StreamAggregateConfig.JC_COUNT_STREAMID)
                         .shuffleGrouping("JC-SEND")
                         .shuffleGrouping("JC-IP-SEND")
-                        .shuffleGrouping("JC-DNS-SEND")
                         .shuffleGrouping("JC-HTTP-SEND")
                         .shuffleGrouping("JC-SSL-SEND");
                 break;
@@ -186,6 +182,5 @@ public class StreamAggregateTopology {
             logger.info("执行远程部署模式...");
             csst.runRemotely();
         }
-
     }
 }

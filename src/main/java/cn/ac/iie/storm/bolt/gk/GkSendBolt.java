@@ -62,7 +62,7 @@ public class GkSendBolt extends BaseBasicBolt {
 
                 byte[] dnsSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.GK_DNS_STREAMID);
                 Integer dnscount = tuple.getIntegerByField("dnscount");
-                Map<String, String> gkDnsPost = HttpClientService.getConnHttpPost(getPostUrl(), dnsSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_DNS_TOPIC);
+                Map<String, String> gkDnsPost = HttpClientService.getConnHttpPost(getPostUrl(), dnsSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_DNS_TOPIC);
                 if (gkDnsPost.containsValue("200")){
                    logger.info("-------条数为:"+dnscount+"gkdns数据发送成功-----"+gkDnsPost);
                    gk_dns_success = gk_dns_success + dnscount;
@@ -74,7 +74,7 @@ public class GkSendBolt extends BaseBasicBolt {
 
                 byte[] mailSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.GK_MAIL_STREAMID);
                 Integer mailcount = tuple.getIntegerByField("mailcount");
-                Map<String, String> gkMailPost = HttpClientService.getConnHttpPost(getPostUrl(), mailSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_MAIL_TOPIC);
+                Map<String, String> gkMailPost = HttpClientService.getConnHttpPost(getPostUrl(), mailSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_MAIL_TOPIC);
                 if (gkMailPost.containsValue("200")){
                     logger.info("-------条数为:"+mailcount+"gkmail数据发送成功-----"+gkMailPost);
                     gk_mail_success = gk_mail_success + mailcount;
@@ -86,7 +86,7 @@ public class GkSendBolt extends BaseBasicBolt {
 
                 byte[] vpnSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.GK_VPN_STREAMID);
                 Integer vpnCount = tuple.getIntegerByField("vpncount");
-                Map<String, String> gkVpnPost = HttpClientService.getConnHttpPost(getPostUrl(), vpnSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_VPN_TOPIC);
+                Map<String, String> gkVpnPost = HttpClientService.getConnHttpPost(getPostUrl(), vpnSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_VPN_TOPIC);
                 if (gkVpnPost.containsValue("200")){
                     logger.info("-------条数为:"+vpnCount+"gkvpn数据发送成功-----"+gkVpnPost);
                     gk_vpn_success = gk_vpn_success + vpnCount;
@@ -98,7 +98,7 @@ public class GkSendBolt extends BaseBasicBolt {
 
                 byte[] jstxSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.GK_JSTX_STREAMID);
                 Integer jstxCount = tuple.getIntegerByField("jstxcount");
-                Map<String, String> gkJstxPost = HttpClientService.getConnHttpPost(getPostUrl(), jstxSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_JSTX_TOPIC);
+                Map<String, String> gkJstxPost = HttpClientService.getConnHttpPost(getPostUrl(), jstxSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_JSTX_TOPIC);
                 if (gkJstxPost.containsValue("200")){
                     logger.info("-------条数为:"+jstxCount+"gkjstx数据发送成功-----"+gkJstxPost);
                     gk_jstx_success = gk_jstx_success + jstxCount;
@@ -111,7 +111,7 @@ public class GkSendBolt extends BaseBasicBolt {
 
                 byte[] ftpSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.GK_FTP_STREAMID);
                 Integer ftpCount = tuple.getIntegerByField("ftpcount");
-                Map<String, String> gkFtpPost = HttpClientService.getConnHttpPost(getPostUrl(), ftpSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_FTP_TOPIC);
+                Map<String, String> gkFtpPost = HttpClientService.getConnHttpPost(getPostUrl(), ftpSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_FTP_TOPIC);
                 if (gkFtpPost.containsValue("200")){
                     logger.info("-------条数为:"+ftpCount+"gkftp数据发送成功-----"+gkFtpPost);
                     gk_ftp_success = gk_ftp_success + ftpCount;
@@ -123,7 +123,7 @@ public class GkSendBolt extends BaseBasicBolt {
 
                 byte[] wygjcSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.GK_WYGJC_STREAMID);
                 Integer wygjcCount = tuple.getIntegerByField("wygjccount");
-                Map<String, String> gkWygjcPost = HttpClientService.getConnHttpPost(getPostUrl(), wygjcSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_WYGJC_TOPIC);
+                Map<String, String> gkWygjcPost = HttpClientService.getConnHttpPost(getPostUrl(), wygjcSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_WYGJC_TOPIC);
                 if (gkWygjcPost.containsValue("200")){
                     logger.info("-------条数为:"+wygjcCount+"gkwygjc数据发送成功-----"+gkWygjcPost);
                     gk_wygjc_success = gk_wygjc_success + wygjcCount;
@@ -144,7 +144,7 @@ public class GkSendBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.SAFE_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 }

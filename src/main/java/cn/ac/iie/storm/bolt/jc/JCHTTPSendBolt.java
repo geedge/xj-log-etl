@@ -36,7 +36,7 @@ public class JCHTTPSendBolt extends BaseBasicBolt {
 
                 byte[] httpSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_HTTP_STREAMID);
                 Integer httpcount = tuple.getIntegerByField("httpcount");
-                Map<String, String> jcHttpPost = HttpClientService.getConnHttpPost(getPostUrl(), httpSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_HTTP_TOPIC);
+                Map<String, String> jcHttpPost = HttpClientService.getConnHttpPost(getPostUrl(), httpSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_HTTP_TOPIC);
                 if (jcHttpPost.containsValue("200")){
                     logger.info("-------条数为:"+httpcount+"jchttp数据发送成功-----"+jcHttpPost);
                     jc_http_success = jc_http_success + httpcount;
@@ -56,7 +56,7 @@ public class JCHTTPSendBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.SAFE_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 }

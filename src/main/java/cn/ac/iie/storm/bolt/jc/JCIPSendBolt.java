@@ -36,7 +36,7 @@ public class JCIPSendBolt extends BaseBasicBolt {
 
                 byte[] ipSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_IP_STREAMID);
                 Integer ipcount = tuple.getIntegerByField("ipcount");
-                Map<String, String> jcIpPost = HttpClientService.getConnHttpPost(getPostUrl(), ipSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_IP_TOPIC);
+                Map<String, String> jcIpPost = HttpClientService.getConnHttpPost(getPostUrl(), ipSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_IP_TOPIC);
                 if (jcIpPost.containsValue("200")){
                     logger.info("-------条数为:"+ipcount+"jcip数据发送成功-----"+jcIpPost);
                     jc_ip_success = jc_ip_success + ipcount;
@@ -56,7 +56,7 @@ public class JCIPSendBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.SAFE_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 }

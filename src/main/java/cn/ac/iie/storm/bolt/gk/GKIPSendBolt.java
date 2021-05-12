@@ -34,7 +34,7 @@ public class GKIPSendBolt extends BaseBasicBolt {
             if (tuple.getSourceStreamId().equals(StreamAggregateConfig.GK_IP_STREAMID)) {
                 byte[] ipSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.GK_IP_STREAMID);
                 Integer ipCount = tuple.getIntegerByField("ipcount");
-                Map<String, String> gkIpPost = HttpClientService.getConnHttpPost(getPostUrl(), ipSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_IP_TOPIC);
+                Map<String, String> gkIpPost = HttpClientService.getConnHttpPost(getPostUrl(), ipSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_IP_TOPIC);
                 if (gkIpPost.containsValue("200")){
                     logger.info("-------条数为:"+ipCount+"gkip数据发送成功-----"+gkIpPost);
                     gk_ip_success = gk_ip_success + ipCount;
@@ -54,7 +54,7 @@ public class GKIPSendBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.SAFE_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 }

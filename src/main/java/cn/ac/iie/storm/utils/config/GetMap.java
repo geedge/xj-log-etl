@@ -2,7 +2,6 @@ package cn.ac.iie.storm.utils.config;
 
 import org.apache.logging.log4j.util.PropertiesUtil;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +19,7 @@ public class GetMap {
 
 
     private static Map<String, String> labelMap;
-    private static Map<String, String> appId;
+    private static Map<String, String> appMap;
     private static Map<String, String> cityMap;
     private static Map<String, String> provinceMap;
     private static Map<String, String> countryMap;
@@ -28,19 +27,16 @@ public class GetMap {
 
 
 
-    public static String  getJstxDetail_id(String common_app_id) throws IOException {
-        if (appId.get(common_app_id) == null) {
-            if (jstxIdMap.get(common_app_id) != null){
-                return jstxIdMap.get(common_app_id);
-            }else {
-                return "";
-            }
-        }else {
-            return appId.get(common_app_id);
+    public static String  getJstxDetail_id(int common_app_id){
+        String appId = String.valueOf(common_app_id);
+        if (appMap.get(appId) != null) {
+            return appMap.get(appId);
+        } else {
+            return appId;
         }
     }
 
-    public static String getProto_id(String common_schema_type) throws IOException {
+    public static String getProto_id(String common_schema_type){
         return labelMap.get(common_schema_type);
     }
 
@@ -48,7 +44,7 @@ public class GetMap {
         String[] split;
         if(location==null){
             return "0";
-        }else if (location.contains(",,")){
+        } else if (location.contains(",,")){
            split = location.split(",,");
             if (split.length == 2) {
                 String s = split[0];
@@ -63,12 +59,14 @@ public class GetMap {
                 return "0";
             }
         } else {
-            String str = cityMap.get(location);
-            split = location.split(",");
+            String loc = location.replace(" ","");
+            String str = cityMap.get(loc);
+            split = loc.split(",");
             if ((str == null&&split.length==3)) {
-                str = provinceMap.get(split[1].replace(" ", ""));
+                str = provinceMap.get(split[1]);
                 if (str == null) {
-                    str = countryMap.get(split[2].replace(" ", ""));
+                    String ss = split[2];
+                    str = countryMap.get(ss);
                     if (str == null) {
                         str = "0";
                     }
@@ -108,11 +106,21 @@ public class GetMap {
         }
     }
 
+    public static String getDns_name(String dns_qname){
+        if (dns_qname==null){
+            return "";
+        }else if (dns_qname.contains(" ")){
+            return "";
+        }else {
+            return dns_qname;
+        }
+    }
+
 
     static {
         try {
             InputStream applabel = PropertiesUtil.class.getClassLoader().getResourceAsStream("common_app_label_coding.properties");
-            InputStream appid = PropertiesUtil.class.getClassLoader().getResourceAsStream("common_app_id_coding.properties");
+            InputStream app = PropertiesUtil.class.getClassLoader().getResourceAsStream("common_app_id_coding.properties");
             InputStream jstxid = PropertiesUtil.class.getClassLoader().getResourceAsStream("common_jstx_id_coding.properties");
 
             InputStream cityNumbering = PropertiesUtil.class.getClassLoader().getResourceAsStream("common_city_coding.properties");
@@ -120,7 +128,7 @@ public class GetMap {
             InputStream countryNumbering = PropertiesUtil.class.getClassLoader().getResourceAsStream("common_country_coding.properties");
 
 
-            propService1.load(appid);
+            propService1.load(app);
             propService.load(applabel);
             propService_jstx.load(jstxid);
 
@@ -129,7 +137,7 @@ public class GetMap {
             propService_country.load(countryNumbering);
 
 
-            appId = new HashMap<String, String>((Map)propService1);
+            appMap = new HashMap<String, String>((Map)propService1);
             labelMap = new HashMap<String, String>((Map) propService);
             jstxIdMap = new HashMap<String, String>((Map) propService_jstx);
             cityMap = new HashMap<String, String>((Map) propService_city);
@@ -145,5 +153,4 @@ public class GetMap {
             propService_country = null;
         }
     }
-
 }

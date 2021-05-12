@@ -111,10 +111,23 @@ public class JCCountBolt extends BaseBasicBolt {
             .name("jcWygjcFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
 
     static final Gauge JCSendFail = Gauge.build()
-            .name("jcSendFail").labelNames("ServName","Duration").help("Program receiving flow rate, the unit is Mbps").register();
+            .name("jcSendFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
 
     static final Gauge JCParseFail = Gauge.build()
-            .name("jcParseFail").labelNames("ServName","Duration").help("Program output flow rate, the unit is Mbps").register();
+            .name("jcParseFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+
+    static final Gauge JCPicSuccess = Gauge.build()
+            .name("jcPicSuccess").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge JCPicFail = Gauge.build()
+            .name("jcPicFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge JCMediaSuccess = Gauge.build()
+            .name("jcMediaSuccess").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge JCMediaFail = Gauge.build()
+            .name("jcMediaFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
@@ -160,6 +173,12 @@ public class JCCountBolt extends BaseBasicBolt {
 
             JCWygjcSuccess.labels("jc-wygjc-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(jc_wygjc_success);
             JCWygjcFail.labels("jc-wygjc-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(jc_wygjc_fail);
+
+            JCPicSuccess.labels("jc-pic-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(jc_pic_success);
+            JCPicFail.labels("jc-pic-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(jc_pic_fail);
+
+            JCMediaSuccess.labels("jc-media-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(jc_media_success);
+            JCMediaFail.labels("jc-media-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(jc_media_fail);
             try {
                 push();
             } catch (IOException e) {
@@ -204,6 +223,9 @@ public class JCCountBolt extends BaseBasicBolt {
                     }
                     break;
                 case "JC-SEND":
+                    jc_dns_success = jc_dns_success + tuple.getLongByField("jc_dns_success");
+                    jc_dns_fail = jc_dns_fail + tuple.getLongByField("jc_dns_fail");
+
                     jc_mail_success = jc_mail_success + tuple.getLongByField("jc_mail_success");
                     jc_mail_fail = jc_mail_fail + tuple.getLongByField("jc_mail_fail");
 
@@ -230,10 +252,7 @@ public class JCCountBolt extends BaseBasicBolt {
                     jc_ip_success = jc_ip_success + tuple.getLongByField("jc_ip_success");
                     jc_ip_fail = jc_ip_fail + tuple.getLongByField("jc_ip_fail");
                     break;
-                case "JC-DNS-SEND":
-                    jc_dns_success = jc_dns_success + tuple.getLongByField("jc_dns_success");
-                    jc_dns_fail = jc_dns_fail + tuple.getLongByField("jc_dns_fail");
-                    break;
+
                 case "JC-HTTP-SEND":
                     jc_http_success = jc_http_success + tuple.getLongByField("jc_http_success");
                     jc_http_fail = jc_http_fail + tuple.getLongByField("jc_http_fail");

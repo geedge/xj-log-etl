@@ -34,7 +34,7 @@ public class ConnIPSendBolt extends BaseBasicBolt {
             if (tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_IP_STREAMID)) {
                 byte[] ipSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.CONN_IP_STREAMID);
                 Integer ipcount = tuple.getIntegerByField("ipcount");
-                Map<String, String> connIpPost = HttpClientService.getConnHttpPost(getPostUrl(), ipSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.FLOODING_POST_IP_TOPIC);
+                Map<String, String> connIpPost = HttpClientService.getConnHttpPost(getPostUrl(), ipSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.CONN_POST_IP_TOPIC);
                 if (connIpPost.containsValue("200")){
                     logger.info("-------条数为"+ipcount+"connip数据发送成功-----"+connIpPost);
                     conn_ip_success = conn_ip_success + ipcount;
@@ -55,7 +55,7 @@ public class ConnIPSendBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.CONN_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 }

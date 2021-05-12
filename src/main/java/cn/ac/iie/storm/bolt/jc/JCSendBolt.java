@@ -20,6 +20,8 @@ import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
 public class JCSendBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(JCSendBolt.class);
 
+    private long jc_dns_success=0L;
+    private long jc_dns_fail=0L;
 
     private long jc_mail_success=0L;
     private long jc_mail_fail=0L;
@@ -50,8 +52,11 @@ public class JCSendBolt extends BaseBasicBolt {
 
         if (TupleUtils.isTick(tuple)) {
 
-            basicOutputCollector.emit(new Values(jc_mail_success,jc_mail_fail,jc_vpn_success,jc_vpn_fail,
+            basicOutputCollector.emit(new Values(jc_dns_success,jc_dns_fail,jc_mail_success,jc_mail_fail,jc_vpn_success,jc_vpn_fail,
                     jc_jstx_success,jc_jstx_fail,jc_ftp_success,jc_ftp_fail,jc_wygjc_success,jc_wygjc_fail,jc_pic_success,jc_pic_fail,jc_media_success,jc_media_fail));
+
+            jc_dns_fail = 0L;
+            jc_dns_success = 0L;
             jc_mail_success=0L;
             jc_mail_fail=0L;
             jc_vpn_success=0L;
@@ -68,11 +73,24 @@ public class JCSendBolt extends BaseBasicBolt {
             jc_media_fail=0L;
         }else {
             try {
-                if (tuple.getSourceStreamId().equals(StreamAggregateConfig.JC_MAIL_STREAMID)) {
+                if (tuple.getSourceStreamId().equals(StreamAggregateConfig.JC_DNS_STREAMID)) {
+
+                    byte[] dnsSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_DNS_STREAMID);
+                    Integer dnscount = tuple.getIntegerByField("dnscount");
+                    Map<String, String> jcDnsPost = HttpClientService.getConnHttpPost(getPostUrl(), dnsSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_DNS_TOPIC);
+                    if (jcDnsPost.containsValue("200")) {
+                        logger.info("-------条数为:" + dnscount + "jcdns数据发送成功-----" + jcDnsPost);
+                        jc_dns_success = jc_dns_success + dnscount;
+                    } else {
+                        logger.error("-------条数为:" + dnscount + "jcdns数据发送失败-----" + jcDnsPost);
+                        jc_dns_fail = jc_dns_fail + dnscount;
+                    }
+                }
+               else if (tuple.getSourceStreamId().equals(StreamAggregateConfig.JC_MAIL_STREAMID)) {
 
                     byte[] mailSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_MAIL_STREAMID);
                     Integer mailcount = tuple.getIntegerByField("mailcount");
-                    Map<String, String> jcMailPost = HttpClientService.getConnHttpPost(getPostUrl(), mailSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_MAIL_TOPIC);
+                    Map<String, String> jcMailPost = HttpClientService.getConnHttpPost(getPostUrl(), mailSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_MAIL_TOPIC);
                     if (jcMailPost.containsValue("200")){
                         logger.info("-------条数为:"+mailcount+"jcmail数据发送成功-----"+jcMailPost);
                         jc_mail_success = jc_mail_success + mailcount;
@@ -85,7 +103,7 @@ public class JCSendBolt extends BaseBasicBolt {
 
                     byte[] vpnSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_VPN_STREAMID);
                     Integer vpncount = tuple.getIntegerByField("vpncount");
-                    Map<String, String> jcVpnPost = HttpClientService.getConnHttpPost(getPostUrl(), vpnSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_VPN_TOPIC);
+                    Map<String, String> jcVpnPost = HttpClientService.getConnHttpPost(getPostUrl(), vpnSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_VPN_TOPIC);
                     if (jcVpnPost.containsValue("200")){
                         logger.info("-------条数为:"+vpncount+"jcvpn数据发送成功-----"+jcVpnPost);
                         jc_vpn_success = jc_vpn_success + vpncount;
@@ -98,7 +116,7 @@ public class JCSendBolt extends BaseBasicBolt {
 
                     byte[] jstxSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_JSTX_STREAMID);
                     Integer jstxcount = tuple.getIntegerByField("jstxcount");
-                    Map<String, String> jcJstxPost = HttpClientService.getConnHttpPost(getPostUrl(), jstxSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_JSTX_TOPIC);
+                    Map<String, String> jcJstxPost = HttpClientService.getConnHttpPost(getPostUrl(), jstxSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_JSTX_TOPIC);
                     if (jcJstxPost.containsValue("200")){
                         logger.info("-------条数为:"+jstxcount+"jcjstx数据发送成功-----"+jcJstxPost);
                         jc_jstx_success = jc_jstx_success + jstxcount;
@@ -110,7 +128,7 @@ public class JCSendBolt extends BaseBasicBolt {
 
                     byte[] ftpSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_FTP_STREAMID);
                     Integer ftpcount = tuple.getIntegerByField("ftpcount");
-                    Map<String, String> jcFtpPost = HttpClientService.getConnHttpPost(getPostUrl(), ftpSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_FTP_TOPIC);
+                    Map<String, String> jcFtpPost = HttpClientService.getConnHttpPost(getPostUrl(), ftpSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_FTP_TOPIC);
                     if (jcFtpPost.containsValue("200")){
                         logger.info("-------条数为:"+ftpcount+"jcftp数据发送成功-----"+jcFtpPost);
                         jc_ftp_success = jc_ftp_success + ftpcount;
@@ -122,7 +140,7 @@ public class JCSendBolt extends BaseBasicBolt {
 
                     byte[] picSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_PIC_STREAMID);
                     Integer piccount = tuple.getIntegerByField("piccount");
-                    Map<String, String> jcPicPost = HttpClientService.getConnHttpPost(getPostUrl(), picSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_PIC_TOPIC);
+                    Map<String, String> jcPicPost = HttpClientService.getConnHttpPost(getPostUrl(), picSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_PIC_TOPIC);
                     if (jcPicPost.containsValue("200")){
                         logger.info("-------条数为:"+piccount+"jcpic数据发送成功-----"+jcPicPost);
                         jc_pic_success = jc_pic_success + piccount;
@@ -133,7 +151,7 @@ public class JCSendBolt extends BaseBasicBolt {
                 } else if (tuple.getSourceStreamId().equals(StreamAggregateConfig.JC_WYGJC_STREAMID)) {
                     byte[] wygjcSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_WYGJC_STREAMID);
                     Integer wygjccount = tuple.getIntegerByField("wygjccount");
-                    Map<String, String> jsWygjcPost = HttpClientService.getConnHttpPost(getPostUrl(), wygjcSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_WYGJC_TOPIC);
+                    Map<String, String> jsWygjcPost = HttpClientService.getConnHttpPost(getPostUrl(), wygjcSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_WYGJC_TOPIC);
                     if (jsWygjcPost.containsValue("200")){
                         logger.info("-------条数为:"+wygjccount+"jcwygjc数据发送成功-----"+jsWygjcPost);
                         jc_wygjc_success = jc_wygjc_success + wygjccount;
@@ -145,7 +163,7 @@ public class JCSendBolt extends BaseBasicBolt {
 
                     byte[] mediaSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_MEDIA_STREAMID);
                     Integer mediacount = tuple.getIntegerByField("mediacount");
-                    Map<String, String> jcMediaPost = HttpClientService.getConnHttpPost(getPostUrl(), mediaSource, StreamAggregateConfig.FLOODING_HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_MEDIA_TOPIC);
+                    Map<String, String> jcMediaPost = HttpClientService.getConnHttpPost(getPostUrl(), mediaSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_MEDIA_TOPIC);
                     if (jcMediaPost.containsValue("200")){
                         logger.info("-------条数为:"+mediacount+"jcmedia数据发送成功-----"+jcMediaPost);
                         jc_media_success = jc_media_success + mediacount;
@@ -162,7 +180,7 @@ public class JCSendBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("jc_mail_success","jc_mail_fail","jc_vpn_success","jc_vpn_fail",
+        outputFieldsDeclarer.declare(new Fields("jc_dns_success","jc_dns_fail","jc_mail_success","jc_mail_fail","jc_vpn_success","jc_vpn_fail",
                 "jc_jstx_success","jc_jstx_fail","jc_ftp_success","jc_ftp_fail","jc_wygjc_success","jc_wygjc_fail","jc_pic_success","jc_pic_fail"
                 ,"jc_media_success","jc_media_fail"));
     }
@@ -170,7 +188,7 @@ public class JCSendBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<String, Object>();
-        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.SAFE_TOPOLOGY_TICK_TUPLE_FREQ_SECS);
+        conf.put(org.apache.storm.Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS,  StreamAggregateConfig.TOPOLOGY_TICK_TUPLE_FREQ_SECS);
         return conf;
     }
 }

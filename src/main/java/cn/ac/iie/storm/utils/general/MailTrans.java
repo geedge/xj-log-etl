@@ -15,14 +15,16 @@ public class MailTrans {
      * @return
      */
     public static String getMailRecever(String mail_to){
-        String str = null;
+        String str = "";
         if(mail_to!=null) {
-            Pattern pattern = Pattern.compile("<([\\s\\S]*?)>");
+            Pattern pattern = Pattern.compile("/^[a-z]([a-z0-9]*[-_]?[a-z0-9]+)*@([a-z0-9]*[-_]?[a-z0-9]+)+[\\.][a-z]{2,3}([\\.][a-z]{2})?$/i");
+            //Pattern pattern = Pattern.compile("<([\\s\\S]*?)>");
             Matcher matcher = pattern.matcher(mail_to);
             while(matcher.find()) {
                 int i = 0;
-                if (str!=null) {
+                if (!str.isEmpty()) {
                     str=str+";";
+                    System.out.println(str);
                 }
                 str = str + matcher.group(i);
                 i = i++;
@@ -48,6 +50,16 @@ public class MailTrans {
         }
         return num;
     }
+    public static int geSecuritytNum(String s){
+        int num = 0;
+        if(s!=null) {
+            String[] split = s.split(";");
+
+            num = split.length;
+        }
+        return num;
+    }
+
 
 
     /**

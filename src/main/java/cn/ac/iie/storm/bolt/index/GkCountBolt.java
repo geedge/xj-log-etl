@@ -105,10 +105,10 @@ public class GkCountBolt extends BaseBasicBolt {
             .name("gkWygjcFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
 
     static final Gauge GKSendFail = Gauge.build()
-            .name("gkSendFail").labelNames("ServName","Duration").help("Program receiving flow rate, the unit is Mbps").register();
+            .name("gkSendFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
 
     static final Gauge GKParseFail = Gauge.build()
-            .name("gkParseFail").labelNames("ServName","Duration").help("Program output flow rate, the unit is Mbps").register();
+            .name("gkParseFail").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
 
 
 
@@ -119,7 +119,7 @@ public class GkCountBolt extends BaseBasicBolt {
 
 
         if ((TupleUtils.isTick(tuple) && gkCount != 0L)) {
-            gkSendFail = gk_http_fail +  gk_ip_fail + gk_ssl_fail + gk_dns_fail + gk_ftp_fail + gk_jstx_fail + gk_mail_fail + gk_vpn_fail + gk_wygjc_fail;
+            gkSendFail = gk_http_fail +  gk_ip_fail + gk_ssl_fail + gk_dns_fail + gk_ftp_fail + gk_jstx_fail + gk_mail_fail + gk_vpn_fail + gk_wygjc_fail+gkParseFail;
 
             gkSendCount = gk_http_success + gk_ip_success + gk_ssl_success + gk_dns_success + gk_ftp_success + gk_jstx_success + gk_mail_success +gk_vpn_success + gk_wygjc_success;
 
@@ -138,27 +138,27 @@ public class GkCountBolt extends BaseBasicBolt {
             GKIpSuccess.labels("gk-ip-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_ip_success);
             GKIpFail.labels("gk-ip-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_ip_fail);
 
-           GKSslSuccess.labels("gk-ssl-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_ssl_success);
-           GKSslFail.labels("gk-ssl-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_ssl_fail);
+            GKSslSuccess.labels("gk-ssl-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_ssl_success);
+            GKSslFail.labels("gk-ssl-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_ssl_fail);
 
-           GKDnsSuccess.labels("gk-dns-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_dns_success);
-           GKDnsFail.labels("gk-dns-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_dns_fail);
+            GKDnsSuccess.labels("gk-dns-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_dns_success);
+            GKDnsFail.labels("gk-dns-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_dns_fail);
 
-           GKVpnSuccess.labels("gk-vpn-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_vpn_success);
-           GKVpnFail.labels("gk-vpn-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_vpn_fail);
+            GKVpnSuccess.labels("gk-vpn-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_vpn_success);
+            GKVpnFail.labels("gk-vpn-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_vpn_fail);
 
 
-           GKMailSuccess.labels("gk-mail-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_mail_success);
-           GKMailFail.labels("gk-mail-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_mail_fail);
+            GKMailSuccess.labels("gk-mail-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_mail_success);
+            GKMailFail.labels("gk-mail-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_mail_fail);
 
-           GKJstxSuccess.labels("gk-jstx-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_jstx_success);
-           GKJstxFail.labels("gk-jstx-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_jstx_fail);
+            GKJstxSuccess.labels("gk-jstx-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_jstx_success);
+            GKJstxFail.labels("gk-jstx-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_jstx_fail);
 
-           GKFtpSuccess.labels("gk-ftp-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_ftp_success);
-           GKFtpFail.labels("gk-ftp-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_ftp_fail);
+            GKFtpSuccess.labels("gk-ftp-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_ftp_success);
+            GKFtpFail.labels("gk-ftp-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_ftp_fail);
 
-           GKWygjcSuccess.labels("gk-wygjc-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_wygjc_success);
-           GKWygjcFail.labels("gk-wygjc-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_wygjc_fail);
+            GKWygjcSuccess.labels("gk-wygjc-success", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_wygjc_success);
+            GKWygjcFail.labels("gk-wygjc-fail", String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS / 60)).set(gk_wygjc_fail);
 
 
             try {

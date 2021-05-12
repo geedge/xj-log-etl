@@ -14,8 +14,7 @@ public class StreamAggregateConfig {
     /**
      * System
      */
-    public static final Integer SAFE_SPOUT_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"safe.spout.parallelism");
-    public static final Integer CONN_SPOUT_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"conn.spout.parallelism");
+    public static final Integer SPOUT_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"spout.parallelism");
     public static final Integer MAX_SPOUT_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"max.spout.parallelism");
     public static final Integer TOPOLOGY_NUM_ACKS = StreamAggregateConfigurations.getIntProperty(0, "topology.num.acks");
     public static final Integer TOPOLOGY_SPOUT_SLEEP_TIME = StreamAggregateConfigurations.getIntProperty(0, "topology.spout.sleep.time");
@@ -30,7 +29,7 @@ public class StreamAggregateConfig {
 
     public static final String BOOTSTRAP_SERVERS = StreamAggregateConfigurations.getStringProperty(0, "bootstrap.servers");
     public static final String GROUP_ID = StreamAggregateConfigurations.getStringProperty(0, "group.id");
-    public static final String GROUP_SAFE_ID = StreamAggregateConfigurations.getStringProperty(0, "group.safe.id");
+
     public static final String KAFKA_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "kafka.topic");
     public static final String KAFKA_SAFE_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "kafka.safe.topic");
     public static final String AUTO_OFFSET_RESET = StreamAggregateConfigurations.getStringProperty(0, "auto.offset.reset");
@@ -38,20 +37,21 @@ public class StreamAggregateConfig {
      * flooding
      */
     //Flooding-bolt设置
-    public static final int CONN_TOPOLOGY_TICK_TUPLE_FREQ_SECS = StreamAggregateConfigurations.getIntProperty(0,"conn.topology.tick.tuple.freq.secs");  //定时
+    public static final int TOPOLOGY_TICK_TUPLE_FREQ_SECS = StreamAggregateConfigurations.getIntProperty(0,"topology.tick.tuple.freq.secs");  //定时
     //分批
-    public static final int CONN_BATCH_INTER_NUM = StreamAggregateConfigurations.getIntProperty(0,"conn.batch.inter.num");
+    public static final int BATCH_INTER_NUM = StreamAggregateConfigurations.getIntProperty(0,"batch.inter.num");
 
     //conn-ComponentId-spout
     public static final String KAFKA_SPOUT = StreamAggregateConfigurations.getStringProperty(0, "kafka.spout");
     //#conn-bolt-parallelism_hint
-    public static final int CONN_PARSE_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"conn.parse.parallelism");
-    public static final int CONN_SEND_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"conn.send.parallelism");
+    public static final int PARSE_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"parse.parallelism");
+    public static final int SEND_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"send.parallelism");
+    public static final int IP_SEND_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"ip.send.parallelism");
+    public static final int HTTP_SEND_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"http.send.parallelism");
+    public static final int SSL_SEND_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"ssl.send.parallelism");
+    public static final int COUNT_SEND_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"count.send.parallelism");
+    public static final int UNSTRUCTURED_SEND_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"unstructured.send.parallelism");
 
-    public static final int CONN_IP_SEND_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"conn.ip.send.parallelism");
-    public static final int CONN_HTTP_SEND_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"conn.http.send.parallelism");
-    public static final int CONN_SSL_SEND_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"conn.ssl.send.parallelism");
-    public static final int CONN_COUNT_SEND_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"conn.count.send.parallelism");
 
     //conn-ComponentId-bolt
     public static final String CONN_PARSE_COMPONENTID = StreamAggregateConfigurations.getStringProperty(0, "conn.parse.componentid");
@@ -80,13 +80,6 @@ public class StreamAggregateConfig {
      * safa
      */
 
-    //Flooding-bolt设置
-    //定时
-    public static final int SAFE_TOPOLOGY_TICK_TUPLE_FREQ_SECS = StreamAggregateConfigurations.getIntProperty(0,"safe.topology.tick.tuple.freq.secs");
-    //分批
-    public static final int SAFE_BATCH_INTER_NUM = StreamAggregateConfigurations.getIntProperty(0,"safe.batch.inter.num");
-
-
     //Flooding-spout-field
     public static final String SAFE_SPOUT_FIELD = StreamAggregateConfigurations.getStringProperty(0, "safe.spout.field");
 
@@ -97,7 +90,7 @@ public class StreamAggregateConfig {
     //Flooding-http-post-url
 
     //flooding.http.post.socketTimeOut
-    public static final Integer FLOODING_HTTP_POST_SOCKETTIMEOUT = StreamAggregateConfigurations.getIntProperty(0,"flooding.http.post.socketTimeOut");
+    public static final Integer HTTP_POST_SOCKETTIMEOUT = StreamAggregateConfigurations.getIntProperty(0,"http.post.socketTimeOut");
 
     public static final  String HTTP_HEARDER_FORMAT = StreamAggregateConfigurations.getStringProperty(0,"http.hearder.format");
     public static final  String HTTP_HEARDER_CONECTION = StreamAggregateConfigurations.getStringProperty(0,"http.hearder.conection");
@@ -109,24 +102,43 @@ public class StreamAggregateConfig {
 
 
     //flooding.post.topic
-    public static final String FLOODING_POST_DNS_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "flooding.post.dns.topic");
-    public static final String FLOODING_POST_FTP_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "flooding.post.ftp.topic");
-    public static final String FLOODING_POST_HTTP_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "flooding.post.http.topic");
-    public static final String FLOODING_POST_IP_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "flooding.post.ip.topic");
-    public static final String FLOODING_POST_JSTX_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "flooding.post.jstx.topic");
-    public static final String FLOODING_POST_MAIL_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "flooding.post.mail.topic");
-    public static final String FLOODING_POST_SSL_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "flooding.post.ssl.topic");
-    public static final String FLOODING_POST_VPN_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "flooding.post.vpn.topic");
+    public static final String CONN_POST_DNS_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "conn.post.dns.topic");
+    public static final String CONN_POST_FTP_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "conn.post.ftp.topic");
+    public static final String CONN_POST_HTTP_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "conn.post.http.topic");
+    public static final String CONN_POST_IP_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "conn.post.ip.topic");
+    public static final String CONN_POST_JSTX_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "conn.post.jstx.topic");
+    public static final String CONN_POST_MAIL_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "conn.post.mail.topic");
+    public static final String CONN_POST_SSL_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "conn.post.ssl.topic");
+    public static final String CONN_POST_VPN_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "conn.post.vpn.topic");
 
 
 
-    public static final String  HTTP_POST_FLOODING_IP = StreamAggregateConfigurations.getStringProperty(0, "http.post.flooding.ip");
-
-    public static final String  HTTP_POST_SAFE_IP = StreamAggregateConfigurations.getStringProperty(0, "http.post.safe.ip");
-
+    public static final String  HTTP_POST_IP = StreamAggregateConfigurations.getStringProperty(0, "http.post.ip");
 
     public static final String  HTTP_POST_PORT = StreamAggregateConfigurations.getStringProperty(0, "http.post.port");
 
+    public static final String  S3_POST_IP = StreamAggregateConfigurations.getStringProperty(0, "s3.post.ip");
+
+    public static final String  S3_POST_PORT = StreamAggregateConfigurations.getStringProperty(0, "s3.post.port");
+
+    public static final String  HOS_URL = StreamAggregateConfigurations.getStringProperty(0, "hos.url");
+
+    public static final int HOS_POOL_MAXCONNECTIONS = StreamAggregateConfigurations.getIntProperty(0,"hos.pool.maxconnections");
+    public static final int HOS_POOL_MAXERRORRETRY = StreamAggregateConfigurations.getIntProperty(0,"hos.pool.maxerrorretry");
+    public static final int HOS_POOL_REQUESTTIMEOUT = StreamAggregateConfigurations.getIntProperty(0,"hos.pool.requesttimeout");
+    public static final int HOS_POOL_CONNECTIONTIMEOUT = StreamAggregateConfigurations.getIntProperty(0,"hos.pool.connectiontimeout");
+    public static final int HOS_POOL_CONNECTIONTTL = StreamAggregateConfigurations.getIntProperty(0,"hos.pool.connectionttl");
+    public static final int HOS_POOL_SOCKETTIMEOUT = StreamAggregateConfigurations.getIntProperty(0,"hos.pool.sockettimeout");
+
+
+
+
+    public static final String  S3_HEARDER_USERNAME = StreamAggregateConfigurations.getStringProperty(0, "s3.hearder.username");
+    public static final String  S3_HEARDER_PASSWORD = StreamAggregateConfigurations.getStringProperty(0, "s3.hearder.password");
+    public static final String  S3_HEARDER_FILETYPE = StreamAggregateConfigurations.getStringProperty(0, "s3.hearder.filetype");
+    public static final String  S3_HEARDER_FILETITLE = StreamAggregateConfigurations.getStringProperty(0, "s3.hearder.filetitle");
+    public static final String  S3_HEARDER_ISFULLTEX = StreamAggregateConfigurations.getStringProperty(0, "s3.hearder.isfulltex");
+    public static final String  S3_HEARDER_CONTENTTYPE = StreamAggregateConfigurations.getStringProperty(0, "s3.hearder.contenttype");
     /**
      * count
      */
@@ -140,15 +152,6 @@ public class StreamAggregateConfig {
     /**
      * gk
      */
-    public static final int GK_PARSE_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"gk.parse.parallelism");
-    public static final int GK_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"gk.send.parallelism");
-    public static final int GK_HTTP_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"gk.http.send.parallelism");
-    public static final int GK_IP_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"gk.ip.send.parallelism");
-    public static final int GK_SSL_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"gk.ssl.send.parallelism");
-    public static final int GK_COUNT_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"gk.count.send.parallelism");
-
-
-
     public static final String IP_GKRZ_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "ip.gkrz.schema");
     public static final String DNS_GKZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "dns.gkzb.schema");
     public static final String HTTP_GKZB_SCHEMA = StreamAggregateConfigurations.getStringProperty(0, "http.gkzb.schema");
@@ -230,15 +233,20 @@ public class StreamAggregateConfig {
     public static final String JC_POST_MEDIA_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "jc.post.media.topic");
 
 
+    public static final String T_HTTP_RZZB = StreamAggregateConfigurations.getStringProperty(0, "t.http.rzzb");
+    public static final String T_HTTP_JCZB = StreamAggregateConfigurations.getStringProperty(0, "t.http.jczb");
+    public static final String T_HTTP_GKZB = StreamAggregateConfigurations.getStringProperty(0, "t.http.gkzb");
 
-    public static final int JC_PARSE_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.parse.parallelism");
-    public static final int JC_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.send.parallelism");
-    public static final int JC_HTTP_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.http.send.parallelism");
-    public static final int JC_IP_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.ip.send.parallelism");
-    public static final int JC_SSL_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.ssl.send.parallelism");
-    public static final int JC_COUNT_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.count.send.parallelism");
-    public static final int JC_DNS_SEND_PARALLELISM= StreamAggregateConfigurations.getIntProperty(0,"jc.dns.send.parallelism");
 
+    public static final String T_MAIL_RZZB = StreamAggregateConfigurations.getStringProperty(0, "t.mail.rzzb");
+    public static final String T_MAIL_JCZB = StreamAggregateConfigurations.getStringProperty(0, "t.mail.jczb");
+    public static final String T_MAIL_GKZB = StreamAggregateConfigurations.getStringProperty(0, "t.mail.gkzb");
+
+    public static final String T_WYGJC_JCRZ = StreamAggregateConfigurations.getStringProperty(0, "t.wygjc.jcrz");
+    public static final String T_WYGJC_GKRZ = StreamAggregateConfigurations.getStringProperty(0, "t.wygjc.gkrz");
+
+    public static final String T_PIC_JCZB = StreamAggregateConfigurations.getStringProperty(0, "t.pic.jczb");
+    public static final String T_MEDIA_JCZB = StreamAggregateConfigurations.getStringProperty(0, "t.media.jczb");
 
 
 

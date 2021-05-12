@@ -13,7 +13,6 @@ import static cn.ac.iie.storm.utils.combine.httpurl.Http_URL_process.getFile_Nam
 import static cn.ac.iie.storm.utils.config.GetMap.*;
 
 import static cn.ac.iie.storm.utils.general.MailTrans.*;
-import static cn.ac.iie.storm.utils.general.MailTrans.getNum;
 import static cn.ac.iie.storm.utils.general.TransFormUtils.*;
 
 public class CONNAssignment {
@@ -37,7 +36,7 @@ public class CONNAssignment {
         dns_rzzb.put("CS_BYTES",sessionRecordLog.getCommon_c2s_byte_num());
         dns_rzzb.put("SC_PKTS",sessionRecordLog.getCommon_s2c_pkt_num());
         dns_rzzb.put("SC_BYTES",sessionRecordLog.getCommon_s2c_byte_num());
-        dns_rzzb.put("DNS_NAME",sessionRecordLog.getDns_qname());
+        dns_rzzb.put("DNS_NAME",getDns_name(sessionRecordLog.getDns_qname()));
         dns_rzzb.put("DNS_VALUE",sessionRecordLog.getDns_rr());
     }
 
@@ -77,6 +76,7 @@ public class CONNAssignment {
            http_rzzb.put("PROTOCOL", getProtocol(sessionRecordLog.getCommon_l4_protocol()));
            http_rzzb.put("YYS", getYys(sessionRecordLog.getCommon_data_center()));
            http_rzzb.put("YL1", sessionRecordLog.getCommon_address_type());
+           http_rzzb.put("YL5",sessionRecordLog.getHttp_response_body());
            //http特有
            http_rzzb.put("CS_PKTS",sessionRecordLog.getCommon_c2s_pkt_num());
            http_rzzb.put("CS_BYTES",sessionRecordLog.getCommon_c2s_byte_num());
@@ -87,7 +87,7 @@ public class CONNAssignment {
            http_rzzb.put("USER_AGENT",sessionRecordLog.getHttp_user_agent());
            http_rzzb.put("COOKIE",sessionRecordLog.getHttp_cookie());
            http_rzzb.put("FILE_NAME",getFile_Name(sessionRecordLog.getHttp_url()));
-           http_rzzb.put("CONTENT",sessionRecordLog.getHttp_snapshot());
+           http_rzzb.put("CONTENT",sessionRecordLog.getHttp_response_content());
 
     }
     public static void setVPN_RZZB(GenericRecord vpn_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
@@ -99,7 +99,7 @@ public class CONNAssignment {
         vpn_rzzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         vpn_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         vpn_rzzb.put("DPORT",sessionRecordLog.getCommon_server_port());
-        vpn_rzzb.put("PROTO_ID","04");
+        vpn_rzzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));
         vpn_rzzb.put("DETAIL_ID",getVpnDetail_id(sessionRecordLog.getCommon_l7_protocol()));
         vpn_rzzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));
         vpn_rzzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center()));
@@ -173,6 +173,7 @@ public class CONNAssignment {
         mail_rzzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));
         mail_rzzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center()));
         mail_rzzb.put("YL1",sessionRecordLog.getCommon_address_type());
+        mail_rzzb.put("YL5",sessionRecordLog.getHttp_response_body());
         //根据mail_bcc填充
 
         //mail特有
@@ -199,7 +200,8 @@ public class CONNAssignment {
         mail_rzzb.put("ACCESSORY", getAccessory(sessionRecordLog.getMail_attachment_name()));
 
         mail_rzzb.put("FILE_NAME",sessionRecordLog.getMail_attachment_name());
-        mail_rzzb.put("FILE_CONTENT",sessionRecordLog.getMail_attachment_content());
+
+        mail_rzzb.put("FILE_CONTENT",sessionRecordLog.getMail_eml_file());
         mail_rzzb.put("PWD",sessionRecordLog.getMail_passwd());
 
         mail_rzzb.put("FJFWS",getFjfws(sessionRecordLog.getMail_from()));
@@ -235,6 +237,6 @@ public class CONNAssignment {
         jstx_rzzb.put("SC_BYTES",sessionRecordLog.getCommon_s2c_byte_num());
         jstx_rzzb.put("HOST",sessionRecordLog.getHttp_host());
         jstx_rzzb.put("URL",sessionRecordLog.getHttp_url());
-        jstx_rzzb.put("USER_AGENT",sessionRecordLog.getHttp_user_agent());
     }
+
 }
