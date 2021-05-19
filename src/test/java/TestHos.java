@@ -1,7 +1,7 @@
 import java.io.*;
 
 import static cn.ac.iie.storm.utils.config.GetMap.getDy;
-import static cn.ac.iie.storm.utils.config.GetMap.getSzd;
+
 import static cn.ac.iie.storm.utils.http.HttpAsncClient.getConnAnsyHttpPost;
 
 public class TestHos {

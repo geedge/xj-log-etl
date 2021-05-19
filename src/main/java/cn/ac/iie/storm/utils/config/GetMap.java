@@ -81,30 +81,64 @@ public class GetMap {
     }
 
 
-    public static String getSzd(String location){
-        String[] split;
-        if(location==null){
-            return String.valueOf(3);
-        }else if (location.contains(",,")){
-            return String.valueOf(1);
-        } else {
-            split = location.split(",");
-            if (split.length==3) {
-                String country = split[2].replace(" ","");
-                System.out.println(country);
-                String s = countryMap.get(country);
-                if (country.equals("China")){
-                    return String.valueOf(1);
-                }else if(s!=null) {
-                    return String.valueOf(2);
-                }else {
+    public static String getFjSzd(String location,String mail_from,String mail_protocol_type) {
+        if (mail_from != null&& mail_protocol_type.equals("SMTP")) {
+            String[] split;
+            if (location == null) {
+                return String.valueOf(3);
+            } else if (location.contains(",,")) {
+                return String.valueOf(1);
+            } else {
+                split = location.split(",");
+                if (split.length == 3) {
+                    String country = split[2].replace(" ", "");
+                    String s = countryMap.get(country);
+                    if (country.equals("China")) {
+                        return String.valueOf(1);
+                    } else if (s != null) {
+                        return String.valueOf(2);
+                    } else {
+                        return String.valueOf(3);
+                    }
+                } else {
                     return String.valueOf(3);
                 }
-            }else {
-                return String.valueOf(3);
             }
+        }else {
+            return String.valueOf(3);
         }
     }
+
+
+    public static String getSjSzd(String location,String mail_to,String mail_protocol_type) {
+        if (mail_to != null&&(mail_protocol_type.equals("POP3")||mail_protocol_type.equals("IMAP"))) {
+            String[] split;
+            if (location == null) {
+                return String.valueOf(3);
+            } else if (location.contains(",,")) {
+                return String.valueOf(1);
+            } else {
+                split = location.split(",");
+                if (split.length == 3) {
+                    String country = split[2].replace(" ", "");
+                    String s = countryMap.get(country);
+                    if (country.equals("China")) {
+                        return String.valueOf(1);
+                    } else if (s != null) {
+                        return String.valueOf(2);
+                    } else {
+                        return String.valueOf(3);
+                    }
+                } else {
+                    return String.valueOf(3);
+                }
+            }
+        }else {
+            return String.valueOf(3);
+        }
+    }
+
+
 
     public static String getDns_name(String dns_qname){
         if (dns_qname==null){
@@ -153,4 +187,6 @@ public class GetMap {
             propService_country = null;
         }
     }
+
+
 }

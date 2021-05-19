@@ -181,38 +181,23 @@ public class CONNAssignment {
         mail_rzzb.put("CS_BYTES",sessionRecordLog.getCommon_c2s_byte_num());
         mail_rzzb.put("SC_PKTS",sessionRecordLog.getCommon_s2c_pkt_num());
         mail_rzzb.put("SC_BYTES",sessionRecordLog.getCommon_s2c_byte_num());
-
         mail_rzzb.put("MAIL_SENDER",sessionRecordLog.getMail_from());
-
-
         mail_rzzb.put("MAIL_RECEVER", getMailRecever(sessionRecordLog.getMail_to()));
         mail_rzzb.put("RECEVER_NUM", getNum(sessionRecordLog.getMail_to()));
-
         mail_rzzb.put("MAIL_CC",sessionRecordLog.getMail_cc());
-
-
         mail_rzzb.put("CC_NUM", getNum(sessionRecordLog.getMail_cc()));
-
         mail_rzzb.put("MAIL_SUBJECT",sessionRecordLog.getMail_subject());
-
         mail_rzzb.put("CONTENT",sessionRecordLog.getMail_content());
-
         mail_rzzb.put("ACCESSORY", getAccessory(sessionRecordLog.getMail_attachment_name()));
-
         mail_rzzb.put("FILE_NAME",sessionRecordLog.getMail_attachment_name());
-
         mail_rzzb.put("FILE_CONTENT",sessionRecordLog.getMail_eml_file());
         mail_rzzb.put("PWD",sessionRecordLog.getMail_passwd());
-
-        mail_rzzb.put("FJFWS",getFjfws(sessionRecordLog.getMail_from()));
-        mail_rzzb.put("FJFWS_SZD",getSzd(sessionRecordLog.getCommon_client_location()));
-
-        mail_rzzb.put("SJFWS",sessionRecordLog.getMail_to());
-        mail_rzzb.put("SJFWS_SZD",getSzd(sessionRecordLog.getCommon_server_location()));
-
+        mail_rzzb.put("FJFWS",getConnFws(sessionRecordLog.getMail_from()));
+        mail_rzzb.put("FJFWS_SZD",getFjSzd(sessionRecordLog.getCommon_client_location(),sessionRecordLog.getMail_from(),sessionRecordLog.getMail_protocol_type()));
+        mail_rzzb.put("SJFWS",getConnFws(sessionRecordLog.getMail_to()));
+        mail_rzzb.put("SJFWS_SZD",getSjSzd(sessionRecordLog.getCommon_server_location(),sessionRecordLog.getMail_to(),sessionRecordLog.getMail_protocol_type()));
         mail_rzzb.put("YL2",getNum(sessionRecordLog.getMail_bcc()));
         mail_rzzb.put("YL4",getMailRecever(sessionRecordLog.getMail_bcc()));
-
         mail_rzzb.put("XYLX",sessionRecordLog.getMail_protocol_type());
     }
 

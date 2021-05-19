@@ -89,9 +89,9 @@ public class TransFormUtils {
     public static int getProtocol(String common_l4_protocol) {
         int Protocol = 0;
         if (common_l4_protocol.contains("TCP")) {
-            Protocol = 17;
-        } else if (common_l4_protocol.contains("UDP")) {
             Protocol = 6;
+        } else if (common_l4_protocol.contains("UDP")) {
+            Protocol = 17;
         }
         return  Protocol;
     }
@@ -143,22 +143,30 @@ public class TransFormUtils {
         return ip;
     }
 
-
     /**
-     * 获取字节数组的长度
-     * @param s
+     * jc、gk类yjxy处理方式
+     * @param yjxy
+     * @param mail_protocol_type
      * @return
      */
-    public static int getValidLength(byte[] s){
-        int i = 0;
-        if(s!=null) {
-            for (byte b : s) {
-                i++;
-            }
-        }
-        return i;
-    }
 
+    public static String getYjxy(String yjxy,String mail_protocol_type) {
+        switch (yjxy){
+
+            case "03001":
+                return "WEBMAIL";
+            case "03002":
+                return "SMTP";
+            case "03003":
+                return "POP3";
+            case "03004":
+                return "IMAP";
+            case "03000":
+                return mail_protocol_type;
+            default:
+                return null;
+        }
+    }
     /**
      * 获取运营商
      * @param common_data_center

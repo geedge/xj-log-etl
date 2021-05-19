@@ -9,7 +9,6 @@ import java.io.IOException;
 import static cn.ac.iie.storm.utils.combine.httpurl.Http_URL_process.getFile_Name;
 import static cn.ac.iie.storm.utils.config.GetMap.*;
 import static cn.ac.iie.storm.utils.general.MailTrans.*;
-import static cn.ac.iie.storm.utils.general.MailTrans.getFjfws;
 import static cn.ac.iie.storm.utils.general.TransFormUtils.*;
 import static cn.ac.iie.storm.utils.general.TransFormUtils.getYys;
 
@@ -151,7 +150,7 @@ public class GKAssignment {
         wygjc_gkzb.put("YL5",sessionRecordLog.getHttp_response_body());
         //wygjc特有
         wygjc_gkzb.put("JC_URL",sessionRecordLog.getHttp_url());
-        wygjc_gkzb.put("SSYQ",sessionRecordLog.getHttp_domain());
+        wygjc_gkzb.put("SSYQ",sessionRecordLog.getHttp_host());
         wygjc_gkzb.put("CONTENT",sessionRecordLog.getHttp_snapshot());
         wygjc_gkzb.put("YYZL",sessionRecordLog.getYyzl());
         wygjc_gkzb.put("GJZ",sessionRecordLog.getGjc());
@@ -168,50 +167,38 @@ public class GKAssignment {
         mail_gkzb.put("YL3",sessionRecordLog.getLabels());
         mail_gkzb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
         mail_gkzb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
-        mail_gkzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip())); //--其实是使用网络序列
+        mail_gkzb.put("QDJIP",getQDJIP(sessionRecordLog.getCommon_sled_ip()));
         mail_gkzb.put("SIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_client_ip()));
         mail_gkzb.put("DIP",getIP(sessionRecordLog.getCommon_address_type(),sessionRecordLog.getCommon_server_ip()));
         mail_gkzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         mail_gkzb.put("DPORT",sessionRecordLog.getCommon_server_port());
-        mail_gkzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
-        mail_gkzb.put("DETAIL_ID",getMailDetail_id(sessionRecordLog.getMail_protocol_type()));
-        mail_gkzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
-        mail_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
+        mail_gkzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));
+        mail_gkzb.put("DETAIL_ID",sessionRecordLog.getYjxy());
+        mail_gkzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));
+        mail_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center()));
         mail_gkzb.put("YL1",sessionRecordLog.getCommon_address_type());
         mail_gkzb.put("YL5",sessionRecordLog.getHttp_response_body());
 
         mail_gkzb.put("YL2",geSecuritytNum(sessionRecordLog.getMail_bcc()));
-        mail_gkzb.put("YL4",getMailRecever(sessionRecordLog.getMail_bcc()));
+        mail_gkzb.put("YL4",sessionRecordLog.getMail_bcc());
 
         //mail特有
-
         mail_gkzb.put("MAIL_SENDER",sessionRecordLog.getMail_from());
-
         mail_gkzb.put("MAIL_RECEVER",sessionRecordLog.getMail_to());
-
         mail_gkzb.put("RECEVER_NUM",geSecuritytNum(sessionRecordLog.getMail_to()));
-
         mail_gkzb.put("MAIL_CC",sessionRecordLog.getMail_cc());
         mail_gkzb.put("CC_NUM",geSecuritytNum(sessionRecordLog.getMail_cc()));
-
         mail_gkzb.put("MAIL_SUBJECT",sessionRecordLog.getMail_subject());
-
         mail_gkzb.put("CONTENT",sessionRecordLog.getMail_content());
-
         mail_gkzb.put("ACCESSORY",getAccessory(sessionRecordLog.getMail_attachment_name()));
-
         mail_gkzb.put("FILE_NAME",sessionRecordLog.getMail_attachment_name());
         mail_gkzb.put("FILE_CONTENT",sessionRecordLog.getMail_eml_file());
         mail_gkzb.put("PWD",sessionRecordLog.getMail_passwd());
-        mail_gkzb.put("FJFWS",getFjfws(sessionRecordLog.getMail_from()));
-        mail_gkzb.put("FJFWS_SZD",getSzd(sessionRecordLog.getCommon_client_location())); //  //境内境外未知，根据Location填充
-
-        mail_gkzb.put("SJFWS",sessionRecordLog.getMail_to());
-        mail_gkzb.put("SJFWS_SZD",getSzd(sessionRecordLog.getCommon_server_location()));//境内境外未知，根据Location填充
-
-
-        mail_gkzb.put("XYLX",sessionRecordLog.getMail_protocol_type());
-
+        mail_gkzb.put("FJFWS",getSafeFws(sessionRecordLog.getMail_from()));
+        mail_gkzb.put("FJFWS_SZD",getFjSzd(sessionRecordLog.getCommon_client_location(),sessionRecordLog.getMail_from(),sessionRecordLog.getMail_protocol_type())); //  //境内境外未知，根据Location填充
+        mail_gkzb.put("SJFWS",getSafeFws(sessionRecordLog.getMail_to()));
+        mail_gkzb.put("SJFWS_SZD",getSjSzd(sessionRecordLog.getCommon_server_location(),sessionRecordLog.getMail_to(),sessionRecordLog.getMail_protocol_type()));//境内境外未知，根据Location填充
+        mail_gkzb.put("XYLX",getYjxy(sessionRecordLog.getYjxy(),sessionRecordLog.getMail_protocol_type()));
         mail_gkzb.put("GJZ",sessionRecordLog.getGjc());
         mail_gkzb.put("YYZL",sessionRecordLog.getYyzl());
 

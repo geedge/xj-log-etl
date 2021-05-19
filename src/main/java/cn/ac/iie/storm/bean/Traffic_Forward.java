@@ -15,6 +15,15 @@ public class Traffic_Forward {
     private int ipbs;
     private String labels;
     private String zsmc;
+    private String yjxy;
+
+    public String getYjxy() {
+        return yjxy;
+    }
+
+    public void setYjxy(String yjxy) {
+        this.yjxy = yjxy;
+    }
 
     public int getYyzl() {
         return yyzl;

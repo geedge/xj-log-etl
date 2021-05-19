@@ -11,22 +11,22 @@ public class MailTrans {
 
     /**
      * 收件人：多个收件人之间用英文‘;’分割
+     *
      * @param mail_to
      * @return
      */
-    public static String getMailRecever(String mail_to){
+    public static String getMailRecever(String mail_to) {
         String str = "";
-        if(mail_to!=null) {
-            Pattern pattern = Pattern.compile("/^[a-z]([a-z0-9]*[-_]?[a-z0-9]+)*@([a-z0-9]*[-_]?[a-z0-9]+)+[\\.][a-z]{2,3}([\\.][a-z]{2})?$/i");
-            //Pattern pattern = Pattern.compile("<([\\s\\S]*?)>");
+        if (mail_to != null) {
+//            Pattern pattern = Pattern.compile("/^[a-z]([a-z0-9]*[-_]?[a-z0-9]+)*@([a-z0-9]*[-_]?[a-z0-9]+)+[\\.][a-z]{2,3}([\\.][a-z]{2})?$/i");
+            Pattern pattern = Pattern.compile("<([\\s\\S]*?)>");
             Matcher matcher = pattern.matcher(mail_to);
-            while(matcher.find()) {
+            while (matcher.find()) {
                 int i = 0;
                 if (!str.isEmpty()) {
-                    str=str+";";
-                    System.out.println(str);
+                    str = str + ";";
                 }
-                str = str + matcher.group(i);
+                str = str + matcher.group(i).replace(">","").replace("<","");
                 i = i++;
             }
 
@@ -35,24 +35,26 @@ public class MailTrans {
     }
 
     /**
-     *求recever_num;cc_num;
+     * 求recever_num;cc_num;
+     *
      * @param s
      * @return
      */
-    public static int getNum(String s){
+    public static int getNum(String s) {
         int num = 0;
-        if(s!=null) {
+        if (s != null) {
             Pattern pattern = Pattern.compile("<([\\s\\S]*?)>");
             Matcher matcher = pattern.matcher(s);
             while (matcher.find()) {
-               num++;
+                num++;
             }
         }
         return num;
     }
-    public static int geSecuritytNum(String s){
+
+    public static int geSecuritytNum(String s) {
         int num = 0;
-        if(s!=null) {
+        if (s != null) {
             String[] split = s.split(";");
 
             num = split.length;
@@ -61,35 +63,49 @@ public class MailTrans {
     }
 
 
-
     /**
      * accessory
      * 是否有附件
+     *
      * @param mail_attachment_name
      * @return 0是没有  1是有
      */
-    public static int getAccessory(String mail_attachment_name){
-        if(!(mail_attachment_name==null)){
-            return 0;
-        }else {
+    public static int getAccessory(String mail_attachment_name) {
+        if (mail_attachment_name != null) {
             return 1;
+        } else {
+            return 0;
         }
     }
 
-    public static String getFjfws(String mail_from ){
+    public static String getConnFws(String mail_from) {
         StringBuilder str = new StringBuilder();
-        if(!(mail_from==null)) {
+        if (!(mail_from == null)) {
             Pattern pattern = Pattern.compile("@([\\s\\S]*?)>");
             Matcher matcher = pattern.matcher(mail_from);
-            int i = 0;
-            while(matcher.find()) {
+            while (matcher.find()) {
                 if (str.length() > 0) {
                     str.append(";");
                 }
-                str.append(matcher.group(i).replace(">", ""));
-                i++;
+                str.append(matcher.group().replace(">", ""));
+
             }
         }
         return str.toString();
     }
+
+    public static String getSafeFws(String mail_from) {
+        String s = mail_from+";";
+        StringBuilder str = new StringBuilder();
+        if (!(mail_from == null)) {
+          Pattern pattern = Pattern.compile("@([\\s\\S]*?);");
+            Matcher matcher = pattern.matcher(s);
+            while (matcher.find()) {
+                str.append(matcher.group());
+            }
+            str.replace(str.length()-1,str.length(),"");
+        }
+        return str.toString();
+    }
+
 }

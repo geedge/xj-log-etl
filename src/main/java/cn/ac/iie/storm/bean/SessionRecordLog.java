@@ -69,6 +69,7 @@ public class SessionRecordLog  {
     private int gklb;
     private int yyzl;
     private String zsmc;
+    private String yjxy;
 
     public String getHttp_content_type() {
         return http_content_type;
@@ -570,7 +571,16 @@ public class SessionRecordLog  {
         return http_domain;
     }
 
+    public String getYjxy() {
+        return yjxy;
+    }
+
+    public void setYjxy(String yjxy) {
+        this.yjxy = yjxy;
+    }
+
     public void setHttp_domain(String http_domain) {
         this.http_domain = http_domain;
     }
+
 }

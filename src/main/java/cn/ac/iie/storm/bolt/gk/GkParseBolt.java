@@ -144,6 +144,7 @@ public class GkParseBolt extends BaseBasicBolt {
                 sessionRecordLog.setYyzl(traffic_forward.getYyzl());
                 sessionRecordLog.setGjc(traffic_forward.getGjc());
                 sessionRecordLog.setZsmc(traffic_forward.getZsmc());
+                sessionRecordLog.setYjxy(traffic_forward.getYjxy());
                 int pzlx = traffic_forward.getPzlx();
                 //按pzlx的值对数据进行分类发送
                 //按pzlx的值对数据进行分类发送
