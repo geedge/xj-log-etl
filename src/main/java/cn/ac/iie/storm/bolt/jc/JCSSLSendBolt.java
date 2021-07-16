@@ -1,6 +1,6 @@
 package cn.ac.iie.storm.bolt.jc;
 
-import cn.ac.iie.storm.bolt.gk.GKSSLSendBolt;
+
 import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
 import cn.ac.iie.storm.utils.http.HttpClientService;
 import org.apache.log4j.Logger;
@@ -15,12 +15,13 @@ import org.apache.storm.utils.TupleUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.*;
 
 public class JCSSLSendBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(JCSSLSendBolt.class);
     private long jc_ssl_success=0L;
     private long jc_ssl_fail=0L;
+    String postUrl;
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         if(TupleUtils.isTick(tuple)){
@@ -31,14 +32,22 @@ public class JCSSLSendBolt extends BaseBasicBolt {
 
         } else {
             if (tuple.getSourceStreamId().equals(StreamAggregateConfig.JC_SSL_STREAMID)) {
-
                 byte[] sslSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_SSL_STREAMID);
                 Integer sslcount = tuple.getIntegerByField("sslcount");
-                Map<String, String> jcSslPost = HttpClientService.getConnHttpPost(getPostUrl(), sslSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_SSL_TOPIC);
-                if (jcSslPost.containsValue("200")){
-                    logger.info("-------条数为:"+sslcount+"jcip数据发送成功-----"+jcSslPost);
-                    jc_ssl_success = jc_ssl_success + sslcount;
-                }else {
+                Map<String, String> jcSslPost = null;
+                int i=0;
+                while (i<StreamAggregateConfig.HTTP_SENT_COUNT){
+                    postUrl = getPostUrl();
+                    jcSslPost = HttpClientService.getConnHttpPost(postUrl, sslSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_SSL_TOPIC);
+                    if (jcSslPost.containsValue("200")){
+                        logger.info("-------条数为:"+sslcount+"jcip数据发送成功-----"+jcSslPost);
+                        jc_ssl_success = jc_ssl_success + sslcount;
+                        break;
+                    }
+                    i++;
+                }
+                assert jcSslPost != null;
+                if (!jcSslPost.containsValue("200")){
                     logger.error("-------条数为:"+sslcount+"jcip数据发送失败-----"+jcSslPost);
                     jc_ssl_fail = jc_ssl_fail + sslcount;
                 }

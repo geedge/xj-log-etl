@@ -9,11 +9,14 @@ import java.util.regex.Pattern;
 public class Http_URL_process {
     private final static Logger logger = Logger.getLogger(Http_URL_process.class);
     public static String  getFile_Name(String url) {
-        String name = null;
-        String file_name = null;
+        String name ;
+        String file_name = "";
         if (url == null) {
-            return "null";
-        } else {
+            return null;
+        }else if(url.charAt(url.length()-1)=='/'||!url.contains("/")){
+            return null;
+        }
+        else {
             try {
                 String[] ss = url.split("/");
                 name = ss[ss.length - 1];
@@ -32,6 +35,11 @@ public class Http_URL_process {
                 e.printStackTrace();
                 System.out.println("这是url" + url);
             }
-            return file_name;
+            if (file_name.contains(".")) {
+                return file_name;
+            }else {
+                return "";
+            }
+
         }}
         }

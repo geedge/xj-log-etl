@@ -68,8 +68,10 @@ public class SessionRecordLog  {
     private int pzlx;
     private int gklb;
     private int yyzl;
+    private String protocol;
     private String zsmc;
     private String yjxy;
+    private String common_protocol_label;
 
     public String getHttp_content_type() {
         return http_content_type;
@@ -567,6 +569,14 @@ public class SessionRecordLog  {
         this.http_response_content = http_response_content;
     }
 
+    public String getCommon_protocol_label() {
+        return common_protocol_label;
+    }
+
+    public void setCommon_protocol_label(String common_protocol_label) {
+        this.common_protocol_label = common_protocol_label;
+    }
+
     public String getHttp_domain() {
         return http_domain;
     }
@@ -583,4 +593,11 @@ public class SessionRecordLog  {
         this.http_domain = http_domain;
     }
 
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
 }

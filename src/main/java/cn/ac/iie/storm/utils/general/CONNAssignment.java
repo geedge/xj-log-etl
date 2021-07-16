@@ -90,7 +90,7 @@ public class CONNAssignment {
            http_rzzb.put("CONTENT",sessionRecordLog.getHttp_response_content());
 
     }
-    public static void setVPN_RZZB(GenericRecord vpn_rzzb, SessionRecordLog sessionRecordLog) throws IOException {
+    public static void setVPN_RZZB(GenericRecord vpn_rzzb, SessionRecordLog sessionRecordLog){
         vpn_rzzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
         vpn_rzzb.put("YDY",getDy(sessionRecordLog.getCommon_client_location()));
         vpn_rzzb.put("MDDY",getDy(sessionRecordLog.getCommon_server_location()));
@@ -100,7 +100,7 @@ public class CONNAssignment {
         vpn_rzzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         vpn_rzzb.put("DPORT",sessionRecordLog.getCommon_server_port());
         vpn_rzzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));
-        vpn_rzzb.put("DETAIL_ID",getVpnDetail_id(sessionRecordLog.getCommon_l7_protocol()));
+        vpn_rzzb.put("DETAIL_ID",getVpnDetail_id(sessionRecordLog.getCommon_l7_protocol(),sessionRecordLog.getCommon_protocol_label()));
         vpn_rzzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));
         vpn_rzzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center()));
         vpn_rzzb.put("YL1",sessionRecordLog.getCommon_address_type());

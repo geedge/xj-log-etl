@@ -1,11 +1,9 @@
 package cn.ac.iie.storm.utils.http;
 
 import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
-
 import java.util.Random;
 
 public class HttpGetUrl {
-
     public static String getPostUrl() {
         String url;
         String[] split = StreamAggregateConfig.HTTP_POST_IP.split(",");
@@ -14,7 +12,6 @@ public class HttpGetUrl {
         url = "http://" + split[i] + ":" + StreamAggregateConfig.HTTP_POST_PORT + "/";
         return url;
     }
-
 
     public static String getHttpHost(String urlString) {
         int index = urlString.indexOf("://");
@@ -31,10 +28,10 @@ public class HttpGetUrl {
 
     public static String getS3Url(String bucketname,String filename){
         String url;
-        String[] split = StreamAggregateConfig.S3_POST_IP.split(",");
+        String[] ipArr = StreamAggregateConfig.S3_POST_IP.split(",");
         Random random = new Random();
-        int i = random.nextInt(split.length);
-        url = "http://"+split[i]+":"+StreamAggregateConfig.S3_POST_PORT+"/"+bucketname+"/"+filename+"?method=put";
+        int i = random.nextInt(ipArr.length);
+        url = "http://"+ipArr[i]+":"+StreamAggregateConfig.S3_POST_PORT+"/"+bucketname+"/"+filename+"?method=put";
         return url;
     }
 
@@ -46,7 +43,6 @@ public class HttpGetUrl {
         url = "http://"+split[i]+":"+StreamAggregateConfig.S3_POST_PORT+"/"+bucketname+"/"+filename;
         return url;
     }
-
 
 }
 

@@ -1,6 +1,5 @@
 package cn.ac.iie.storm.bolt.jc;
 
-import cn.ac.iie.storm.bolt.gk.GKIPSendBolt;
 import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
 import cn.ac.iie.storm.utils.http.HttpClientService;
 import org.apache.log4j.Logger;
@@ -15,7 +14,7 @@ import org.apache.storm.utils.TupleUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.*;
 
 public class JCIPSendBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(JCIPSendBolt.class);
@@ -23,6 +22,7 @@ public class JCIPSendBolt extends BaseBasicBolt {
 
     private long jc_ip_success=0L;
     private long jc_ip_fail=0L;
+    String postUrl;
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         if(TupleUtils.isTick(tuple)){
@@ -33,18 +33,26 @@ public class JCIPSendBolt extends BaseBasicBolt {
 
         } else {
             if (tuple.getSourceStreamId().equals(StreamAggregateConfig.JC_IP_STREAMID)) {
-
                 byte[] ipSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_IP_STREAMID);
                 Integer ipcount = tuple.getIntegerByField("ipcount");
-                Map<String, String> jcIpPost = HttpClientService.getConnHttpPost(getPostUrl(), ipSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_IP_TOPIC);
-                if (jcIpPost.containsValue("200")){
-                    logger.info("-------条数为:"+ipcount+"jcip数据发送成功-----"+jcIpPost);
-                    jc_ip_success = jc_ip_success + ipcount;
-                }else {
-                    logger.error("-------条数为:"+ipcount+"jcip数据发送失败-----"+jcIpPost);
+                Map<String, String> jcIpPost = null;
+                int i=0;
+                while (i<StreamAggregateConfig.HTTP_SENT_COUNT){
+                    postUrl = getPostUrl();
+                    jcIpPost = HttpClientService.getConnHttpPost(postUrl, ipSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_IP_TOPIC);
+                    if (jcIpPost.containsValue("200")){
+                        logger.info("-------条数为:"+ipcount+"jcip数据发送到"+postUrl+"成功-----"+jcIpPost);
+                        jc_ip_success = jc_ip_success + ipcount;
+                        break;
+                    }
+                    i++;
+                }
+                assert jcIpPost != null;
+                if (!jcIpPost.containsValue("200")){
+                    logger.error("-------条数为:"+ipcount+"jcip数据发送到"+postUrl+"失败-----"+jcIpPost);
                     jc_ip_fail = jc_ip_fail + ipcount;
                 }
-            }
+             }
         }
     }
 

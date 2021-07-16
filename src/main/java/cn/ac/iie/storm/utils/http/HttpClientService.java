@@ -25,6 +25,8 @@ import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 import static cn.ac.iie.storm.utils.http.HttpGetUrl.getHttpHost;
@@ -48,13 +50,10 @@ public class HttpClientService {
         // 创建Http请求配置参数
         RequestConfig requestConfig = RequestConfig.custom()
                 // 获取连接超时时间
-                //.setConnectionRequestTimeout(httpConfig.getServerRequestTimeOut())
-                .setConnectionRequestTimeout(3)
-                // 请求超时时间
-//                .setConnectTimeout(httpConfig.getServerConnectTimeOut())
-                .setConnectTimeout(3)
-                // 响应超时时间
-                .setSocketTimeout(socketTimeOut)
+                .setConnectionRequestTimeout(StreamAggregateConfig.HTTP_CONNECTIONREQUESTTIMEOUT)
+                .setConnectTimeout(StreamAggregateConfig.HTTP_CONNECTTIMEOUT)
+                .setSocketTimeout(StreamAggregateConfig.HTTP_SOKETTIMEOUT)
+//                 响应超时时间
                 .build();
         /**
          * 初始化连接池信息
@@ -63,10 +62,10 @@ public class HttpClientService {
             connectionManager = new PoolingHttpClientConnectionManager();
             // 整个连接池最大连接数
             // connectionManager.setMaxTotal(httpConfig.getMaxConnectionNum());
-            connectionManager.setMaxTotal(2000);
+            connectionManager.setMaxTotal(1000);
             // 每路由最大连接数，默认值是2
             //  connectionManager.setDefaultMaxPerRoute(httpConfig.getMaxPerRoute());
-            connectionManager.setDefaultMaxPerRoute(400);
+            connectionManager.setDefaultMaxPerRoute(150);
         }
         log.info("Initializing PoolingHttpClientConnectionManager Complete");
 
@@ -76,7 +75,7 @@ public class HttpClientService {
          *  这里会根据情况进行判断是否重试
          */
         HttpRequestRetryHandler retry = (exception, executionCount, context) -> {
-            if (executionCount >= 3) {// 如果已经重试了3次，就放弃
+            if (executionCount >= StreamAggregateConfig.HTTP_RETRY_COUNT) {// 如果已经重试了3次，就放弃
                 return false;
             }
             if (exception instanceof NoHttpResponseException) {// 如果服务器丢掉了连接，那么就重试
@@ -113,21 +112,23 @@ public class HttpClientService {
                 String param = he.getName();
                 String value = he.getValue();
                 if (value != null && param.equalsIgnoreCase("timeout")) {
-                    return Long.parseLong(value) * 1000;
+//                    return Long.parseLong(value) * 1000;
+                    return Long.parseLong(value) * 10;
                 }
             }
-            return 10;//如果没有约定，则默认定义时长为60s
+//            return 10;//如果没有约定，则默认定义时长为60s
+            return 1;//如果没有约定，则默认定义时长为60s
         };
 
         // 创建httpClient
         return HttpClients.custom()
-                // 把请求相关的超时信息设置到连接客户端
+//                 把请求相关的超时信息设置到连接客户端
                 .setDefaultRequestConfig(requestConfig)
                 // 把请求重试设置到连接客户端
-                .setRetryHandler(retry)
-                .setKeepAliveStrategy(myStrategy)
+//                .setRetryHandler(retry)
+//                .setKeepAliveStrategy(myStrategy)
                 // 配置连接池管理对象
-                .setConnectionManager(connectionManager)
+//                .setConnectionManager(connectionManager)
                 .build();
 
     }
@@ -153,8 +154,7 @@ public class HttpClientService {
             httpPost.setHeader("Host",getHttpHost(url));
             httpPost.setHeader("Conection",StreamAggregateConfig.HTTP_HEARDER_CONECTION);
             httpPost.setEntity(new ByteArrayEntity(s));
-            response = getHttpClient(socketTimeOut).execute(httpPost);
-
+            response = getHttpClient(1).execute(httpPost);
             // 获取响应实体
             HttpEntity entity = response.getEntity();
             // 获取响应信息
@@ -169,7 +169,7 @@ public class HttpClientService {
             resultMap.put("status", String.valueOf(HttpStatus.SC_SERVICE_UNAVAILABLE));
             resultMap.put("message", e.getMessage());
         } catch (IOException e) {
-            log.error("IO错误: {}"+ e.getMessage());
+            log.error("链接"+url+"IO错误: {}"+ e.getMessage());
             resultMap.put("status", String.valueOf(HttpStatus.SC_BAD_GATEWAY));
             resultMap.put("message", e.getMessage());
         } catch (Exception e) {

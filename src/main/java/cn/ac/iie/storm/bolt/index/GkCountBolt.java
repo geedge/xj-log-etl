@@ -118,7 +118,7 @@ public class GkCountBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
 
 
-        if ((TupleUtils.isTick(tuple) && gkCount != 0L)) {
+        if ((TupleUtils.isTick(tuple))){
             gkSendFail = gk_http_fail +  gk_ip_fail + gk_ssl_fail + gk_dns_fail + gk_ftp_fail + gk_jstx_fail + gk_mail_fail + gk_vpn_fail + gk_wygjc_fail+gkParseFail;
 
             gkSendCount = gk_http_success + gk_ip_success + gk_ssl_success + gk_dns_success + gk_ftp_success + gk_jstx_success + gk_mail_success +gk_vpn_success + gk_wygjc_success;

@@ -12,33 +12,41 @@ import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.TupleUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.*;
+
 
 public class ConnSSLSendBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(ConnSSLSendBolt.class);
-
     private long conn_ssl_success = 0L;
     private long conn_ssl_fail = 0L;
+    String postUrl;
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         if(TupleUtils.isTick(tuple)){
             basicOutputCollector.emit(new Values(conn_ssl_success,conn_ssl_fail));
             conn_ssl_fail = 0L;
             conn_ssl_success = 0L;
-
         } else {
             if (tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_SSL_STREAMID)) {
-
                 byte[] sslSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.CONN_SSL_STREAMID);
                 Integer sslcount = tuple.getIntegerByField("sslcount");
-                Map<String, String> connSslPost = HttpClientService.getConnHttpPost(getPostUrl(), sslSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.CONN_POST_SSL_TOPIC);
-                if (connSslPost.containsValue("200")){
-                    logger.info("-------条数为:"+sslcount+"connssl数据发送成功-----"+connSslPost);
-                    conn_ssl_success = conn_ssl_success + sslcount;
-                }else {
-                    logger.error("-------条数为:"+sslcount+"connssl数据发送失败-----"+connSslPost);
+                Map<String, String> connSslPost = null;
+                int i=0;
+                while (i<StreamAggregateConfig.HTTP_SENT_COUNT){
+                    postUrl = getPostUrl();
+                    connSslPost = HttpClientService.getConnHttpPost(postUrl,sslSource,StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.CONN_POST_SSL_TOPIC);
+                    if (connSslPost.containsValue("200")){
+                        logger.info("-------条数为:"+sslcount+"connssl数据发送到"+postUrl+"成功-----"+connSslPost);
+                        conn_ssl_success = conn_ssl_success + sslcount;
+                        break;
+                    }
+                    i++;
+                }
+                if (connSslPost!=null&&!connSslPost.containsValue("200")){
+                    logger.error("-------条数为:"+sslcount+"connssl数据发送到"+postUrl+"失败-----"+connSslPost);
                     conn_ssl_fail = conn_ssl_fail + sslcount;
                 }
             }

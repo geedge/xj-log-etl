@@ -64,8 +64,6 @@ public class ConnParseBolt extends BaseBasicBolt {
 
     String bucketName = null;
     String filename = null;
-    String s3Url = null;
-
 
     public void prepare(Map stormConf, TopologyContext context) {
         ipSchema = new Schema.Parser().parse(StreamAggregateConfig.IP_RZZB_SCHEMA);
@@ -141,10 +139,12 @@ public class ConnParseBolt extends BaseBasicBolt {
                                 logger.error("-----------jstx_rzzb数据封装处理异常-----------" + e);
                                 loadFail++;
                             }
+
                     } else {
                         switch (sessionRecordLog.getCommon_schema_type()) {
                             case "BASE":
-                                if (sessionRecordLog.getCommon_l7_protocol().equals("PPTP") || sessionRecordLog.getCommon_l7_protocol().equals("L2TP") || sessionRecordLog.getCommon_l7_protocol().equals("OPENVPN") || sessionRecordLog.getCommon_l7_protocol().equals("IPSEC")) {
+                                if (sessionRecordLog.getCommon_l7_protocol().equals("PPTP") || sessionRecordLog.getCommon_l7_protocol().equals("L2TP") || sessionRecordLog.getCommon_l7_protocol().equals("OPENVPN") || sessionRecordLog.getCommon_l7_protocol().equals("ISAKMP")
+                                  || sessionRecordLog.getCommon_protocol_label().contains("PPTP")||sessionRecordLog.getCommon_protocol_label().contains("L2TP")||sessionRecordLog.getCommon_protocol_label().contains("OPENVPN")||sessionRecordLog.getCommon_protocol_label().contains("IPSEC")){
                                     sessionRecordLog.setCommon_schema_type("VPN");
                                     try {
                                         GenericRecord vpn_rzzb = new GenericData.Record(vpnSchema);
@@ -197,13 +197,11 @@ public class ConnParseBolt extends BaseBasicBolt {
                                         String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                         bucketName = split[split.length - 2];
                                         filename = split[split.length - 1];
-                                        s3Url = getS3Url(StreamAggregateConfig.T_HTTP_RZZB, filename);
-                                        basicOutputCollector.emit("conn-unstructured", new Values(bucketName, filename, s3Url));
+                                        basicOutputCollector.emit("conn-unstructured", new Values(bucketName, filename, StreamAggregateConfig.T_HTTP_RZZB));
                                         sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_HTTP_RZZB, filename));
                                     }
                                     GenericRecord http_rzzb = new GenericData.Record(httpSchema);
                                     sessionRecordLog.setCommon_schema_type("HTTP");
-
                                     setHTTP_RZZB(http_rzzb, sessionRecordLog);
                                     HTTPList.add(http_rzzb);
                                     if (HTTPList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
@@ -258,8 +256,7 @@ public class ConnParseBolt extends BaseBasicBolt {
                                         String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                         bucketName = split[split.length - 2];
                                         filename = split[split.length - 1];
-                                        s3Url = getS3Url(StreamAggregateConfig.T_MAIL_RZZB, filename);
-                                        basicOutputCollector.emit("conn-unstructured", new Values(bucketName, filename, s3Url));
+                                        basicOutputCollector.emit("conn-unstructured", new Values(bucketName, filename, StreamAggregateConfig.T_MAIL_RZZB));
                                         sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_MAIL_RZZB, filename));
                                     }
                                     GenericRecord mail_rzzb = new GenericData.Record(mailSchema);
@@ -299,7 +296,7 @@ public class ConnParseBolt extends BaseBasicBolt {
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_FTP_STREAMID, new Fields(StreamAggregateConfig.CONN_FTP_STREAMID,"ftpcount"));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_SSL_STREAMID, new Fields(StreamAggregateConfig.CONN_SSL_STREAMID,"sslcount"));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.CONN_YBInputSize_STREAMID, new Fields("connInputSize","count","loadFail","connOutputSize"));
-        outputFieldsDeclarer.declareStream("conn-unstructured", new Fields("bucketName","filename","s3Url"));
+        outputFieldsDeclarer.declareStream("conn-unstructured", new Fields("bucketName","filename","bucketname"));
 
     }
 

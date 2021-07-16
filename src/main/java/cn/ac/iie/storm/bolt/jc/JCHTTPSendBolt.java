@@ -13,9 +13,10 @@ import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.TupleUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.*;
 
 public class JCHTTPSendBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(JCHTTPSendBolt.class);
@@ -23,6 +24,7 @@ public class JCHTTPSendBolt extends BaseBasicBolt {
 
     private long jc_http_success=0L;
     private long jc_http_fail=0L;
+    String postUrl;
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         if(TupleUtils.isTick(tuple)){
@@ -33,15 +35,23 @@ public class JCHTTPSendBolt extends BaseBasicBolt {
 
         } else {
             if (tuple.getSourceStreamId().equals(StreamAggregateConfig.JC_HTTP_STREAMID)) {
-
                 byte[] httpSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.JC_HTTP_STREAMID);
                 Integer httpcount = tuple.getIntegerByField("httpcount");
-                Map<String, String> jcHttpPost = HttpClientService.getConnHttpPost(getPostUrl(), httpSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_HTTP_TOPIC);
-                if (jcHttpPost.containsValue("200")){
-                    logger.info("-------条数为:"+httpcount+"jchttp数据发送成功-----"+jcHttpPost);
-                    jc_http_success = jc_http_success + httpcount;
-                }else {
-                    logger.error("-------条数为:"+httpcount+"jchttp数据发送失败-----"+jcHttpPost);
+                Map<String, String> jcHttpPost = null;
+                int i=0;
+                while (i<StreamAggregateConfig.HTTP_SENT_COUNT){
+                    postUrl = getPostUrl();
+                    jcHttpPost = HttpClientService.getConnHttpPost(postUrl, httpSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.JC_POST_HTTP_TOPIC);
+                    if (jcHttpPost.containsValue("200")){
+                        logger.info("-------条数为:"+httpcount+"jchttp数据发送到"+postUrl+"成功-----"+jcHttpPost);
+                        jc_http_success = jc_http_success + httpcount;
+                        break;
+                    }
+                    i++;
+                }
+                assert jcHttpPost != null;
+                if (!jcHttpPost.containsValue("200")){
+                    logger.error("-------条数为:"+httpcount+"jchttp数据发送到"+postUrl+"失败-----"+jcHttpPost);
                     jc_http_fail = jc_http_fail + httpcount;
                 }
             }

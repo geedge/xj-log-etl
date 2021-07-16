@@ -87,8 +87,7 @@ public class MailTrans {
                 if (str.length() > 0) {
                     str.append(";");
                 }
-                str.append(matcher.group().replace(">", ""));
-
+                str.append(matcher.group().replace(">", "").replace("@",""));
             }
         }
         return str.toString();
@@ -104,6 +103,7 @@ public class MailTrans {
                 str.append(matcher.group());
             }
             str.replace(str.length()-1,str.length(),"");
+            str.replace(0,1,"");
         }
         return str.toString();
     }

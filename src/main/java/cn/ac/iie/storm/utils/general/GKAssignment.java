@@ -16,7 +16,7 @@ public class GKAssignment {
     /**
      *gk类
      */
-    public static void setIP_GKRZ(GenericRecord ip_gkrz, SessionRecordLog sessionRecordLog) throws IOException {
+    public static void setIP_GKRZ(GenericRecord ip_gkrz, SessionRecordLog sessionRecordLog) {
         ip_gkrz.put("BHSJ",sessionRecordLog.getCommon_recv_time());
         ip_gkrz.put("PZID",sessionRecordLog.getPzid());
         ip_gkrz.put("FLID",sessionRecordLog.getFlid());
@@ -173,8 +173,11 @@ public class GKAssignment {
         mail_gkzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         mail_gkzb.put("DPORT",sessionRecordLog.getCommon_server_port());
         mail_gkzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));
-        mail_gkzb.put("DETAIL_ID",sessionRecordLog.getYjxy());
-        mail_gkzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));
+        if (sessionRecordLog.getPzlx()==410||sessionRecordLog.getPzlx()==510) {
+            mail_gkzb.put("DETAIL_ID",sessionRecordLog.getYjxy());
+        }else {
+            mail_gkzb.put("DETAIL_ID",getMailDetail_id(sessionRecordLog.getMail_protocol_type()));
+        } mail_gkzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));
         mail_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center()));
         mail_gkzb.put("YL1",sessionRecordLog.getCommon_address_type());
         mail_gkzb.put("YL5",sessionRecordLog.getHttp_response_body());
@@ -198,8 +201,11 @@ public class GKAssignment {
         mail_gkzb.put("FJFWS_SZD",getFjSzd(sessionRecordLog.getCommon_client_location(),sessionRecordLog.getMail_from(),sessionRecordLog.getMail_protocol_type())); //  //境内境外未知，根据Location填充
         mail_gkzb.put("SJFWS",getSafeFws(sessionRecordLog.getMail_to()));
         mail_gkzb.put("SJFWS_SZD",getSjSzd(sessionRecordLog.getCommon_server_location(),sessionRecordLog.getMail_to(),sessionRecordLog.getMail_protocol_type()));//境内境外未知，根据Location填充
-        mail_gkzb.put("XYLX",getYjxy(sessionRecordLog.getYjxy(),sessionRecordLog.getMail_protocol_type()));
-        mail_gkzb.put("GJZ",sessionRecordLog.getGjc());
+        if (sessionRecordLog.getPzlx()==410||sessionRecordLog.getPzlx()==510) {
+            mail_gkzb.put("XYLX", getYjxy(sessionRecordLog.getPzlx(), sessionRecordLog.getYjxy(), sessionRecordLog.getMail_protocol_type()));
+        }else {
+            mail_gkzb.put("XYLX",sessionRecordLog.getMail_protocol_type());
+        }mail_gkzb.put("GJZ",sessionRecordLog.getGjc());
         mail_gkzb.put("YYZL",sessionRecordLog.getYyzl());
 
     }
@@ -234,7 +240,7 @@ public class GKAssignment {
     }
 
 
-    public static void setVPN_GKZB(GenericRecord vpn_gkzb, SessionRecordLog sessionRecordLog) throws IOException {
+    public static void setVPN_GKZB(GenericRecord vpn_gkzb, SessionRecordLog sessionRecordLog) {
 
         vpn_gkzb.put("BHSJ",sessionRecordLog.getCommon_recv_time());
         vpn_gkzb.put("PZID",sessionRecordLog.getPzid());
@@ -252,7 +258,8 @@ public class GKAssignment {
         vpn_gkzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         vpn_gkzb.put("DPORT",sessionRecordLog.getCommon_server_port());
         vpn_gkzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
-        vpn_gkzb.put("DETAIL_ID",getVpnDetail_id(sessionRecordLog.getCommon_l7_protocol())); //同上
+
+        vpn_gkzb.put("DETAIL_ID",getVpnDetail_id(sessionRecordLog.getCommon_l7_protocol(),sessionRecordLog.getCommon_protocol_label())); //同上
         vpn_gkzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         vpn_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
         vpn_gkzb.put("YL1",sessionRecordLog.getCommon_address_type());
@@ -278,7 +285,7 @@ public class GKAssignment {
         jstx_gkzb.put("SPORT",sessionRecordLog.getCommon_client_port());
         jstx_gkzb.put("DPORT",sessionRecordLog.getCommon_server_port());
         jstx_gkzb.put("PROTO_ID", GetMap.getProto_id(sessionRecordLog.getCommon_schema_type()));
-        jstx_gkzb.put("DETAIL_ID", GetMap.getJstxDetail_id(sessionRecordLog.getCommon_app_id()));
+        jstx_gkzb.put("DETAIL_ID",sessionRecordLog.getProtocol());
         jstx_gkzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         jstx_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段 //getYys(sessionRecordLog.getCommon_isp())
         jstx_gkzb.put("YL1",sessionRecordLog.getCommon_address_type());

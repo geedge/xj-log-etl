@@ -6,6 +6,7 @@ import cn.ac.iie.storm.bean.UserRegion;
 
 import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
 import com.alibaba.fastjson.JSONObject;
+import com.zdjizhi.utils.StringUtil;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
@@ -62,7 +63,6 @@ public class GkParseBolt extends BaseBasicBolt {
 
     String bucketName = null;
     String filename = null;
-    String s3Url = null;
 
 
 
@@ -145,6 +145,7 @@ public class GkParseBolt extends BaseBasicBolt {
                 sessionRecordLog.setGjc(traffic_forward.getGjc());
                 sessionRecordLog.setZsmc(traffic_forward.getZsmc());
                 sessionRecordLog.setYjxy(traffic_forward.getYjxy());
+                sessionRecordLog.setProtocol(userRegion.getProtocol());
                 int pzlx = traffic_forward.getPzlx();
                 //按pzlx的值对数据进行分类发送
                 //按pzlx的值对数据进行分类发送
@@ -204,8 +205,7 @@ public class GkParseBolt extends BaseBasicBolt {
                                 String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                 bucketName = split[split.length-2];
                                 filename = split[split.length-1];
-                                s3Url = getS3Url(StreamAggregateConfig.T_HTTP_GKZB, filename);
-                                basicOutputCollector.emit("gk-unstructured",new Values(bucketName,filename,s3Url));
+                                basicOutputCollector.emit("gk-unstructured",new Values(bucketName,filename,StreamAggregateConfig.T_MAIL_GKZB));
                                 sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_HTTP_GKZB, filename));
                             }
                             GenericRecord http_gkzb = new GenericData.Record(httpSchema);
@@ -249,8 +249,7 @@ public class GkParseBolt extends BaseBasicBolt {
                                 String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                 bucketName = split[split.length-2];
                                 filename = split[split.length-1];
-                                s3Url = getS3Url(StreamAggregateConfig.T_WYGJC_GKRZ, filename);
-                                basicOutputCollector.emit("gk-unstructured",new Values(bucketName,filename,s3Url));
+                                basicOutputCollector.emit("gk-unstructured",new Values(bucketName,filename,StreamAggregateConfig.T_MAIL_GKZB));
                                 sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_WYGJC_GKRZ, filename));
                             }
                             GenericRecord wygjc_gkzb = new GenericData.Record(wygjcSchema);
@@ -276,8 +275,7 @@ public class GkParseBolt extends BaseBasicBolt {
                                 String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                 bucketName = split[split.length-2];
                                 filename = split[split.length-1];
-                                s3Url = getS3Url(StreamAggregateConfig.T_MAIL_GKZB, filename);
-                                basicOutputCollector.emit("gk-unstructured",new Values(bucketName,filename,s3Url));
+                                basicOutputCollector.emit("gk-unstructured",new Values(bucketName,filename,StreamAggregateConfig.T_MAIL_GKZB));
                                 sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_MAIL_GKZB, filename));
                             }
                             GenericRecord mail_gkzb = new GenericData.Record(mailSchema);
@@ -317,7 +315,9 @@ public class GkParseBolt extends BaseBasicBolt {
                             GenericRecord vpn_gkzb = new GenericData.Record(vpnSchema);
                             sessionRecordLog.setCommon_schema_type("VPN");
                             setVPN_GKZB(vpn_gkzb, sessionRecordLog);
-                            VPNList.add(vpn_gkzb);
+                            if(StringUtil.isNotEmpty(vpn_gkzb.get("DETAIL_ID"))) {
+                                VPNList.add(vpn_gkzb);
+                            }
                             if (VPNList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.GK_VPN_STREAMID, new Values((Object) generate(vpnSchema, VPNList),VPNList.size()));
                                 VPNList.clear();
@@ -350,7 +350,7 @@ public class GkParseBolt extends BaseBasicBolt {
                         break;
                 }
                 } catch(Exception e){
-                    //  logger.error("GK数据处理异常"+e);
+                      logger.error("GK数据处理异常"+e);
                 }
             }
     }
@@ -367,7 +367,7 @@ public class GkParseBolt extends BaseBasicBolt {
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_VPN_STREAMID,new Fields(StreamAggregateConfig.GK_VPN_STREAMID,"vpncount"));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_JSTX_STREAMID,new Fields(StreamAggregateConfig.GK_JSTX_STREAMID,"jstxcount"));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.GK_COUNT_STREAMID, new Fields("count","loadfail"));
-        outputFieldsDeclarer.declareStream("gk-unstructured", new Fields("bucketName","filename","s3Url"));
+        outputFieldsDeclarer.declareStream("gk-unstructured", new Fields("bucketName","filename","bucketname"));
     }
 
     @Override

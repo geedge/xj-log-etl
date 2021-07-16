@@ -192,7 +192,11 @@ public class JCAssignment {
         mail_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());
         mail_jczb.put("DPORT",sessionRecordLog.getCommon_server_port());
         mail_jczb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
-        mail_jczb.put("DETAIL_ID",sessionRecordLog.getYjxy());
+        if (sessionRecordLog.getPzlx()==410||sessionRecordLog.getPzlx()==510) {
+            mail_jczb.put("DETAIL_ID",sessionRecordLog.getYjxy());
+        }else {
+            mail_jczb.put("DETAIL_ID",getMailDetail_id(sessionRecordLog.getMail_protocol_type()));
+        }
         mail_jczb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         mail_jczb.put("YYS",getYys(sessionRecordLog.getCommon_data_center()));
         mail_jczb.put("YL1",sessionRecordLog.getCommon_address_type());
@@ -221,7 +225,11 @@ public class JCAssignment {
         mail_jczb.put("FJFWS_SZD",getFjSzd(sessionRecordLog.getCommon_client_location(),sessionRecordLog.getMail_from(),sessionRecordLog.getMail_protocol_type())); //  //境内境外未知，根据Location填充
         mail_jczb.put("SJFWS",getSafeFws(sessionRecordLog.getMail_to()));
         mail_jczb.put("SJFWS_SZD",getSjSzd(sessionRecordLog.getCommon_server_location(),sessionRecordLog.getMail_to(),sessionRecordLog.getMail_protocol_type()));//境内境外未知，根据Location填充
-        mail_jczb.put("XYLX",getYjxy(sessionRecordLog.getYjxy(),sessionRecordLog.getMail_protocol_type()));
+        if (sessionRecordLog.getPzlx()==410||sessionRecordLog.getPzlx()==510) {
+            mail_jczb.put("XYLX", getYjxy(sessionRecordLog.getPzlx(), sessionRecordLog.getYjxy(), sessionRecordLog.getMail_protocol_type()));
+        }else {
+            mail_jczb.put("XYLX",sessionRecordLog.getMail_protocol_type());
+        }
         mail_jczb.put("GJZ",sessionRecordLog.getGjc());
         mail_jczb.put("YYZL",sessionRecordLog.getYyzl());
     }
@@ -276,7 +284,7 @@ public class JCAssignment {
         vpn_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());
         vpn_jczb.put("DPORT",sessionRecordLog.getCommon_server_port());
         vpn_jczb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));
-        vpn_jczb.put("DETAIL_ID",getVpnDetail_id(sessionRecordLog.getCommon_l7_protocol()));
+        vpn_jczb.put("DETAIL_ID",getVpnDetail_id(sessionRecordLog.getCommon_l7_protocol(),sessionRecordLog.getCommon_protocol_label()));
         vpn_jczb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));
         vpn_jczb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
         vpn_jczb.put("YL1",sessionRecordLog.getCommon_address_type());
@@ -304,7 +312,7 @@ public class JCAssignment {
         jstx_jczb.put("SPORT",sessionRecordLog.getCommon_client_port());
         jstx_jczb.put("DPORT",sessionRecordLog.getCommon_server_port());
         jstx_jczb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
-        jstx_jczb.put("DETAIL_ID", GetMap.getJstxDetail_id(sessionRecordLog.getCommon_app_id()));
+        jstx_jczb.put("DETAIL_ID", sessionRecordLog.getProtocol());
         jstx_jczb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         jstx_jczb.put("YYS",getYys(sessionRecordLog.getCommon_data_center()));//-**common_isp这个字段
         jstx_jczb.put("YL1",sessionRecordLog.getCommon_address_type());

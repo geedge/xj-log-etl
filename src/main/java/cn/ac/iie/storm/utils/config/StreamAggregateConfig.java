@@ -90,6 +90,13 @@ public class StreamAggregateConfig {
     //Flooding-http-post-url
 
     //flooding.http.post.socketTimeOut
+    public static final Integer HTTP_CONNECTIONREQUESTTIMEOUT = StreamAggregateConfigurations.getIntProperty(0,"http.connectionRequestTimeout");
+    public static final Integer HTTP_CONNECTTIMEOUT = StreamAggregateConfigurations.getIntProperty(0,"http.connectTimeout");
+    public static final Integer HTTP_SOKETTIMEOUT = StreamAggregateConfigurations.getIntProperty(0,"http.socketTimeout");
+
+
+    public static final Integer HTTP_SENT_COUNT = StreamAggregateConfigurations.getIntProperty(0,"http.sent.count");
+    public static final Integer HTTP_RETRY_COUNT = StreamAggregateConfigurations.getIntProperty(0,"http.retry.count");
     public static final Integer HTTP_POST_SOCKETTIMEOUT = StreamAggregateConfigurations.getIntProperty(0,"http.post.socketTimeOut");
 
     public static final  String HTTP_HEARDER_FORMAT = StreamAggregateConfigurations.getStringProperty(0,"http.hearder.format");
@@ -132,7 +139,10 @@ public class StreamAggregateConfig {
 
 
 
-
+    public static final Integer S3_CONNECTIONREQUESTTIMEOUT = StreamAggregateConfigurations.getIntProperty(0,"s3.connectionRequestTimeout");
+    public static final Integer S3_CONNECTTIMEOUT = StreamAggregateConfigurations.getIntProperty(0,"s3.connectTimeout");
+    public static final Integer S3_SOKETTIMEOUT = StreamAggregateConfigurations.getIntProperty(0,"s3.socketTimeout");
+    public static final Integer S3_SENT_COUNT = StreamAggregateConfigurations.getIntProperty(0,"s3.sent.count");
     public static final String  S3_HEARDER_USERNAME = StreamAggregateConfigurations.getStringProperty(0, "s3.hearder.username");
     public static final String  S3_HEARDER_PASSWORD = StreamAggregateConfigurations.getStringProperty(0, "s3.hearder.password");
     public static final String  S3_HEARDER_FILETYPE = StreamAggregateConfigurations.getStringProperty(0, "s3.hearder.filetype");

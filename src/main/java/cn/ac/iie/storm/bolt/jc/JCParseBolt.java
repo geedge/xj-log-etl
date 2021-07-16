@@ -5,6 +5,7 @@ import cn.ac.iie.storm.bean.Traffic_Forward;
 import cn.ac.iie.storm.bean.UserRegion;
 import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
 import com.alibaba.fastjson.JSONObject;
+import com.zdjizhi.utils.StringUtil;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
@@ -64,7 +65,6 @@ public class JCParseBolt extends BaseBasicBolt {
 
     String bucketName = null;
     String filename = null;
-    String s3Url = null;
 
 
 
@@ -156,6 +156,8 @@ public class JCParseBolt extends BaseBasicBolt {
                 sessionRecordLog.setYyzl(traffic_forward.getYyzl());
                 sessionRecordLog.setGjc(traffic_forward.getGjc());
                 sessionRecordLog.setZsmc(traffic_forward.getZsmc());
+                sessionRecordLog.setYjxy(traffic_forward.getYjxy());
+                sessionRecordLog.setProtocol(userRegion.getProtocol());
                 int pzlx = traffic_forward.getPzlx();
                 if (sessionRecordLog.getHttp_response_body_key()!=null) {
                     System.out.println("--------------" + sessionRecordLog.getHttp_response_body_key() + "--------------");
@@ -209,8 +211,7 @@ public class JCParseBolt extends BaseBasicBolt {
                                 String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                 bucketName = split[split.length-2];
                                 filename = split[split.length-1];
-                                s3Url = getS3Url(StreamAggregateConfig.T_HTTP_JCZB, filename);
-                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,s3Url));
+                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,StreamAggregateConfig.T_HTTP_JCZB));
                                 sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_HTTP_JCZB, filename));
                             }
                             GenericRecord http_jczb = new GenericData.Record(httpSchema);
@@ -252,8 +253,7 @@ public class JCParseBolt extends BaseBasicBolt {
                                 String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                 bucketName = split[split.length-2];
                                 filename = split[split.length-1];
-                                s3Url = getS3Url(StreamAggregateConfig.T_WYGJC_JCRZ, filename);
-                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,s3Url));
+                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,StreamAggregateConfig.T_WYGJC_JCRZ));
                                 sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_WYGJC_JCRZ, filename));
                             }
                             GenericRecord wygjc_jczb = new GenericData.Record(wygjcSchema);
@@ -278,8 +278,7 @@ public class JCParseBolt extends BaseBasicBolt {
                                 String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                 bucketName = split[split.length-2];
                                 filename = split[split.length-1];
-                                s3Url = getS3Url(StreamAggregateConfig.T_MAIL_JCZB, filename);
-                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,s3Url));
+                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,StreamAggregateConfig.T_MAIL_JCZB));
                                 sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_MAIL_JCZB, filename));
                             }
                             GenericRecord mail_jczb = new GenericData.Record(mailSchema);
@@ -319,6 +318,9 @@ public class JCParseBolt extends BaseBasicBolt {
                             GenericRecord vpn_jczb = new GenericData.Record(vpnSchema);
                             sessionRecordLog.setCommon_schema_type("VPN");
                             setVPN_JCZB(vpn_jczb, sessionRecordLog);
+                            if(StringUtil.isNotEmpty(vpn_jczb.get("DETAIL_ID"))) {
+                                VPNList.add(vpn_jczb);
+                            }
                             VPNList.add(vpn_jczb);
                             if (VPNList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.JC_VPN_STREAMID, new Values((Object) generate(vpnSchema,VPNList),VPNList.size()));
@@ -357,8 +359,7 @@ public class JCParseBolt extends BaseBasicBolt {
                                 String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                 bucketName = split[split.length-2];
                                 filename = split[split.length-1];
-                                s3Url = getS3Url(StreamAggregateConfig.T_PIC_JCZB, filename);
-                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,s3Url));
+                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,StreamAggregateConfig.T_PIC_JCZB));
                                 sessionRecordLog.setHttp_response_body(getYL5( StreamAggregateConfig.T_PIC_JCZB,filename));
                             }
                             sessionRecordLog.setCommon_schema_type("HTTP");
@@ -381,8 +382,7 @@ public class JCParseBolt extends BaseBasicBolt {
                                 String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                 bucketName = split[split.length-2];
                                 filename = split[split.length-1];
-                                s3Url = getS3Url(StreamAggregateConfig.T_MEDIA_JCZB, filename);
-                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,s3Url));
+                                basicOutputCollector.emit("jc-unstructured",new Values(bucketName,filename,StreamAggregateConfig.T_MEDIA_JCZB));
                                 sessionRecordLog.setHttp_response_body(getYL5(StreamAggregateConfig.T_MEDIA_JCZB, filename));
                             }
                             GenericRecord media_jczb = new GenericData.Record(mediaSchema);
@@ -422,7 +422,7 @@ public class JCParseBolt extends BaseBasicBolt {
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_PIC_STREAMID,new Fields(StreamAggregateConfig.JC_PIC_STREAMID,"piccount"));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_MEDIA_STREAMID,new Fields(StreamAggregateConfig.JC_MEDIA_STREAMID,"mediacount"));
         outputFieldsDeclarer.declareStream(StreamAggregateConfig.JC_COUNT_STREAMID, new Fields("count","loadfail"));
-        outputFieldsDeclarer.declareStream("jc-unstructured", new Fields("bucketName","filename","s3Url"));
+        outputFieldsDeclarer.declareStream("jc-unstructured", new Fields("bucketName","filename","bucketname"));
     }
 
     @Override

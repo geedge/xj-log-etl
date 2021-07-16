@@ -14,32 +14,37 @@ import org.apache.storm.utils.TupleUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.*;
 
 public class ConnHTTPSendBolt  extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(ConnHTTPSendBolt.class);
     private long conn_http_success=0L;
     private long conn_http_fail=0L;
+    String postUrl;
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         if(TupleUtils.isTick(tuple)){
-
             basicOutputCollector.emit(new Values(conn_http_success,conn_http_fail));
             conn_http_fail = 0L;
             conn_http_success = 0L;
-
         } else {
             if (tuple.getSourceStreamId().equals(StreamAggregateConfig.CONN_HTTP_STREAMID)) {
-
                 byte[] httpSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.CONN_HTTP_STREAMID);
                 Integer httpcount = tuple.getIntegerByField("httpcount");
-                String postUrl = getPostUrl();
-                Map<String, String> connHttpPost = HttpClientService.getConnHttpPost(postUrl, httpSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.CONN_POST_HTTP_TOPIC);
-                if (connHttpPost.containsValue("200")){
-                    logger.info("-------条数为:"+httpcount+"connhttp数据发送到"+postUrl+"成功-----"+connHttpPost);
-                    conn_http_success = conn_http_success + httpcount;
-                }else {
-                    logger.error("-------条数为:"+httpcount+"connhttp数据发送到"+postUrl+"失败-----"+connHttpPost);
+                Map<String, String> connHttpPost = null;
+                int i=0;
+                while (i<StreamAggregateConfig.HTTP_SENT_COUNT){
+                     postUrl = getPostUrl();
+                    connHttpPost = HttpClientService.getConnHttpPost(postUrl, httpSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.CONN_POST_HTTP_TOPIC);
+                    if (connHttpPost.containsValue("200")){
+                        logger.info("-------条数为:"+httpcount+"connhttp数据发送到"+postUrl+"成功-----"+connHttpPost);
+                        conn_http_success = conn_http_success + httpcount;
+                        break;
+                    }
+                    i++;
+                }
+                if (connHttpPost!=null&&!connHttpPost.containsValue("200")){
+                    logger.error("-------条数为:"+httpcount+"connhttp数据发送到"+postUrl+"成功-----"+connHttpPost);
                     conn_http_fail = conn_http_fail + httpcount;
                 }
             }

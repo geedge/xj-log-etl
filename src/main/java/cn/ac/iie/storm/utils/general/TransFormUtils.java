@@ -32,51 +32,6 @@ import java.util.regex.Pattern;
  */
 public class TransFormUtils {
     private static Logger logger = Logger.getLogger(TransFormUtils.class);
-    private static Pattern WEB_PATTERN = Pattern.compile("[^\\\\.]+(\\.com\\.cn|\\.net\\.cn|\\.org\\.cn|\\.gov\\.cn|\\.com|\\.net|\\.cn|\\.org|\\.cc|\\.me|\\.tel|\\.mobi|\\.asia|\\.biz|\\.info|\\.name|\\.tv|\\.hk|\\.公司|\\.中国|\\.网络)");
-//    private static IpLookup ipLookup = new IpLookup.Builder(false)
-//            .loadDataFileV4(StreamAggregateConfig.IP_LIBRARY + "Kazakhstan.mmdb")
-//            .loadDataFileV6(StreamAggregateConfig.IP_LIBRARY + "Kazakhstan.mmdb")
-//            .loadAsnDataFileV4(StreamAggregateConfig.IP_LIBRARY + "asn_v4.mmdb")
-//            .loadAsnDataFileV6(StreamAggregateConfig.IP_LIBRARY + "asn_v6.mmdb")
-//            .build();
-//    private static ZookeeperUtils zookeeperUtils = new ZookeeperUtils();
-//    private static SnowflakeId snowflakeId = new SnowflakeId();
-
-    /**
-     * 有sni通过sni获取域名，有hots根据host获取域名
-     *
-     * @param sni  sni
-     * @param host host
-     * @return 顶级域名
-     */
-    private static String getTopDomain(String sni, String host) {
-        if (StringUtil.isNotBlank(sni)) {
-            return getDomain(sni);
-        } else if (StringUtil.isNotBlank(host)) {
-            return getDomain(host);
-        } else {
-            return "";
-        }
-    }
-
-
-    /**
-     * 根据url截取顶级域名
-     *
-     * @param url 网站url
-     * @return 顶级域名
-     */
-    private static String getDomain(String url) {
-        try {
-            Matcher matcher = WEB_PATTERN.matcher(url);
-            if (matcher.find()) {
-                return matcher.group();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
 
     /**
      * TCP协议返回17
@@ -149,22 +104,24 @@ public class TransFormUtils {
      * @param mail_protocol_type
      * @return
      */
-
-    public static String getYjxy(String yjxy,String mail_protocol_type) {
-        switch (yjxy){
-
-            case "03001":
-                return "WEBMAIL";
-            case "03002":
-                return "SMTP";
-            case "03003":
-                return "POP3";
-            case "03004":
-                return "IMAP";
-            case "03000":
-                return mail_protocol_type;
-            default:
-                return null;
+    public static String getYjxy(int pzlx,String yjxy,String mail_protocol_type) {
+        if (pzlx==510||pzlx==410){
+        switch (yjxy) {
+                case "03001":
+                    return "WEBMAIL";
+                case "03002":
+                    return "SMTP";
+                case "03003":
+                    return "POP3";
+                case "03004":
+                    return "IMAP";
+                case "03000":
+                    return mail_protocol_type;
+                default:
+                    return null;
+            }
+        }else {
+            return mail_protocol_type;
         }
     }
     /**
@@ -195,26 +152,40 @@ public class TransFormUtils {
 
 
 
-    public static String  getVpnDetail_id(String common_l7_protocol) throws IOException {
-
-        switch (common_l7_protocol){
-            case "PPTP":
+    public static String  getVpnDetail_id(String common_l7_protocol,String common_protocol_label){
+        if (StringUtil.isNotEmpty(common_protocol_label)) {
+            if (common_l7_protocol.equals("PPTP") || common_protocol_label.contains("PPTP")) {
                 return "04001";
-            case "L2TP":
+            } else if (common_l7_protocol.equals("L2TP") || common_protocol_label.contains("L2TP")) {
                 return "04002";
-            case "OPENVPN":
+            } else if (common_l7_protocol.equals("OPENVPN") || common_protocol_label.contains("OPENVPN")) {
                 return "04003";
-            case "IPSEC":
+            } else if (common_l7_protocol.equals("ISAKMP") || common_protocol_label.contains("IPSEC")) {
                 return "04004";
-            default:
+            } else {
                 return null;
+            }
+        }else {
+            switch (common_l7_protocol) {
+                case "PPTP":
+                    return "04001";
+                case "L2TP":
+                    return "04002";
+                case "OPENVPN":
+                    return "04003";
+                case "ISAKMP":
+                    return "04004";
+                default:
+                    return null;
+            }
         }
     }
 
 
 
 
-    public static String  getMailDetail_id(String mail_protocol_type) throws IOException {
+
+    public static String  getMailDetail_id(String mail_protocol_type) {
         switch (mail_protocol_type){
             case "WEBMAIL":
             case "MAIL":
@@ -229,6 +200,8 @@ public class TransFormUtils {
                 return null;
         }
     }
+
+
 
 
 

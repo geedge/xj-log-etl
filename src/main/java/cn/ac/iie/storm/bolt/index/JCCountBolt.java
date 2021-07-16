@@ -133,7 +133,7 @@ public class JCCountBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
 
 
-        if((TupleUtils.isTick(tuple)&&jcCount!=0L)){
+        if((TupleUtils.isTick(tuple))){
 
             jcSendFail = jc_http_fail +  jc_ip_fail + jc_ssl_fail + jc_dns_fail + jc_ftp_fail + jc_jstx_fail + jc_mail_fail + jc_vpn_fail + jc_wygjc_fail + jc_media_fail + jc_pic_fail;
 

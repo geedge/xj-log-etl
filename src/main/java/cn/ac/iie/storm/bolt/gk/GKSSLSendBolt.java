@@ -12,9 +12,10 @@ import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.TupleUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.*;
 
 public class GKSSLSendBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(GKSSLSendBolt.class);
@@ -22,6 +23,7 @@ public class GKSSLSendBolt extends BaseBasicBolt {
 
     private long gk_ssl_success=0L;
     private long gk_ssl_fail=0L;
+    String postUrl;
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         if(TupleUtils.isTick(tuple)){
@@ -32,19 +34,26 @@ public class GKSSLSendBolt extends BaseBasicBolt {
             if (tuple.getSourceStreamId().equals(StreamAggregateConfig.GK_SSL_STREAMID)) {
                 byte[] sslSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.GK_SSL_STREAMID);
                 Integer sslCount = tuple.getIntegerByField("sslcount");
-                Map<String, String> gkSslPost = HttpClientService.getConnHttpPost(getPostUrl(), sslSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_SSL_TOPIC);
-
-                if (gkSslPost.containsValue("200")){
-                    logger.info("-------条数为:"+sslCount+"gkssl数据发送成功-----"+gkSslPost);
-                    gk_ssl_success = gk_ssl_success + sslCount;
-                }else {
-                    logger.error("-------条数为:"+sslCount+"gkssl数据发送失败-----"+gkSslPost);
+                Map<String, String> gkSslPost = null;
+                int i=0;
+                while (i<StreamAggregateConfig.HTTP_SENT_COUNT){
+                    postUrl = getPostUrl();
+                    gkSslPost =  HttpClientService.getConnHttpPost(postUrl, sslSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_SSL_TOPIC);
+                    if (gkSslPost.containsValue("200")){
+                        logger.info("-------条数为:"+sslCount+"gkssl数据发送到"+postUrl+"成功-----"+gkSslPost);
+                        gk_ssl_success = gk_ssl_success + sslCount;
+                        break;
+                    }
+                    i++;
+                }
+                assert gkSslPost != null;
+                if (!gkSslPost.containsValue("200")){
+                    logger.error("-------条数为:"+sslCount+"gkssl数据发送到"+postUrl+"失败-----"+gkSslPost);
                     gk_ssl_fail = gk_ssl_fail + sslCount;
                 }
             }
         }
     }
-
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declare(new Fields("gk_ssl_success","gk_ssl_fail"));

@@ -3,6 +3,7 @@ package cn.ac.iie.storm.bean;
 public class UserRegion {
     private String method;
     private String traffic_forward;
+    private String protocol;
 
     public String getMethod() {
         return method;
@@ -18,5 +19,13 @@ public class UserRegion {
 
     public void setTraffic_forward(String traffic_forward) {
         this.traffic_forward = traffic_forward;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 }

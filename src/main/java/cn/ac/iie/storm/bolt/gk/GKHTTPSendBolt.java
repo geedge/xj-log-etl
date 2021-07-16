@@ -12,33 +12,42 @@ import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.TupleUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static cn.ac.iie.storm.utils.http.HttpGetUrl.getPostUrl;
+import static cn.ac.iie.storm.utils.http.HttpGetUrl.*;
 
 public class GKHTTPSendBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(GKHTTPSendBolt.class);
 
     private long gk_http_success=0L;
     private long gk_http_fail=0L;
+    String postUrl;
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
         if(TupleUtils.isTick(tuple)){
-
             basicOutputCollector.emit(new Values(gk_http_success,gk_http_fail));
             gk_http_fail = 0L;
             gk_http_success = 0L;
-
         } else {
             if (tuple.getSourceStreamId().equals(StreamAggregateConfig.GK_HTTP_STREAMID)) {
                 byte[] httpSource = (byte[]) tuple.getValueByField(StreamAggregateConfig.GK_HTTP_STREAMID);
                 Integer httpcount = tuple.getIntegerByField("httpcount");
-                Map<String, String> gkHttpPost = HttpClientService.getConnHttpPost(getPostUrl(), httpSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_HTTP_TOPIC);
-                if (gkHttpPost.containsValue("200")){
-                   logger.info("-------条数为:"+httpcount+"gkhttp数据发送成功-----"+gkHttpPost);
-                    gk_http_success = gk_http_success + httpcount;
-                }else {
-                   logger.error("-------条数为:"+httpcount+"gkhttp数据发送失败-----"+gkHttpPost);
+                Map<String, String> gkHttpPost= null;
+                int i=0;
+                while (i<StreamAggregateConfig.HTTP_SENT_COUNT){
+                    postUrl = getPostUrl();
+                    gkHttpPost = HttpClientService.getConnHttpPost(postUrl, httpSource, StreamAggregateConfig.HTTP_POST_SOCKETTIMEOUT, StreamAggregateConfig.GK_POST_HTTP_TOPIC);
+                    if (gkHttpPost.containsValue("200")){
+                        logger.info("-------条数为:"+httpcount+"gkhttp数据发送到"+postUrl+"成功-----"+gkHttpPost);
+                        gk_http_success = gk_http_success + httpcount;
+                        break;
+                    }
+                    i++;
+                }
+                assert gkHttpPost != null;
+                if (!gkHttpPost.containsValue("200")){
+                    logger.error("-------条数为:"+httpcount+"gkhttp数据发送到"+postUrl+"失败-----"+gkHttpPost);
                     gk_http_fail = gk_http_fail + httpcount;
                 }
             }
