@@ -46,7 +46,7 @@ public class ConnIPSendBolt extends BaseBasicBolt {
                     i++;
                 }
                 if (connIpPost!=null&&!connIpPost.containsValue("200")){
-                    logger.error("-------条数为:"+ipcount+"connip数据发送到"+postUrl+"成功-----"+connIpPost);
+                    logger.error("-------条数为:"+ipcount+"connip数据发送到"+postUrl+"失败-----"+connIpPost);
                     conn_ip_fail = conn_ip_fail + ipcount;
                 }
             }

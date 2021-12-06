@@ -1,8 +1,3 @@
-import java.io.IOException;
-
-import static cn.ac.iie.storm.utils.config.GetMap.*;
-
-import static cn.ac.iie.storm.utils.general.MailTrans.*;
 import static cn.ac.iie.storm.utils.general.TransFormUtils.*;
 
 public class TestDy {

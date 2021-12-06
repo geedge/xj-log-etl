@@ -1,4 +1,4 @@
-package cn.ac.iie.storm.utils.config;
+package cn.ac.iie.storm.utils.general;
 
 import org.apache.logging.log4j.util.PropertiesUtil;
 

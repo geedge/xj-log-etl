@@ -16,15 +16,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
-/**
- * kafkaSpout
- */
-public class FloodingKafkaSpout extends BaseRichSpout {
+public class SessionKafkaSpout extends BaseRichSpout {
     private static final long serialVersionUID = -3363788553406229592L;
     private KafkaConsumer<String, String> consumer;
     private SpoutOutputCollector collector = null;
     private TopologyContext context = null;
-    private final static Logger logger = Logger.getLogger(FloodingKafkaSpout.class);
+    private final static Logger logger = Logger.getLogger(ConnectionKafkaSpout.class);
 
     private static Properties createConsumerConfig() {
         Properties props = new Properties();
@@ -46,7 +43,7 @@ public class FloodingKafkaSpout extends BaseRichSpout {
         this.context=topologyContext;
         Properties prop = createConsumerConfig();
         this.consumer = new KafkaConsumer<>(prop);
-        this.consumer.subscribe(Collections.singletonList(StreamAggregateConfig.KAFKA_TOPIC));
+        this.consumer.subscribe(Collections.singletonList(StreamAggregateConfig.KAFKA_TOPIC_SESSION));
     }
     @Override
     public void close() {
@@ -56,7 +53,7 @@ public class FloodingKafkaSpout extends BaseRichSpout {
     public void nextTuple() {
         try {
             ConsumerRecords<String, String> records = consumer.poll(StreamAggregateConfig.KAFKA_COMSUMER_POLL);
-           Thread.sleep(StreamAggregateConfig.TOPOLOGY_SPOUT_SLEEP_TIME);
+            Thread.sleep(StreamAggregateConfig.TOPOLOGY_SPOUT_SLEEP_TIME);
             for (ConsumerRecord<String, String> record : records) {
                 this.collector.emit(new Values(record.value()));
             }
@@ -69,6 +66,6 @@ public class FloodingKafkaSpout extends BaseRichSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("flooding-source"));
+        outputFieldsDeclarer.declare(new Fields("session-source"));
     }
 }

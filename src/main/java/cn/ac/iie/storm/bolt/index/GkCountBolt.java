@@ -213,8 +213,6 @@ public class GkCountBolt extends BaseBasicBolt {
                     gk_jstx_success = gk_jstx_success + tuple.getLongByField("gk_jstx_success");
                     gk_jstx_fail = gk_jstx_fail + tuple.getLongByField("gk_jstx_fail");
 
-                    gk_jstx_success = gk_jstx_success + tuple.getLongByField("gk_jstx_success");
-                    gk_jstx_fail = gk_jstx_fail + tuple.getLongByField("gk_jstx_fail");
 
                     gk_ftp_success = gk_ftp_success + tuple.getLongByField("gk_ftp_success");
                     gk_ftp_fail = gk_ftp_fail + tuple.getLongByField("gk_ftp_fail");

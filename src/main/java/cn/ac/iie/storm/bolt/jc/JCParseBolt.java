@@ -62,6 +62,7 @@ public class JCParseBolt extends BaseBasicBolt {
     private Schema wygjcSchema;
     private Schema picSchema;
     private Schema mediaSchema;
+    private String line;
 
     String bucketName = null;
     String filename = null;
@@ -137,12 +138,12 @@ public class JCParseBolt extends BaseBasicBolt {
              }catch (Exception e) {
                 logger.error("----------批数据发送异常-----------" +e);
             }
-            count = 0;
-            loadfail = 0;
+            count = 0L;
+            loadfail = 0L;
 
         } else {
             try {
-                String line = tuple.getString(0);
+                line = tuple.getString(0);
                 sessionRecordLog = JSONObject.parseObject(line, SessionRecordLog.class);
                 UserRegion userRegion = JSONObject.parseObject(sessionRecordLog.getCommon_user_region(), UserRegion.class);
                 Traffic_Forward traffic_forward = JSONObject.parseObject(userRegion.getTraffic_forward(), Traffic_Forward.class);
@@ -159,15 +160,12 @@ public class JCParseBolt extends BaseBasicBolt {
                 sessionRecordLog.setYjxy(traffic_forward.getYjxy());
                 sessionRecordLog.setProtocol(userRegion.getProtocol());
                 int pzlx = traffic_forward.getPzlx();
-                if (sessionRecordLog.getHttp_response_body_key()!=null) {
-                    System.out.println("--------------" + sessionRecordLog.getHttp_response_body_key() + "--------------");
-                }
-                //按pzlx的值对数据进行分类发送
+
                 //按pzlx的值对数据进行分类发送
                 switch (pzlx) {
                     case 501:   //IP监测
-                        count++;
                         try {
+                            count = count + 1;
                             GenericRecord ip_jcrz = new GenericData.Record(ipSchema);
                             sessionRecordLog.setCommon_schema_type("IP");
                             setIP_JCRZ(ip_jcrz, sessionRecordLog);
@@ -183,8 +181,8 @@ public class JCParseBolt extends BaseBasicBolt {
                      }
                          break;
                     case 502:   //DNS监测
-                        count++;
                         try {
+                            count = count + 1;
                             GenericRecord dns_jczb = new GenericData.Record(dnsSchema);
                             sessionRecordLog.setCommon_schema_type("DNS");
                             setDNS_JCZB(dns_jczb, sessionRecordLog);
@@ -205,8 +203,8 @@ public class JCParseBolt extends BaseBasicBolt {
                         break;
                     case 503:   //URL监测
                     case 504:   //网站监测
-                        count++;
                         try {
+                            count = count + 1;
                             if (sessionRecordLog.getHttp_response_body()!=null){
                                 String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                 bucketName = split[split.length-2];
@@ -229,8 +227,8 @@ public class JCParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case 505:   //特定证书监测
-                        count++;
                         try {
+                            count = count + 1;
                             GenericRecord ssl_jczb = new GenericData.Record(sslSchema);
                             sessionRecordLog.setCommon_schema_type("SSL");
                             setSSL_JCZB(ssl_jczb, sessionRecordLog);
@@ -247,8 +245,8 @@ public class JCParseBolt extends BaseBasicBolt {
                         break;
                     case 506:   //网站关键词监测
                     case 509:   //搜索词监测
-                        count++;
                         try {
+                            count = count + 1;
                             if (sessionRecordLog.getHttp_response_body()!=null){
                                 String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                 bucketName = split[split.length-2];
@@ -272,8 +270,8 @@ public class JCParseBolt extends BaseBasicBolt {
                         break;
                     case 507:   //邮件监测
                     case 510:   //邮件监测
-                        count++;
                         try {
+                            count = count + 1;
                             if (sessionRecordLog.getHttp_response_body()!=null){
                                 String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                 bucketName = split[split.length-2];
@@ -296,8 +294,8 @@ public class JCParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case 508:   //FTP关键词监测
-                        count++;
                         try {
+                            count = count + 1;
                             GenericRecord ftp_jczb = new GenericData.Record(ftpSchema);
                             sessionRecordLog.setCommon_schema_type("FTP");
                             setFTP_JCZB(ftp_jczb,sessionRecordLog);
@@ -313,15 +311,16 @@ public class JCParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case 511:   //VPN监测
-                        count++;
                         try {
+                            count = count + 1;
                             GenericRecord vpn_jczb = new GenericData.Record(vpnSchema);
                             sessionRecordLog.setCommon_schema_type("VPN");
                             setVPN_JCZB(vpn_jczb, sessionRecordLog);
                             if(StringUtil.isNotEmpty(vpn_jczb.get("DETAIL_ID"))) {
                                 VPNList.add(vpn_jczb);
+                            }else {
+                                loadfail++;
                             }
-                            VPNList.add(vpn_jczb);
                             if (VPNList.size() >= StreamAggregateConfig.BATCH_INTER_NUM) {
                                 basicOutputCollector.emit(StreamAggregateConfig.JC_VPN_STREAMID, new Values((Object) generate(vpnSchema,VPNList),VPNList.size()));
                                 VPNList.clear();
@@ -334,8 +333,8 @@ public class JCParseBolt extends BaseBasicBolt {
                         break;
                     case 512:   //特定应用监测
                     case 513:   //社交应用监测
-                        count++;
                         try {
+                            count = count + 1;
                             GenericRecord jstx_jczb = new GenericData.Record(jstxSchema);
                             sessionRecordLog.setCommon_schema_type("JSTX");
                             setJSTX_JCZB(jstx_jczb, sessionRecordLog);
@@ -351,10 +350,9 @@ public class JCParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case 514:   //图片监测
-                        count++;
                         try {
                             GenericRecord pic_jczb = new GenericData.Record(picSchema);
-
+                            count = count + 1;
                             if (sessionRecordLog.getHttp_response_body()!=null){
                                 String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                 bucketName = split[split.length-2];
@@ -376,8 +374,8 @@ public class JCParseBolt extends BaseBasicBolt {
                         }
                         break;
                     case 515:   //多媒体监测
-                        count++;
                         try {
+                            count = count + 1;
                             if (sessionRecordLog.getHttp_response_body()!=null){
                                 String[] split = sessionRecordLog.getHttp_response_body().split("/");
                                 bucketName = split[split.length-2];
@@ -403,7 +401,8 @@ public class JCParseBolt extends BaseBasicBolt {
                         break;
                 }
             } catch(Exception e){
-                  logger.error("JC数据处理异常"+e);
+                  logger.error("JC数据处理异常"+e+"异常数据为:"+line);
+                  loadfail++;
             }
         }
     }
