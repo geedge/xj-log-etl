@@ -140,6 +140,9 @@ public class ConnParseBolt extends BaseBasicBolt {
                 try {
                     String line = tuple.getString(0);
                     sessionRecordLog = JSONObject.parseObject(line, SessionRecordLog.class);
+                    if(StringUtil.isBlank(sessionRecordLog.getCommon_data_center())){
+                        yys_error++;
+                    }
                     sessionRecordLog.setYys(getYys(sessionRecordLog.getCommon_data_center()));
                     sessionRecordLog.setYdy(getDy(sessionRecordLog.getCommon_client_location()));
                     sessionRecordLog.setMddy(getDy(sessionRecordLog.getCommon_server_location()));
