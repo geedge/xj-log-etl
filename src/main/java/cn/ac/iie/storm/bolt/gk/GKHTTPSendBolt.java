@@ -12,14 +12,12 @@ import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.TupleUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static cn.ac.iie.storm.utils.http.HttpGetUrl.*;
 
 public class GKHTTPSendBolt extends BaseBasicBolt {
     private final static Logger logger = Logger.getLogger(GKHTTPSendBolt.class);
-
     private long gk_http_success=0L;
     private long gk_http_fail=0L;
     String postUrl;

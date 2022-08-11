@@ -2,9 +2,6 @@ package cn.ac.iie.storm.utils.combine.httpurl;
 
 import org.apache.log4j.Logger;
 
-import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Http_URL_process {
     private final static Logger logger = Logger.getLogger(Http_URL_process.class);

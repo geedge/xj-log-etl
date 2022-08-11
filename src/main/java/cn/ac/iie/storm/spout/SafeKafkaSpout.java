@@ -49,6 +49,8 @@ public class SafeKafkaSpout extends BaseRichSpout {
         try {
             ConsumerRecords<String, String> records = consumer.poll(StreamAggregateConfig.KAFKA_COMSUMER_POLL);
             Thread.sleep(StreamAggregateConfig.TOPOLOGY_SPOUT_SLEEP_TIME);
+
+
             for (ConsumerRecord<String, String> record : records) {
                 this.collector.emit(new Values(record.value()));
             }

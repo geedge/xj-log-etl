@@ -15,12 +15,4 @@ public class Test {
         }
         return sb.toString();
     }
-
-    public static void main(String[] args) {
-        People people = new People();
-        if (2>1){
-            people.setAge(2);
-        }
-        System.out.println(people.getAge());
-    }
 }

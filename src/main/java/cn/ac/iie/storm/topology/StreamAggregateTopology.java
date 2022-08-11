@@ -8,8 +8,9 @@ import cn.ac.iie.storm.bolt.index.ConnCountBolt;
 import cn.ac.iie.storm.bolt.index.GkCountBolt;
 import cn.ac.iie.storm.bolt.index.JCCountBolt;
 import cn.ac.iie.storm.bolt.jc.*;
-import cn.ac.iie.storm.spout.FloodingKafkaSpout;
+import cn.ac.iie.storm.spout.ConnectionKafkaSpout;
 import cn.ac.iie.storm.spout.SafeKafkaSpout;
+import cn.ac.iie.storm.spout.TransactionKafkaSpout;
 import cn.ac.iie.storm.utils.config.StreamAggregateConfig;
 import org.apache.log4j.Logger;
 import org.apache.storm.Config;
@@ -61,7 +62,7 @@ public class StreamAggregateTopology {
         //设置拓扑关系(Bolt) --切分行    ---分发bolt
         switch (StreamAggregateConfig.TOPOLOGY_LOGO) {
             case "conn":
-                topologyBuilder.setSpout(StreamAggregateConfig.KAFKA_SPOUT, new FloodingKafkaSpout(), StreamAggregateConfig.SPOUT_PARALLELISM);
+                topologyBuilder.setSpout(StreamAggregateConfig.KAFKA_SPOUT, new ConnectionKafkaSpout(), StreamAggregateConfig.SPOUT_PARALLELISM);
 
                 topologyBuilder.setBolt(StreamAggregateConfig.CONN_PARSE_COMPONENTID, new ConnParseBolt(), StreamAggregateConfig.PARSE_PARALLELISM)
                         .shuffleGrouping(StreamAggregateConfig.KAFKA_SPOUT);
@@ -147,6 +148,44 @@ public class StreamAggregateTopology {
                         .shuffleGrouping("JC-IP-SEND")
                         .shuffleGrouping("JC-HTTP-SEND")
                         .shuffleGrouping("JC-SSL-SEND");
+                break;
+            case "conn1":
+                topologyBuilder.setSpout(StreamAggregateConfig.KAFKA_SPOUT, new ConnectionKafkaSpout(), StreamAggregateConfig.SPOUT_PARALLELISM);
+                topologyBuilder.setSpout(StreamAggregateConfig.TRANSACTION_SPOUT, new TransactionKafkaSpout(), StreamAggregateConfig.SPOUT_PARALLELISM);
+//                topologyBuilder.setSpout(StreamAggregateConfig.SESSION_SPOUT, new TransactionKafkaSpout(), StreamAggregateConfig.SPOUT_PARALLELISM);
+
+
+
+                topologyBuilder.setBolt(StreamAggregateConfig.CONN_PARSE_COMPONENTID, new ConnParseBolt(), StreamAggregateConfig.PARSE_PARALLELISM)
+                        .shuffleGrouping(StreamAggregateConfig.TRANSACTION_SPOUT)
+                        .shuffleGrouping(StreamAggregateConfig.KAFKA_SPOUT);
+//                        .shuffleGrouping(StreamAggregateConfig.SESSION_SPOUT);
+
+                topologyBuilder.setBolt("CONN-SEND", new ConnSendBolt(),StreamAggregateConfig.SEND_PARALLELISM)
+                        .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_DNS_STREAMID)
+                        .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_VPN_STREAMID)
+                        .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_MAIL_STREAMID)
+                        .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_JSTX_STREAMID)
+                        .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_FTP_STREAMID);
+
+                topologyBuilder.setBolt("CONN-IP-SEND",new ConnIPSendBolt(),StreamAggregateConfig.IP_SEND_PARALLELISM)
+                        .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_IP_STREAMID);
+
+                topologyBuilder.setBolt("CONN-HTTP-SEND",new ConnHTTPSendBolt(),StreamAggregateConfig.HTTP_SEND_PARALLELISM)
+                        .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_HTTP_STREAMID);
+
+                topologyBuilder.setBolt("CONN-SSL-SEND",new ConnSSLSendBolt(),StreamAggregateConfig.SSL_SEND_PARALLELISM)
+                        .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_SSL_STREAMID);
+
+                topologyBuilder.setBolt("CONN-UNSTRUCTURED-SEND",new ConnUnstructuredSendBolt(),StreamAggregateConfig.UNSTRUCTURED_SEND_PARALLELISM)
+                        .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,"conn-unstructured");
+
+                topologyBuilder.setBolt("CONN-COUNT", new ConnCountBolt(),StreamAggregateConfig.COUNT_SEND_PARALLELISM)
+                        .shuffleGrouping(StreamAggregateConfig.CONN_PARSE_COMPONENTID,StreamAggregateConfig.CONN_YBInputSize_STREAMID)
+                        .shuffleGrouping("CONN-SEND")
+                        .shuffleGrouping("CONN-IP-SEND")
+                        .shuffleGrouping("CONN-HTTP-SEND")
+                        .shuffleGrouping("CONN-SSL-SEND");
                 break;
             default:
                 break;

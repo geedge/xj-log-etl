@@ -4,7 +4,9 @@ package cn.ac.iie.storm.bean;
  * @author wangchengcheng
  */
 public class SessionRecordLog  {
-
+    private String ydy;
+    private String mddy;
+    private int yys;
     private String http_request_header;
     private String gjc;
     private String common_user_region;
@@ -24,7 +26,6 @@ public class SessionRecordLog  {
     private String common_isp;
     private int common_address_type;
     private String common_app_label;
-    private int common_app_id;
     private int common_c2s_pkt_num;
     private long common_c2s_byte_num;
     private int common_s2c_pkt_num;
@@ -72,6 +73,8 @@ public class SessionRecordLog  {
     private String zsmc;
     private String yjxy;
     private String common_protocol_label;
+
+    private String lx;
 
     public String getHttp_content_type() {
         return http_content_type;
@@ -289,13 +292,7 @@ public class SessionRecordLog  {
         this.common_app_label = common_app_label;
     }
 
-    public int getCommon_app_id() {
-        return common_app_id;
-    }
 
-    public void setCommon_app_id(int common_app_id) {
-        this.common_app_id = common_app_id;
-    }
 
     public int getCommon_c2s_pkt_num() {
         return common_c2s_pkt_num;
@@ -597,7 +594,40 @@ public class SessionRecordLog  {
         return protocol;
     }
 
+
+
     public void setProtocol(String protocol) {
         this.protocol = protocol;
+    }
+    public int getYys() {
+        return yys;
+    }
+
+    public void setYys(int yys) {
+        this.yys = yys;
+    }
+
+    public String getYdy() {
+        return ydy;
+    }
+
+    public void setYdy(String ydy) {
+        this.ydy = ydy;
+    }
+
+    public String getMddy() {
+        return mddy;
+    }
+
+    public void setMddy(String mddy) {
+        this.mddy = mddy;
+    }
+
+    public String getLx() {
+        return lx;
+    }
+
+    public void setLx(String lx) {
+        this.lx = lx;
     }
 }

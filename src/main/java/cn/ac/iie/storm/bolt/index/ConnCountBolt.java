@@ -46,10 +46,21 @@ public class ConnCountBolt extends BaseBasicBolt {
     private long conn_ssl_success = 0L;
     private long conn_ssl_fail = 0L;
 
-    InetAddress ip=null;
-    private String localip;
     private float inputrate;
     private float outputrate;
+
+
+    private long  yys_error=0L;
+
+    private long ydy_inside=0L;
+    private long mddy_inside=0L;
+
+    private long ydy_outside=0L;
+    private long mddy_outside=0L;
+
+    private long ydy_unknown=0L;
+    private long mddy_unknown=0L;
+
     static final Gauge InputRate = Gauge.build()
             .name("InputRate").labelNames("ServName","Duration").help("Program receiving flow rate, the unit is Mbps").register();
 
@@ -119,6 +130,30 @@ public class ConnCountBolt extends BaseBasicBolt {
             .name("connParseFail").labelNames("ServName","Duration").help("Program output flow rate, the unit is Mbps").register();
 
 
+    static final Gauge ConnYysError = Gauge.build()
+            .name("ConnYysError").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+
+    static final Gauge ConnYdyInside = Gauge.build()
+            .name("ConnYdyInside").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge ConnYdyOutside = Gauge.build()
+            .name("ConnYdyOutside").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge ConnYdyUnknown = Gauge.build()
+            .name("ConnYdyUnknown").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge ConnMddyInside = Gauge.build()
+            .name("ConnMddyInside").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge ConnMddyOutside = Gauge.build()
+            .name("ConnmddyOutside").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+    static final Gauge ConnMddyUnknown = Gauge.build()
+            .name("ConnMddyUnknown").labelNames("ServName","Duration").help("The general intput log volume, the unit is slip").register();
+
+
+
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
 
@@ -162,6 +197,16 @@ public class ConnCountBolt extends BaseBasicBolt {
             connFtpSuccess.labels("conn-ftp-success",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_ftp_success);
             connFtpFail.labels("conn-ftp-fail",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(conn_ftp_fail);
 
+            ConnYysError.labels("conn-yys-error",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(yys_error);
+
+            ConnYdyInside.labels("conn-ydy-inside",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(ydy_inside);
+            ConnMddyInside.labels("conn-mddy-inside",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(mddy_inside);
+
+            ConnYdyOutside.labels("conn-ydy-outside",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(ydy_outside);
+            ConnMddyOutside.labels("conn-mddy-outside",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(mddy_outside);
+
+            ConnYdyUnknown.labels("conn-ydy-unknow",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(ydy_unknown);
+            ConnMddyUnknown.labels("conn-mddy-unknow",String.valueOf(StreamAggregateConfig.COUNT_TOPOLOGY_TICK_TUPLE_FREQ_SECS/60)).set(mddy_unknown);
 
 
             try {
@@ -169,6 +214,9 @@ public class ConnCountBolt extends BaseBasicBolt {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            inputrate = 0L;
+            outputrate = 0L;
             connCount= 0L;
             ConnSendCount = 0L;
             InputSize = 0L;
@@ -191,17 +239,31 @@ public class ConnCountBolt extends BaseBasicBolt {
             conn_ftp_fail=0L;
             conn_ssl_success = 0L;
             conn_ssl_fail = 0L;
+
+            yys_error=0L;
+            ydy_inside=0L;
+            mddy_inside=0L;
+            ydy_outside=0L;
+            mddy_outside=0L;
+            ydy_unknown=0L;
+            mddy_unknown=0L;
         }else {
             String sourceComponent = input.getSourceComponent();
             switch (sourceComponent){
 
                 case "CONN-PARSE-COMPONENTID":
                     if (input.getSourceStreamId().equals(StreamAggregateConfig.CONN_YBInputSize_STREAMID)){
-
                         InputSize = InputSize + input.getLongByField("connInputSize");
                         connCount = connCount + input.getLongByField("count");
                         connParseFail = connParseFail + input.getLongByField("loadFail");
                         OutputSize = OutputSize + input.getLongByField("connOutputSize");
+                        yys_error = yys_error + input.getLongByField("yys_error");
+                        ydy_inside = ydy_inside + input.getLongByField("ydy_inside");
+                        ydy_outside = ydy_outside + input.getLongByField("ydy_outside");
+                        ydy_unknown = ydy_unknown + input.getLongByField("ydy_unknown");
+                        mddy_inside = mddy_inside + input.getLongByField("mddy_inside");
+                        mddy_outside = mddy_outside + input.getLongByField("mddy_outside");
+                        mddy_unknown = mddy_unknown + input.getLongByField("mddy_unknown");
                     }
                     break;
                 case "CONN-SEND":
@@ -213,9 +275,6 @@ public class ConnCountBolt extends BaseBasicBolt {
 
                     conn_vpn_success =conn_vpn_success + input.getLongByField("conn_vpn_success");
                     conn_vpn_fail =conn_vpn_fail + input.getLongByField("conn_vpn_fail");
-
-                    conn_jstx_success =conn_jstx_success + input.getLongByField("conn_jstx_success");
-                    conn_jstx_fail =conn_jstx_fail + input.getLongByField("conn_jstx_fail");
 
                     conn_jstx_success =conn_jstx_success + input.getLongByField("conn_jstx_success");
                     conn_jstx_fail =conn_jstx_fail + input.getLongByField("conn_jstx_fail");

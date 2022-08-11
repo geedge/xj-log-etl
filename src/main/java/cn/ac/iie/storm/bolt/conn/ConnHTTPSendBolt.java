@@ -44,7 +44,7 @@ public class ConnHTTPSendBolt  extends BaseBasicBolt {
                     i++;
                 }
                 if (connHttpPost!=null&&!connHttpPost.containsValue("200")){
-                    logger.error("-------条数为:"+httpcount+"connhttp数据发送到"+postUrl+"成功-----"+connHttpPost);
+                    logger.error("-------条数为:"+httpcount+"connhttp数据发送到"+postUrl+"失败-----"+connHttpPost);
                     conn_http_fail = conn_http_fail + httpcount;
                 }
             }

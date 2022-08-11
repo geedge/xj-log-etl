@@ -10,6 +10,10 @@ public class StreamAggregateConfig {
 
     public static final String TOPOLOGY_LOGO = StreamAggregateConfigurations.getStringProperty(0, "topology.logo");
 
+    /**
+     * yys字段
+     */
+    public static final Integer YYS_NUM = StreamAggregateConfigurations.getIntProperty(0,"yys_num");
 
     /**
      * System
@@ -30,6 +34,9 @@ public class StreamAggregateConfig {
     public static final String BOOTSTRAP_SERVERS = StreamAggregateConfigurations.getStringProperty(0, "bootstrap.servers");
     public static final String GROUP_ID = StreamAggregateConfigurations.getStringProperty(0, "group.id");
 
+
+    public static final String KAFKA_TOPIC_SESSION = StreamAggregateConfigurations.getStringProperty(0, "kafka.topic.session");
+    public static final String KAFKA_TOPIC_TRANSACTION = StreamAggregateConfigurations.getStringProperty(0, "kafka.topic.transaction");
     public static final String KAFKA_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "kafka.topic");
     public static final String KAFKA_SAFE_TOPIC = StreamAggregateConfigurations.getStringProperty(0, "kafka.safe.topic");
     public static final String AUTO_OFFSET_RESET = StreamAggregateConfigurations.getStringProperty(0, "auto.offset.reset");
@@ -43,6 +50,12 @@ public class StreamAggregateConfig {
 
     //conn-ComponentId-spout
     public static final String KAFKA_SPOUT = StreamAggregateConfigurations.getStringProperty(0, "kafka.spout");
+    public static final String TRANSACTION_SPOUT = StreamAggregateConfigurations.getStringProperty(0, "transaction.spout");
+    public static final String SESSION_SPOUT = StreamAggregateConfigurations.getStringProperty(0, "session.spout");
+
+
+
+
     //#conn-bolt-parallelism_hint
     public static final int PARSE_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"parse.parallelism");
     public static final int SEND_PARALLELISM = StreamAggregateConfigurations.getIntProperty(0,"send.parallelism");

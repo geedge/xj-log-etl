@@ -203,10 +203,6 @@ public class TransFormUtils {
 
 
 
-
-
-
-
     /**
      * avro对象的序列化方式
      * @param schema

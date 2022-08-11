@@ -1,13 +1,12 @@
 package cn.ac.iie.storm.utils.general;
 
 import cn.ac.iie.storm.bean.SessionRecordLog;
-import cn.ac.iie.storm.utils.config.GetMap;
 import org.apache.avro.generic.GenericRecord;
 
 import java.io.IOException;
 
 import static cn.ac.iie.storm.utils.combine.httpurl.Http_URL_process.getFile_Name;
-import static cn.ac.iie.storm.utils.config.GetMap.*;
+import static cn.ac.iie.storm.utils.general.GetMap.*;
 import static cn.ac.iie.storm.utils.general.MailTrans.*;
 import static cn.ac.iie.storm.utils.general.TransFormUtils.*;
 import static cn.ac.iie.storm.utils.general.TransFormUtils.getYys;
@@ -259,7 +258,8 @@ public class GKAssignment {
         vpn_gkzb.put("DPORT",sessionRecordLog.getCommon_server_port());
         vpn_gkzb.put("PROTO_ID",getProto_id(sessionRecordLog.getCommon_schema_type()));  ///--转化表 还没弄
 
-        vpn_gkzb.put("DETAIL_ID",getVpnDetail_id(sessionRecordLog.getCommon_l7_protocol(),sessionRecordLog.getCommon_protocol_label())); //同上
+ //       vpn_gkzb.put("DETAIL_ID",getVpnDetail_id(sessionRecordLog.getCommon_l7_protocol(),sessionRecordLog.getCommon_protocol_label())); //同上
+        vpn_gkzb.put("DETAIL_ID",sessionRecordLog.getLx());
         vpn_gkzb.put("PROTOCOL",getProtocol(sessionRecordLog.getCommon_l4_protocol()));  //-common_l4_protocol其实是这个字段
         vpn_gkzb.put("YYS",getYys(sessionRecordLog.getCommon_data_center())); //-**common_isp这个字段
         vpn_gkzb.put("YL1",sessionRecordLog.getCommon_address_type());

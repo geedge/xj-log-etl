@@ -12,7 +12,6 @@ import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.TupleUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static cn.ac.iie.storm.utils.http.HttpGetUrl.*;
@@ -46,7 +45,7 @@ public class ConnIPSendBolt extends BaseBasicBolt {
                     i++;
                 }
                 if (connIpPost!=null&&!connIpPost.containsValue("200")){
-                    logger.error("-------条数为:"+ipcount+"connip数据发送到"+postUrl+"成功-----"+connIpPost);
+                    logger.error("-------条数为:"+ipcount+"connip数据发送到"+postUrl+"失败-----"+connIpPost);
                     conn_ip_fail = conn_ip_fail + ipcount;
                 }
             }

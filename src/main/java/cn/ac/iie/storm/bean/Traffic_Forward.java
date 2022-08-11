@@ -16,6 +16,7 @@ public class Traffic_Forward {
     private String labels;
     private String zsmc;
     private String yjxy;
+    private String lx;
 
     public String getYjxy() {
         return yjxy;
@@ -127,5 +128,13 @@ public class Traffic_Forward {
 
     public void setGjc(String gjc) {
         this.gjc = gjc;
+    }
+
+    public String getLx() {
+        return lx;
+    }
+
+    public void setLx(String lx) {
+        this.lx = lx;
     }
 }

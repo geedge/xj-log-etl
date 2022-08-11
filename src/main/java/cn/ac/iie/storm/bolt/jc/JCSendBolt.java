@@ -13,7 +13,6 @@ import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.TupleUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static cn.ac.iie.storm.utils.http.HttpGetUrl.*;
